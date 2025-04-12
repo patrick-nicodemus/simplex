@@ -1,0 +1,7 @@
+(include_subdirs qualified)
+(coq.theory
+ (name Simplex)
+ (package simplex-cat)
+ (flags -noinit -indices-matter)
+ (theories Ltac2)
+)

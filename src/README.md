@@ -1,0 +1,1 @@
+- Do not use Prop. Prefer Type and SProp.
