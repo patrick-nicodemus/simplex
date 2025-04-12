@@ -1,1 +1,2 @@
 - Do not use Prop. Prefer Type and SProp.
+- Prefer canonical structures for solving inference problems during elaboration, but typeclasses are permitted.
