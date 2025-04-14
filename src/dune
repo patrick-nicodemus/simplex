@@ -2,6 +2,7 @@
 (coq.theory
  (name Simplex)
  (package simplex-cat)
- (flags -noinit -indices-matter)
+ (flags -noinit)
+ ;(stdlib no)
  (theories Ltac2)
 )

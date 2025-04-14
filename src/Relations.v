@@ -1,12 +1,20 @@
-From Simplex Require Import Basics Nat.
+From Simplex Require Import Basics.
 
-Module Rel.
+Local Set Implicit Arguments.
+
+Module Graph.
   Definition class_of@{s|u0 u1|} (A : Type@{u0}) := A -> A -> Type@{s|u1}.
   Record t@{s|u0 u1|} := Pack {
       sort : Type@{u0};
       Hom : class_of@{s|u0 u1} sort
     }.
 
+  Definition op@{s|+|} (A : t@{s|_ _}) : t@{s|_ _}
+    := {|
+      sort := sort A;
+      Hom a b := Hom A b a
+    |}.
+  
   Module ForExport.
     Arguments Hom [_].
     Arguments Pack [sort].
@@ -17,164 +25,298 @@ Module Rel.
     Bind Scope morphism_scope with Hom.
     Notation Hom := Hom.
   End ForExport.
-End Rel.
-Export Rel.ForExport.
+End Graph.
+Export Graph.ForExport.
 
-Definition Reflexive@{s | u0 u1 |} {A : Type@{u0}} (R : A -> A -> Type@{s | u1})
-  := forall (x : A), R x x.
+Class Reflexive@{s | u0 u1 |} [A : Type@{u0}] (R : A -> A -> Type@{s | u1})
+  := reflexive : forall (x : A), R x x.
 
-Definition Transitive@{s | u0 u1|} {A : Type@{u0}} (R : A -> A -> Type@{s | u1})
-  := forall (x y z : A), R x y -> R y z -> R x z.
+Notation "1" := (@reflexive _ _ _) : morphism_scope.
 
-Definition Symmetric@{s | u0 u1|} {A : Type@{u0}} (R : A -> A -> Type@{s | u1})
-  := forall (x y: A), R x y -> R y x.
+Class Transitive@{s | u0 u1|} {A : Type@{u0}} (R : A -> A -> Type@{s | u1})
+  := transitive : forall (x y z : A), R x y -> R y z -> R x z.
+
+Infix "·" := (@transitive _ _ _ _ _ _) (at level 39) : morphism_scope.
+
+Class Symmetric@{s | u0 u1|} {A : Type@{u0}} (R : A -> A -> Type@{s | u1})
+  := symmetry : forall (x y: A), R x y -> R y x.
 
 Module PreOrder.
-  Record mixin_of@{s|u0 u1|} (A : Rel.t@{s|u0 u1}) := Mixin {
+
+  Class mixin_of@{s|u0 u1|} (A : Graph.t@{s|u0 u1}) := Mixin {
       refl : Reflexive (Hom (t:=A));
       trans : Transitive (Hom (t:=A))
-    }.
-  Record class_of@{s|u0 u1|} (A : Type@{u0}) := Class {
-      rel : Rel.class_of A;
-      mixin : mixin_of@{s|u0 u1} (Rel.Pack rel)
-    }.
+  }.
+
+  Module mixin_of_conventions.
+    Arguments Mixin A &.
+    Arguments refl [A].
+    Arguments trans [A mixin_of x y z].
+    Existing Instance refl.
+    Existing Instance trans.
+  End mixin_of_conventions.
+  Import mixin_of_conventions.
+
+  Class class_of@{s|u0 u1|} (A : Type@{u0})
+    := Class {
+           rel : Graph.class_of A;
+           mixin : mixin_of@{s|u0 u1} (Graph.Pack rel)
+         }.
+  Module class_of_conventions.
+    Arguments Class [A rel] &.
+    Arguments rel : clear implicits.
+    Arguments mixin : clear implicits.
+  End class_of_conventions.
+  Import class_of_conventions.
+
   Record t@{s|u0 u1|} := Pack {
       sort : Type@{u0};
       class : class_of@{s|u0 u1} sort
-    }.
-  Definition to_rel@{s|u0 u1|} (A : t@{s|u0 u1}) : Rel.t@{s|u0 u1}
-    := Rel.Pack (rel _ (class A)).
+  }.
 
+  Module t_conventions.
+    Arguments Pack [sort].
+    Coercion sort : t >-> Sortclass.
+  End t_conventions.
+  Import t_conventions.
+    
+  Definition to_graph@{s|u0 u1|} (A : t@{s|u0 u1}) : Graph.t@{s|u0 u1}
+    := Graph.Pack (rel _ (class A)).
+  Module to_graph_conventions.
+    Canonical to_graph.    
+    Coercion to_graph : t >-> Graph.t.
+  End to_graph_conventions.
+  Import to_graph_conventions.
+  
   Definition is_refl@{s|u0 u1|} (A : t) : Reflexive@{s|u0 u1} (rel _ (class A))
-    := refl _ ((mixin _ (class A))).
+    := @refl _ ((mixin _ (class A))).
+  Module is_refl_conventions.
+    Existing Instance is_refl.
+  End is_refl_conventions.
 
   Definition is_trans@{s|u0 u1|} (A : t) : Transitive@{s|u0 u1} (rel _ (class A))
-    := trans _ ((mixin _ (class A))).
-
+    := @trans _ ((mixin _ (class A))).
+  Module is_trans_conventions.
+    Existing Instance is_trans.
+  End is_trans_conventions.
+  Import is_trans_conventions.
+  
+  Definition op@{s|+|} (A : t@{s|_ _ }) : t@{s| _ _ }
+    := Pack (Class (rel:=(fun (a b : sort A) => Hom b a))
+         {| refl x := is_refl _ x; trans x y z f g := is_trans _ z y x g f |}).
+  
   Module ForExport.
-    Coercion sort : t >-> Sortclass.
-    Canonical to_rel.
-    Arguments refl [A].
-    Arguments trans [A m x y z].
-    Arguments Pack [sort].
-    Infix "·" := (@is_trans _ _ _ _) (at level 39) : morphism_scope.
-    Notation "1" := (is_refl _) : morphism_scope.    
+    Export to_graph_conventions.
+    Export is_refl_conventions.
+    Export is_trans_conventions.
+    Export mixin_of_conventions.
+    Export t_conventions.
   End ForExport.
 End PreOrder.
 Export PreOrder.ForExport.
 
-Module Example1.
-  Canonical nat_rel := Rel.Pack le.
-  Check (0 ~> 1 : SProp).
-  
-  Canonical nat_preorder : PreOrder.t
-    := PreOrder.Pack
-         (PreOrder.Class _ _
-            (PreOrder.Mixin nat_rel Nat.le_refl (@Nat.le_trans))).
-
-  (* This depends on Canonical to_rel above. *)
-  Goal forall (A : PreOrder.t) (x y : A), x ~> y.
-  Abort.
-
-  Ltac2 reflexivity () :=
-    exact (PreOrder.is_refl _ _).
-
-  Set Printing All.
-  Goal forall x : nat, x ~> x.
-  Proof.
-    intro x.
-    reflexivity ().
-  Defined.
-  Definition ff : forall x y : nat, x ~> y -> x ~> y := fun x y f => f.
-  Definition fmi : forall x y z : nat, x ~> y -> y ~> z -> x ~> z :=
-    fun x y z f g => ff x z (f · g).
-  Goal forall x y z: nat, x ~> y -> y ~> z -> x ~> z.
-  Proof.
-    intros x y z f g.
-    Fail Check ((fun (s : x ~> z) => s) (f · g)).
-    exact (f · g)%hom.
-  Defined.
-
-  Goal forall x : nat, le x x.
-    exact (fun x => (1 x)%hom).
-  Defined.
-End Example1.
-
-Definition Is2Graph@{s|u0 u1 u2|} (A : Rel.t@{Type|u0 u1})
-  := forall (x y : A), Rel.class_of@{s|u1 u2} (Hom x y).
-
 Module TwoGraph.
-  Definition mixin_of@{s|u0 u1 u2|} (A : Rel.t@{Type|u0 u1})
-    := forall (x y : A), Rel.class_of@{s|u1 u2} (Hom x y).
+  Definition mixin_of@{s|u0 u1 u2|} (A : Graph.t@{Type|u0 u1})
+    := forall (x y : A), Graph.class_of@{s|u1 u2} (Hom x y).
 
   Record class@{s|u0 u1 u2|} (A : Type@{u0}) := Class {
-    base : Rel.class_of@{Type|u0 u1} A;
-    is2graph : mixin_of@{s|u0 u1 u2} (Rel.Pack base)
+    base : Graph.class_of@{Type|u0 u1} A;
+    is2graph : mixin_of@{s|u0 u1 u2} (Graph.Pack base)
   }.  
 
   Structure t@{s|u0 u1 u2|} := Pack {
-      sort :> Type@{u0};
+      sort : Type@{u0};
       class_of : class@{s|u0 u1 u2} sort;
-    }.
+  }.
+  Module t_conventions.
+    Coercion sort : t >-> Sortclass.
+    Arguments Pack [sort] &.
+  End t_conventions.
+  Import t_conventions.
 
   Definition to_graph@{s|u0 u1 u2|} (A: t@{s|u0 u1 u2})
-    : Rel.t@{Type|u0 u1}
-    := Rel.Pack (base _ (class_of A)).
+    : Graph.t@{Type|u0 u1}
+    := Graph.Pack (base (class_of A)).
 
-  Definition two_hom@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2}) (x y : A) :=
-    Rel.Pack (is2graph@{s|u0 u1 u2} _ (class_of A) x y).
+  Definition two_hom@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A) :=
+    Graph.Pack (is2graph@{s|u0 u1 u2} (class_of A) x y).
 
+  Canonical two_hom.
+
+  Definition co@{s|+|} (A : t@{s|_ _ _}) : t@{s|_ _ _}
+    := {|
+      sort := sort A;
+      class_of :=
+        {|
+          base := base (class_of A);
+          is2graph x y f g := Hom g f
+       |}
+    |}.
+  
   Module ForExport.
-    Coercion to_graph : t >-> Rel.t.
+    Export t_conventions.
+    Coercion to_graph : t >-> Graph.t.
     Canonical to_graph.
+    #[warnings="-w -redundant-canonical-projection"]
     Canonical two_hom.
-    Infix "=>" := (Hom (t:=two_hom _ _ _)) (at level 41, right associativity).
+    Infix "=>" := (Hom (t:=@two_hom _ _ _)) (at level 41, right associativity).
   End ForExport.
 End TwoGraph.
 Export TwoGraph.ForExport.
 
-Record Couple@{s|u0 u1|} (A: Rel.t@{s|u0 u1}) (x y : A) := {
+Record Couple@{s|u0 u1|} (A: Graph.t@{s|u0 u1}) (x y : A) := {
     Rxy : x ~> y;
     Ryx : y ~> x
   }.
 
+Local Open Scope morphism_scope.
+
 Definition Associative@{s|u0 u1 u2|} (A : TwoGraph.t@{s|u0 u1 u2})
   (t : Transitive@{Type|u0 u1} (Hom (t:=A)))
   := forall (w x y z  : A) (f : w ~> x) (g : x ~> y) (h : y ~> z),
-    Couple@{s|u1 u2} (TwoGraph.two_hom A w z)
-      (t _ _ _ (t _ _ _ f g) h) (t _ _ _ f (t _ _ _ g h)).
+    Couple@{s|u1 u2} _ ((f · g) · h) (f · (g · h)).
 
 Definition LeftUnitor@{s|u0 u1 u2|}
   (A : TwoGraph.t@{s|u0 u1 u2})
   (t : PreOrder.mixin_of@{Type|u0 u1} A)
-  := forall (x y : A) (f : x ~> y), Couple (TwoGraph.two_hom A x y) (PreOrder.trans (m:=t) (PreOrder.refl t x) f) f.
+  := forall (x y : A) (f : x ~> y), Couple _ ((1 x) · f) f.
 
 Definition RightUnitor@{s|u0 u1 u2|}
   (A : TwoGraph.t@{s|u0 u1 u2})
   (t : PreOrder.mixin_of@{Type|u0 u1} A)
-  := forall (x y : A) (f : x ~> y), Couple (TwoGraph.two_hom A x y) (PreOrder.trans (m:=t) f (PreOrder.refl t y)) f.
+  := forall (x y : A) (f : x ~> y), Couple _ (f · (1 y)) f.
 
-Open Scope morphism_scope.
-Module ZeroBicat.
-  Record mixin@{s|u0 u1 u2|} (A : TwoGraph.t@{s|u0 u1 u2}) :=
+Module OneBicat.
+  Record mixin_of@{s|u0 u1 u2|} (A : TwoGraph.t@{s|u0 u1 u2}) :=
     Mixin {
         is_preorder : PreOrder.mixin_of@{Type|u0 u1} A;
-        assoc : Associative@{s|u0 u1 u2} A (PreOrder.trans (m:=is_preorder));
-        lu : LeftUnitor@{s|u0 u1 u2} A is_preorder;
-        ru : LeftUnitor@{s|u0 u1 u2} A is_preorder;
+        assoc : Associative@{s|u0 u1 u2} A
+                  (PreOrder.trans (mixin_of:=is_preorder));
+        lu : LeftUnitor@{s|u0 u1 u2} is_preorder;
+        ru : LeftUnitor@{s|u0 u1 u2} is_preorder;
         hcomp2 : forall (x y z : A) (f f' : x ~> y) (g g' : y ~> z),
-          f => f' -> g => g' ->
-                       (PreOrder.trans (m:=is_preorder) f g) =>
-               (PreOrder.trans (m:=is_preorder) f' g')
-    }.
+          f => f' -> g => g' -> f · g => f' · g'
+      }.
 
-  Record class@{s|u0 u1 u2|} (A : Type@{u0}) := {
+  Record class_of@{s|u0 u1 u2|} (A : Type@{u0}) := {
       is2graph : TwoGraph.class @{s|u0 u1 u2} A;
-      mixin_of : TwoGraph.Pack _ is2graph
+      mixin : mixin_of (TwoGraph.Pack is2graph)
     }.
 
-  Record t@{s|u0 u1 u2|} := {
+  Module class_of_conventions.
+    Arguments is2graph [A].
+    Arguments mixin [A].
+  End class_of_conventions.
+  Import class_of_conventions.
+
+  Record t@{s|u0 u1 u2|} := Pack {
       sort : Type@{u0};
-      class_of : class@{s|u0 u1 u2} sort
+      class : class_of@{s|u0 u1 u2} sort
     }.
-End ZeroBicat.
+  Module t_conventions.
+    Coercion sort : t >-> Sortclass.
+    Arguments Pack [sort].
+  End t_conventions.
+  Import t_conventions.
+
+  Definition to2graph@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2}) : TwoGraph.t@{s|u0 u1 u2}
+    := TwoGraph.Pack (is2graph (class A)).
+  Module to2graph_coercion.
+    Coercion to2graph : t >-> TwoGraph.t.
+    Canonical to2graph.
+  End to2graph_coercion.
+  Import to2graph_coercion.
+
+  Definition is_preorder_mixin@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2})
+    : PreOrder.mixin_of A
+    := is_preorder (mixin (class A)).
+
+  Module Exports.
+    Export class_of_conventions.
+    Export t_conventions.
+    Export to2graph_coercion.
+  End Exports.
+End OneBicat.
+Export OneBicat.Exports.
+
+Module GraphHom.
+  Class class_of@{s1 s2|+|} {A : Graph.t@{s1|_ _}} {B : Graph.t@{s2|_ _}}
+    (F : A -> B)
+    := fmap :> forall {x y  : A}, x ~> y -> F x ~> F y.
+
+  Structure t@{s1 s2|+|} (A : Graph.t@{s1|_ _}) (B : Graph.t@{s2|_ _})
+    := Pack {
+           map : A -> B;
+           class : class_of map
+         }.
+  Module Exports.
+    Coercion map : t >-> Funclass.
+    Notation fmap := fmap.
+    Arguments fmap [A B] F {class_of} [x y].
+    Arguments Pack [A B map].
+    Existing Instance class.
+  End Exports.
+End GraphHom.
+Export GraphHom.Exports.
+
+Module TwoGraphHom.
+  Class mixin_of@{s1 s2|+|} {A : TwoGraph.t@{s1|_ _ _}} {B : TwoGraph.t@{s2|_ _ _}}
+    (F : GraphHom.t A B)
+    := ffmap : forall (x y : A), GraphHom.class_of (fmap F (x:=x) (y:=y)).
+
+  Class class_of@{s1 s2|+|} {A : TwoGraph.t@{s1|_ _ _}} {B : TwoGraph.t@{s2|_ _ _}}
+    (F : A -> B)
+    := Class {
+           is_graph_hom : GraphHom.class_of F;
+           is_2graph_hom : mixin_of (GraphHom.Pack is_graph_hom)
+         }.
+  Module class_of_conventions.
+    Arguments is_graph_hom [A B F].
+  End class_of_conventions.
+  Import class_of_conventions.
+  Structure t@{s1 s2|+|} (A : TwoGraph.t@{s1|_ _ _}) (B : TwoGraph.t@{s2|_ _ _})
+    := Pack {
+      map : A -> B;
+      class : class_of map
+    }.
+  Module t_conventions.
+    Arguments class [A B].
+    Arguments Pack [A B] & [map].
+  End t_conventions.
+  Import t_conventions.
+  
+  Definition to_graph_hom @{s1 s2|+|} [A B] (F : t@{s1 s2|_ _ _ _ _ _} A B)
+    : GraphHom.t@{Type Type|_ _ _ _} A B
+    := GraphHom.Pack (is_graph_hom (class F)).
+  Module Exports.
+    Export t_conventions.
+    Export class_of_conventions.
+  End Exports.
+End TwoGraphHom.
+Export TwoGraphHom.Exports.
+
+Module Lax1Functor.
+  Class mixin_of@{s1 s2|+|}
+    (A : PreOrder.t@{s1|_ _})
+    (B : TwoGraph.t@{s2|_ _ _}) {Bp: PreOrder.mixin_of B}
+    (F : GraphHom.t A B)
+    := Mixin {
+      luc : forall (x : A), 1 (F x) => fmap F (1 x);
+      lfc : forall (x y z: A) (f : x ~> y) (g : y ~> z),
+        (fmap F f) · (fmap F g) => fmap F (f · g)
+    }.
+  Class class_of@{s1 s2|+|}
+    (A : TwoGraph.t@{s1|_ _ _ }) (Ap : PreOrder.mixin_of A)
+    (B : TwoGraph.t@{s2|_ _ _}) (Bp : PreOrder.mixin_of B) (F: A -> B)
+    := Class {
+      is2graph_hom: TwoGraphHom.class_of F;
+      mixin : mixin_of (A:=PreOrder.Pack (PreOrder.Class Ap)) (Bp:=Bp) 
+               (TwoGraphHom.to_graph_hom (TwoGraphHom.Pack is2graph_hom))
+         }.
+  Local Existing Instance OneBicat.is_preorder_mixin.
+  Structure t@{s1 s2|+|} (A : OneBicat.t@{s1|_ _ _}) (B : OneBicat.t@{s1|_ _ _})
+    := Pack {
+           map : A -> B;
+           class: class_of _ _ map
+         }.
+End Lax1Functor.
