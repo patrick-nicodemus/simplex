@@ -36,6 +36,7 @@ Definition le'_to_le : forall (n m : nat), n <=' m -> n <= m
        | @le_S n' m' p' => lerec n' m' p'
        end.
 
+#[universes(polymorphic=yes)]
 Fixpoint le_induction@{s|u|}
   (P : nat -> nat -> Type@{s|u})
   (H0 : forall n : nat, P O n)

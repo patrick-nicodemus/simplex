@@ -1,6 +1,37 @@
 From Simplex Require Import Basics.
+From HB Require Import structures.
 
 Local Set Implicit Arguments.
+
+HB.mixin Record Rel A := {
+    Hom : A -> A -> Type
+  }.
+
+HB.structure Definition Graph := {A & Rel A}.
+
+Declare Scope morphism_scope.
+Infix "~>" := Hom (right associativity, at level 41) : morphism_scope.
+Open Scope morphism_scope.
+
+HB.mixin Record Reflexive (A : Type) of Graph A := {
+    refl : forall x : A, x ~> x
+  }.
+
+HB.mixin Record Symmetric (A : Type) of Graph A := {
+    symmetry : forall x y : A, x ~> y -> y ~> x
+  }.
+
+HB.mixin Record Transitive (A : Type) of Graph A := {
+    trans : forall x y z : A, x ~> y -> y ~> z -> x ~> z
+  }.
+
+HB.structure Definition PreOrder := { A of Graph A & Reflexive A & Transitive A }.
+
+HB.mixin Record IsTwoGraph (A : Type) of Graph A := {
+    hom_hom : forall x y : A, Rel (x ~> y)
+  }.
+
+HB.structure Definition TwoGraph := { A of Graph A & IsTwoGraph A }.
 
 Module Graph.
   Definition class_of@{s|u0 u1|} (A : Type@{u0}) := A -> A -> Type@{s|u1}.
