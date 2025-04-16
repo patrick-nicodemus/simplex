@@ -16,7 +16,6 @@ Definition RightUnitor@{s|u0 u1 u2|}
   (A : TwoGraph.t@{s|u0 u1 u2})
   (t : PreOrder.mixin_of@{Type|u0 u1} A)
   := forall (x y : A) (f : x ~> y), Couple _ (f · (1 y)) f.
-
 Module OneBicat.
   Record mixin_of@{s|u0 u1 u2|} (A : TwoGraph.t@{s|u0 u1 u2}) :=
     Mixin {
@@ -26,8 +25,21 @@ Module OneBicat.
         lu : LeftUnitor@{s|u0 u1 u2} is_preorder;
         ru : LeftUnitor@{s|u0 u1 u2} is_preorder;
         hcomp2 : forall (x y z : A) (f f' : x ~> y) (g g' : y ~> z),
-          f => f' -> g => g' -> f · g => f' · g'
+          f ⇒ f' -> g ⇒ g' -> f · g ⇒ f' · g'
       }.
+
+  Arguments Mixin [A] & [is_preorder].
+  Definition mixin_op@{s|u0 u1 u2|}
+    (A : TwoGraph.t@{s|u0 u1 u2})
+    : mixin_of A -> mixin_of (TwoGraph.co A)
+    := fun m =>
+         {|
+           is_preorder := _;
+           assoc w x y z f g h := Graph.couple_op (assoc m w x y z f g h);
+           lu x y f := Graph.couple_op (lu m x y f);
+           ru x y f := Graph.couple_op (ru m x y f);
+           hcomp2 x y z f f' g g' := hcomp2 m x y z f' f g' g
+         |}.
 
   Record class_of@{s|u0 u1 u2|} (A : Type@{u0}) := {
       is2graph : TwoGraph.class_of @{s|u0 u1 u2} A;
@@ -63,6 +75,20 @@ Module OneBicat.
     (A : t@{s|u0 u1 u2})
     : PreOrder.mixin_of A
     := is_preorder (mixin (class A)).
+
+  Definition co@{s|+|} : t@{s|_ _ _} -> t@{s|_ _ _}
+    := fun x =>
+         match x with
+         | @Pack sort class =>
+             {| sort := sort;
+               class := {|
+                         is2graph := _;
+                         mixin := @mixin_op (TwoGraph.Pack (is2graph class))
+                                    (mixin class)
+                       |}
+             |}
+
+         end.
 
   Module Exports.
     Export class_of_conventions.

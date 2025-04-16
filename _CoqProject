@@ -1,0 +1,3 @@
+args -noinit
+-R _build/default/src Simplex
+Simplex
