@@ -1,5 +1,5 @@
 From Simplex Require Import Basics.
-Inductive eq {A : Type} (a : A) : A -> Type :=
+Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
 
 Local Set Warnings "-notation-overridden".
@@ -34,6 +34,40 @@ Module Strict_anti_univalence.
                end.
   End Interval.
 End Strict_anti_univalence.
+
+Module Strict_hSets.
+  (** Idea of this module: if a type is known to be an HSet, then we are allowed to use strict equality on its elements. *)
+  Class IsHProp@{u} (A: Type@{u}) : Type@{u}
+    := is_hprop: forall x y : A, eq@{u} x y.
+  Class IsHSet@{u} (A :Type@{u})
+    := hprop_eq : forall x y : A, IsHProp (eq@{u} x y).
+
+  Record HSet@{u} := {
+      carrier :> Type@{u};
+      is_hset : IsHSet carrier
+    }.
+
+  Local Set Definitional UIP.
+  Inductive SEq@{u} {A : HSet@{u}} (a : A) : A -> SProp :=
+    eq_refl : SEq a a.
+
+  Module Interval.
+    Private Inductive I :=
+    | zero
+    | one.
+  (* This is an HSet, but we have to prove that before we can move on. *)
+  (*   Axiom seg : SEq zero one. *)
+  (*   Definition I_elim (P : I -> Type) (p0 : P zero) (p1 : P one) *)
+  (*     (peq : (match seg in SEq _ z return forall (y : P z), Type *)
+  (*             with | eq_refl _ => fun y => p0 = y end) p1) *)
+  (*     : forall (i : I), P i *)
+  (*     := fun i => match i with *)
+  (*              | zero => p0 *)
+  (*              | one => p1 *)
+  (*              end. *)
+  End Interval.
+End Strict_hSets.
+
 
 Module Strict.
   (** Importing this module "should be consistent" with univalence (https://arxiv.org/pdf/1311.4002), see also (https://www.sciencedirect.com/science/article/pii/S0022404921000232?via%3Dihub), end of section 2 *)

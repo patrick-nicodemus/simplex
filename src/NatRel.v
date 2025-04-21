@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Nat Relations.
+From Simplex Require Import Basics Nat Graph PreOrder.
 Module Example1.
   Canonical nat_rel := Graph.Pack le.
   (* Succeed Definition J := (0 ~> 1 : SProp). *)
@@ -27,7 +27,7 @@ Module Example1.
   Goal forall x y z: nat, x ~> y -> y ~> z -> x ~> z.
   Proof.
     intros x y z f g.
-    Fail Check ((fun (s : x ~> z) => s) (f · g)).
+    (* Check ((fun (s : x ~> z) => s) (f · g)). *)
     exact (f · g)%hom.
   Defined.
 

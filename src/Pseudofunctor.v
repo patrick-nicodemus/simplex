@@ -77,7 +77,7 @@ Module Pseudo1Functor.
                (TwoGraphHom.to_graph_hom (TwoGraphHom.Pack is2graph_hom))
          }.
 
-  Local Existing Instance OneBicat.is_preorder_mixin.
+  (* Local Existing Instance OneBicat.is_preorder_mixin. *)
   Structure t@{s1 s2|+|+}
     (A : OneBicat.t@{s1|_ _ _})
     (B : OneBicat.t@{s2|_ _ _})

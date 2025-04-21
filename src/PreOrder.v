@@ -11,7 +11,7 @@ Module PreOrder.
 
   Module mixin_of_conventions.
     Arguments Mixin A &.
-    Arguments refl [A].
+    Arguments refl [A] {mixin_of}.
     Arguments trans [A mixin_of x y z].
     Existing Instance refl.
     Existing Instance trans.
@@ -42,11 +42,19 @@ Module PreOrder.
   End t_conventions.
   Import t_conventions.
     
+  Definition mixin_op@{s|u0 u1|}
+    (A : Graph.t@{s|u0 u1}) (P : mixin_of A) :
+    mixin_of (Graph.op A) :=
+    {|
+      refl x := refl (mixin_of:=P) x;
+      trans x y z f g := trans (mixin_of:=P) g f
+    |}.
+
   Definition to_graph@{s|u0 u1|} (A : t@{s|u0 u1}) : Graph.t@{s|u0 u1}
     := Graph.Pack (rel _ (class A)).
 
   Module to_graph_conventions.
-    Canonical to_graph.    
+    Canonical to_graph.
     Coercion to_graph : t >-> Graph.t.
   End to_graph_conventions.
   Import to_graph_conventions.

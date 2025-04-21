@@ -114,33 +114,56 @@ Module ColaxLeftAdjoint.
         class x y f := alpha (f · (eta y G))
       |}.
   End graph_hom.
+  (* Section test. *)
+  (*   Set Printing All. *)
+  (*   Set Typeclasses Debug. *)
+  (*   (* Require Unicoq.Unicoq. *) *)
+  (*   (* Set Unicoq Debug. *) *)
+  (*   Context (A : TwoGraph.t). *)
+  (*   Context (x y : A). *)
+  (*   Print TwoGraph.to_graph. *)
+  (*   Set Printing Coercions. *)
+  (*   Print Canonical Projections. *)
+  (*   Check (@Graph.Hom _ x y). *)
+  (*   Check (@Graph.Hom (TwoGraph.to_graph _) x y). *)
 
+
+  (*   Ltac2 Eval unify (Graph.sort _) . *)
+  (* End test. *)
+  
   Section colax_unitor.
-    Context {P Q : TwoGraph.t}
-      {pre : PreOrder.mixin_of P}
+    Context {P : OneBicat.t} {Q : TwoGraph.t}
       {rrefl : Reflexive (Hom(t:=Q))}
       (G : GraphHom.t Q P).
     Context (F_univ1 : forall (x : P), Is1Universal.t x G).
-    Context (lu : LeftUnitor (A:=P) _).
-    Context (ru : RightUnitor (A:=P) _).
-    Context (trans : forall (x y : P),
-                Transitive (Hom (t:=(TwoGraph.two_hom x y)))).
-    
     Definition F_id : forall (x : P), (fmap (F1 G F_univ1) (1 x)) ⇒ 1 (F1 G F_univ1 x).
     Proof.
       intro x.
       apply (factoring _ _
                (mixin_of:=
-                  Is1Universal.is1universal (F_univ1 x) (univ_object x G) _)).
+                  Is1Universal.is1universal
+                    (F_univ1 x) (univ_object x G) _)).
       refine '(transitive _ (eta x G) _ _ _).
-      1: exact _.
-      1: apply lu.
-      refine '(transitive _ (eta x G · (1 (G (univ_object x G)))) _ _ _);
-        try (exact _).
-      1: apply ru.
-      (* Can't proceed further, need to be able to whisker with eta x G. *)
-      (* need hcomp2 or similar *)
-      Abort.
+    Abort.
+  
+      (* 1: { *)
+      (*   (* Std.unify '(TwoGraph.to_graph _) *) *)
+      (*   (*   '(OneBicat.to_graph P). *) *)
+      (*   Std.unify '(Graph.sort _) *)
+      (*     '(@Graph.Hom (OneBicat.to_graph P) x *)
+      (*         (G(univ_object x G))). *)
+
+      (*   Set Printing All. *)
+      (*   refine '(@PreOrder.trans _ _). *)
+      (*   exact (@PreOrder.trans _ (OneBicat.is_vpreorder_instance _ _ _)). *)
+      (* }  *)
+      (* 1: apply lu. *)
+      (* refine '(transitive _ (eta x G · (1 (G (univ_object x G)))) _ _ _); *)
+      (*   try (exact _). *)
+      (* 1: apply ru. *)
+      (* Unset Solve Unification Constraitns *)
+      (* refine '(OneBicat.hcomp2 _ _ _ _ (eta x G) (eta x G) _ _ _ _). *)
+      (* Abort. *)
   End colax_unitor.
   
   Section left_adjoint.

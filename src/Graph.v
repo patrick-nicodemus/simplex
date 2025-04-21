@@ -41,7 +41,6 @@ Class Transitive@{s |u0 u1|}
   := transitive : forall (x y z : A), R x y -> R y z -> R x z.
 
 Infix "·" := (@transitive _ _ _ _ _ _) (at level 39).
-(* Infix ";" := (@transitive _ _ _ _ _ _) (at level 200) : morphism_scope. *)
 
 Class Symmetric@{s | u0 u1|} {A : Type@{u0}} (R : A -> A -> Type@{s | u1})
   : Type@{s|max(u0+1,u1+1)}
@@ -64,7 +63,7 @@ Definition couple_op@{s|u0 u1|} (A: Graph.t@{s|u0 u1}) (x y : A)
 Module GraphHom.
   Class class_of@{s1 s2|+|} {A : Graph.t@{s1|_ _}} {B : Graph.t@{s2|_ _}}
     (F : A -> B)
-    := fmap :> forall {x y  : A}, x ~> y -> F x ~> F y.
+    := fmap : forall {x y  : A}, x ~> y -> F x ~> F y.
 
   Structure t@{s1 s2|+|} (A : Graph.t@{s1|_ _}) (B : Graph.t@{s2|_ _})
     := Pack {

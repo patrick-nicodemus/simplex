@@ -9,6 +9,9 @@ Module TwoGraph.
     is2graph : mixin_of@{s|u0 u1 u2} (Graph.Pack base)
   }.  
 
+  Module class_of_exports.
+  End class_of_exports.
+
   Structure t@{s|u0 u1 u2|} := Pack {
       sort : Type@{u0};
       class : class_of@{s|u0 u1 u2} sort;
@@ -26,7 +29,10 @@ Module TwoGraph.
   Definition two_hom@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A) :=
     Graph.Pack (is2graph@{s|u0 u1 u2} (class A) x y).
 
-  Canonical two_hom.
+  Module two_hom_exports.
+    Canonical two_hom.
+  End two_hom_exports.
+  Import two_hom_exports.
 
   Definition co@{s|+|} (A : t@{s|_ _ _}) : t@{s|_ _ _}
     := {|
@@ -41,13 +47,26 @@ Module TwoGraph.
   Module ForExport.
     Export t_conventions.
     Coercion to_graph : t >-> Graph.t.
+    Export two_hom_exports.    
     Canonical to_graph.
-    #[warnings="-w -redundant-canonical-projection"]
-    Canonical two_hom.
     Infix "⇒" := (Hom (t:=@two_hom _ _ _ )) (at level 39, right associativity).
   End ForExport.
 End TwoGraph.
 Export TwoGraph.ForExport.
+
+(* Section test. *)
+(*   Set Printing All. *)
+(*   Set Typeclasses Debug. *)
+(*   Require Unicoq.Unicoq. *)
+(*   Set Unicoq Debug. *)
+(*   Context (A : TwoGraph.t). *)
+(*   Context (x y : A). *)
+(*   Print TwoGraph.to_graph. *)
+(*   Set Printing Coercions. *)
+(*   Print Canonical Projections. *)
+
+(*   Check (@Graph.Hom _ x y). *)
+
 
 Module TwoGraphHom.
   Class mixin_of@{s1 s2|+|} {A : TwoGraph.t@{s1|_ _ _}} {B : TwoGraph.t@{s2|_ _ _}}
