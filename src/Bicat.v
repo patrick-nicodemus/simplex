@@ -1,12 +1,15 @@
-From Simplex Require Import Basics Graph PreOrder TwoGraph.
+From Simplex Require Import Basics Graph TwoGraph PreOrder.
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
 Definition Associative@{s|u0 u1 u2|} (A : TwoGraph.t@{s|u0 u1 u2})
   (t : Transitive@{Type|u0 u1} (Hom (t:=A)))
-  := forall (w x y z  : A) (f : w ~> x) (g : x ~> y) (h : y ~> z),
-    Couple@{s|u1 u2} _ ((f · g) · h) (f · (g · h)).
-
+  := forall (w x y z : A) (f : w ~> x) (g : x ~> y) (h : y ~> z),
+    Couple@{s|u1 u2} (* (TwoGraph.two_hom _ _) *) _ ((f · g) · h) (f · (g · h)).
+(* two_hom@{s | u0 u1 u2} = *)
+(* fun (A : t) (x y : sort A) => *)
+(* @Graph.Pack (@Graph.Hom (@Graph.Pack (sort A) (@base _ (class A))) x y) (@is2graph _ (class A) x y) *)
+(*      : forall {A : t} (_ : sort A) (_ : sort A), Graph.t *)
 Definition LeftUnitor@{s|u0 u1 u2|}
   (A : TwoGraph.t@{s|u0 u1 u2 })
   (t : PreOrder.mixin_of@{Type|u0 u1} A)
@@ -22,11 +25,11 @@ Module OneBicat.
     Mixin {
         is_preorder : PreOrder.mixin_of@{Type|u0 u1} A;
         is_vpreorder : forall (x y: A),
-          PreOrder.mixin_of@{s|u1 u2} (TwoGraph.two_hom x y);
+          PreOrder.mixin_of@{s|u1 u2} (TwoGraph.two_hom0 x y);
         assoc : Associative@{s|u0 u1 u2} A
                   (PreOrder.trans (mixin_of:=is_preorder));
         lu : LeftUnitor@{s|u0 u1 u2} is_preorder;
-        ru : LeftUnitor@{s|u0 u1 u2} is_preorder;
+        ru : RightUnitor@{s|u0 u1 u2} is_preorder;
         hcomp2 : forall (x y z : A) (f f' : x ~> y) (g g' : y ~> z),
           f ⇒ f' -> g ⇒ g' -> f · g ⇒ f' · g'
       }.
@@ -70,9 +73,14 @@ Module OneBicat.
   End t_conventions.
   Import t_conventions.
 
+  Definition to_vpreorder@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2})
+    : forall (x y : A), PreOrder.t@{s|u1 u2}
+    := fun x y => PreOrder.Pack (PreOrder.Class (is_vpreorder (mixin (class A)) x y)).
+  
   Definition to_graph@{s|u0 u1 u2|}
     (A : t@{s|u0 u1 u2}) : Graph.t@{Type|u0 u1}
-    := Eval lazy in TwoGraph.Pack (is2graph (class A)).
+    := @Graph.Pack (sort A)
+         (to_vpreorder A).
   Module to_graph_exports.
     Canonical to_graph.
   End to_graph_exports.
@@ -80,7 +88,7 @@ Module OneBicat.
 
   Definition to2graph@{s|u0 u1 u2|}
     (A : t@{s|u0 u1 u2}) : TwoGraph.t@{s|u0 u1 u2}
-    := TwoGraph.Pack (is2graph (class A)).
+    := @TwoGraph.Pack (sort A) (is2graph (class A)).
 
   Module to2graph_coercion.
     Coercion to2graph : t >-> TwoGraph.t.
@@ -92,7 +100,7 @@ Module OneBicat.
     (A:t@{s|u0 u1 u2}) :
     forall (x y : A), Graph.t@{s|u1 u2}
     := fun x y =>
-      @Graph.Pack (Graph.Hom x y)
+      @Graph.Pack (x ~> y)
         (TwoGraph.is2graph (is2graph (class A)) x y).
   Module to_hom_graph_exports.
     Canonical to_hom_graph.
@@ -108,7 +116,7 @@ Module OneBicat.
     := @PreOrder.Pack A ({| PreOrder.rel := _;
                         PreOrder.mixin := is_preorder_mixin A|}).
 
-  Definition is_vpreorder_instance (A: t) (x y : A) : PreOrder.mixin_of (TwoGraph.two_hom x y)
+  Definition is_vpreorder_instance (A: t) (x y : A) : PreOrder.mixin_of (TwoGraph.two_hom0 x y)
     := is_vpreorder (mixin (class A)) x y.
 
   Definition co@{s|+|} : t@{s|_ _ _} -> t@{s|_ _ _}

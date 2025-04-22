@@ -1,6 +1,5 @@
-From Simplex Require Import Basics.
+From Simplex Require Import Basics Tactics.
 Local Set Implicit Arguments.
-
 (** Defines a Graph. Definitions in this file are qualified, except for [Reflexive], [Transitive] and [Symmetric]. *)
 Module Graph.
   Definition class_of@{s|u0 u1|} (A : Type@{u0}) := A -> A -> Type@{s|u1}.
@@ -18,7 +17,10 @@ Module Graph.
     Arguments Hom [_].
     Arguments Pack [sort].
     Coercion sort : t >-> Sortclass.
-    Infix "~>" := Hom (at level 41) : type_scope.
+    Notation "x ~> y" :=
+      ltac2:(Control.refine (fun () =>
+       Std.eval_cbn hnf_red_flags
+         (otc (Hom $preterm:x $preterm:y)))) (at level 41) : type_scope.
     Declare Scope morphism_scope.
     Delimit Scope morphism_scope with hom.
     Bind Scope morphism_scope with Hom.
@@ -54,7 +56,6 @@ Record Couple@{s|u0 u1|} (A: Graph.t@{s|u0 u1}) (x y : A)
   }.
 
 Arguments Couple A &.
-
 Definition couple_op@{s|u0 u1|} (A: Graph.t@{s|u0 u1}) (x y : A)
   (p : Couple A x y)
   : Couple (Graph.op A) x y
@@ -63,19 +64,20 @@ Definition couple_op@{s|u0 u1|} (A: Graph.t@{s|u0 u1}) (x y : A)
 Module GraphHom.
   Class class_of@{s1 s2|+|} {A : Graph.t@{s1|_ _}} {B : Graph.t@{s2|_ _}}
     (F : A -> B)
-    := fmap : forall {x y  : A}, x ~> y -> F x ~> F y.
+    := fmap' : forall {x y  : A}, x ~> y -> F x ~> F y.
 
   Structure t@{s1 s2|+|} (A : Graph.t@{s1|_ _}) (B : Graph.t@{s2|_ _})
     := Pack {
            map : A -> B;
-           class : class_of map
+           fmap : class_of map
          }.
   Module Exports.
     Coercion map : t >-> Funclass.
     Notation fmap := fmap.
-    Arguments fmap [A B] F {class_of} [x y].
+    Arguments fmap' [A B] F {class_of} [x y].
+    Arguments fmap [A B] t [x y].
     Arguments Pack [A B map].
-    Existing Instance class.
+    Existing Instance fmap.
   End Exports.
 End GraphHom.
 Export GraphHom.Exports.

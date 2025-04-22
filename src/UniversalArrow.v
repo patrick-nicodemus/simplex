@@ -54,8 +54,8 @@ Module Is1Universal.
     {univ0 : UniversalArrow0.t x G}
     := lift : forall (z : Q) (f : x ~> G z),
         UniversalArrow0.mixin_of
-          (P:=TwoGraph.two_hom x (G z))
-          (Q:=TwoGraph.two_hom (univ_object x G) z)
+          (P:=TwoGraph.two_hom0 x (G z))
+          (Q:=TwoGraph.two_hom0 (univ_object x G) z)
           f
           (fun (g : (univ_object x G) ~> z)  => ((eta x G) · fmap G g))
           (alpha f)
@@ -111,32 +111,17 @@ Module ColaxLeftAdjoint.
     Definition F1 : GraphHom.t P Q
       := {|
         map x := univ_object x G;
-        class x y f := alpha (f · (eta y G))
+        fmap x y f := alpha (f · (eta y G))
       |}.
   End graph_hom.
-  (* Section test. *)
-  (*   Set Printing All. *)
-  (*   Set Typeclasses Debug. *)
-  (*   (* Require Unicoq.Unicoq. *) *)
-  (*   (* Set Unicoq Debug. *) *)
-  (*   Context (A : TwoGraph.t). *)
-  (*   Context (x y : A). *)
-  (*   Print TwoGraph.to_graph. *)
-  (*   Set Printing Coercions. *)
-  (*   Print Canonical Projections. *)
-  (*   Check (@Graph.Hom _ x y). *)
-  (*   Check (@Graph.Hom (TwoGraph.to_graph _) x y). *)
-
-
-  (*   Ltac2 Eval unify (Graph.sort _) . *)
-  (* End test. *)
   
-  Section colax_unitor.
-    Context {P : OneBicat.t} {Q : TwoGraph.t}
-      {rrefl : Reflexive (Hom(t:=Q))}
-      (G : GraphHom.t Q P).
+  Section colax_constraints.
+    Context {P Q: OneBicat.t}
+      (G : Lax1Functor.t Q P).
     Context (F_univ1 : forall (x : P), Is1Universal.t x G).
-    Definition F_id : forall (x : P), (fmap (F1 G F_univ1) (1 x)) ⇒ 1 (F1 G F_univ1 x).
+    Definition F_id : forall (x : P),
+        (fmap (F1 G F_univ1) (1 x)) ⇒
+          1 (F1 G F_univ1 x).
     Proof.
       intro x.
       apply (factoring _ _
@@ -144,28 +129,25 @@ Module ColaxLeftAdjoint.
                   Is1Universal.is1universal
                     (F_univ1 x) (univ_object x G) _)).
       refine '(transitive _ (eta x G) _ _ _).
-    Abort.
-  
-      (* 1: { *)
-      (*   (* Std.unify '(TwoGraph.to_graph _) *) *)
-      (*   (*   '(OneBicat.to_graph P). *) *)
-      (*   Std.unify '(Graph.sort _) *)
-      (*     '(@Graph.Hom (OneBicat.to_graph P) x *)
-      (*         (G(univ_object x G))). *)
+      1: exact _.
+      - apply OneBicat.lu.
+      - refine '(transitive _ (eta x G · (1 _)) _ _ _). 1-3: exact _. 
+        1: apply OneBicat.ru.
+        apply OneBicat.hcomp2.
+        1: exact (reflexive _).
+        apply (Lax1Functor.luc).
+    Defined.
 
-      (*   Set Printing All. *)
-      (*   refine '(@PreOrder.trans _ _). *)
-      (*   exact (@PreOrder.trans _ (OneBicat.is_vpreorder_instance _ _ _)). *)
-      (* }  *)
-      (* 1: apply lu. *)
-      (* refine '(transitive _ (eta x G · (1 (G (univ_object x G)))) _ _ _); *)
-      (*   try (exact _). *)
-      (* 1: apply ru. *)
-      (* Unset Solve Unification Constraitns *)
-      (* refine '(OneBicat.hcomp2 _ _ _ _ (eta x G) (eta x G) _ _ _ _). *)
-      (* Abort. *)
-  End colax_unitor.
-  
-  Section left_adjoint.
-  End left_adjoint.
+    Definition F_comp : forall (x y z : P) (f : x ~> y) (g : y ~> z),
+        fmap (F1 G F_univ1) (f · g) ⇒
+          (fmap (F1 G F_univ1) f) · (fmap (F1 G F_univ1) g).
+    Proof.
+      intros x y z f g.
+      apply (factoring _ _
+               (mixin_of:=
+                  Is1Universal.is1universal
+                    (F_univ1 x) (univ_object z G) _)).
+    Abort.
+    
+   End colax_constraints.
 End ColaxLeftAdjoint.

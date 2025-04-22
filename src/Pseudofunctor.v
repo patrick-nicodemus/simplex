@@ -3,14 +3,15 @@ Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
 Module Lax1Functor.
+  (** Lax unity constraint, lax functoriality constraint *)
   Class mixin_of@{s1 s2|u0a u1a u0b u1b u2b|}
     (A : PreOrder.t@{s1|u0a u1a})
     (B : TwoGraph.t@{s2|u0b u1b u2b}) {Bp: PreOrder.mixin_of B}
     (F : GraphHom.t A B)
     : Type@{s2|max(u0a,u1a,u2b)}
     := Mixin {
-      luc : forall (x : A), 1 (F x) ⇒ fmap F (1 x);
-      lfc : forall (x y z: A) (f : x ~> y) (g : y ~> z),
+      luc_mixin : forall (x : A), 1 (F x) ⇒ fmap F (1 x);
+      lfc_mixin : forall (x y z: A) (f : x ~> y) (g : y ~> z),
         (fmap F f) · (fmap F g) ⇒ fmap F (f · g)
     }.
   Class class_of@{s1 s2|+|+}
@@ -21,7 +22,13 @@ Module Lax1Functor.
       mixin : mixin_of (A:=PreOrder.Pack (PreOrder.Class Ap)) (Bp:=Bp) 
                (TwoGraphHom.to_graph_hom (TwoGraphHom.Pack is2graph_hom))
          }.
+  Module class_of_exports.
+    Arguments is2graph_hom [A Ap B Bp F] class_of.
+  End class_of_exports.
+  Import class_of_exports.
+
   Local Existing Instance OneBicat.is_preorder_mixin.
+
   Structure t@{s1 s2|u0a u1a u2a u0b u1b u2b|}
     (A : OneBicat.t@{s1|u0a u1a u2a})
     (B : OneBicat.t@{s2|u0b u1b u2b})
@@ -29,7 +36,47 @@ Module Lax1Functor.
            map : A -> B;
            class: class_of _ _ map
          }.
+  Module t_exports.
+    Coercion map : t >-> Funclass.
+  End t_exports.
+  Import t_exports.
+
+  Definition to_graphHom@{s1 s2|u0 u1 u2 u3 u4 u5|}
+    (A : OneBicat.t@{s1|u0 u1 u2})
+    (B : OneBicat.t@{s2|u3 u4 u5})
+    (F: t A B)
+    : GraphHom.t@{Type Type|u0 u1 u3 u4} A B
+    := @GraphHom.Pack A B (map F) (is2graph_hom (class F)).
+  Module to_graphHom_exports.
+    Coercion to_graphHom : t >-> GraphHom.t.
+    (* Canonical to_graphHom. *)
+  End to_graphHom_exports.
+  Import to_graphHom_exports.
+
+  (** Lax unity constraint  *)
+  Definition luc@{s1 s2|+|}
+    (A : OneBicat.t@{s1|_ _ _})
+    (B : OneBicat.t@{s2|_ _ _})
+    (F : t@{s1 s2|_ _ _ _ _ _} A B)
+    : forall (x : A), 1 (F x) ⇒ fmap F (1 x)
+    := luc_mixin (mixin_of:=mixin (class_of:=(class F))).
+
+  (** Lax functoriality constraint  *)
+  Definition lfc@{s1 s2|+|}
+    (A : OneBicat.t@{s1|_ _ _})
+    (B : OneBicat.t@{s2|_ _ _})
+    (F : t@{s1 s2|_ _ _ _ _ _} A B)
+    : forall (x y z: A) (f : x ~> y) (g : y ~> z),
+        (fmap F f) · (fmap F g) ⇒ fmap F (f · g)
+    := lfc_mixin (mixin_of:=mixin (class_of:=(class F))).
+
+  Module Exports.
+    Export class_of_exports.
+    Export t_exports.
+    Export to_graphHom_exports.
+  End Exports.
 End Lax1Functor.
+Export Lax1Functor.Exports.
 
 Module Colax1Functor.
   Class mixin_of@{s1 s2|+|+}
@@ -42,7 +89,7 @@ Module Colax1Functor.
 
   Typeclasses Transparent mixin_of.
 
-  Class class_of@{s1 s2|+|+}
+  Class class_of@{s1 s2|+|}
     (A : TwoGraph.t@{s1|_ _ _}) (Ap : PreOrder.mixin_of A)
     (B : TwoGraph.t@{s2|_ _ _}) (Bp : PreOrder.mixin_of B) (F: A -> B)
     := Class {
@@ -51,10 +98,30 @@ Module Colax1Functor.
                (TwoGraphHom.to_graph_hom (TwoGraphHom.Pack is2graph_hom))
          }.
 
-  Definition t@{s1 s2|+|+}
+  Definition t@{s1 s2|+|}
     (A : OneBicat.t@{s1|_ _ _})
     (B : OneBicat.t@{s2|_ _ _})
     := Lax1Functor.t A (OneBicat.co B).
+  
+  (** cuc = colax unity constraint *)
+  Definition cuc@{s1 s2|+|}
+    (A : OneBicat.t@{s1|_ _ _})
+    (B : OneBicat.t@{s2|_ _ _})
+    (F : t@{s1 s2|_ _ _ _ _ _} A B)
+    : forall (x : A), @Hom (OneBicat.to_vpreorder B (F x) (F x))
+                   (fmap F (1 x)) (1 (F x))
+    := fun x => Lax1Functor.luc F x.
+
+  (** Colax functoriality constraint  *)
+  Definition lfc@{s1 s2|+|}
+    (A : OneBicat.t@{s1|_ _ _})
+    (B : OneBicat.t@{s2|_ _ _})
+    (F : t@{s1 s2|_ _ _ _ _ _} A B)
+    : forall (x y z: A) (f : x ~> y) (g : y ~> z),
+      @Hom (OneBicat.to_vpreorder B (F x) (F z))
+        (fmap F (f · g))
+        ((fmap F f) · (fmap F g))
+    := fun x y z f g => Lax1Functor.lfc F x y z f g.
 End Colax1Functor.
 
 Module Pseudo1Functor.

@@ -77,11 +77,11 @@ Module PreOrder.
          {| refl x := is_refl _ x; trans x y z f g := is_trans _ z y x g f |}).
   
   Module ForExport.
+    Export t_conventions.
     Export to_graph_conventions.
     Export is_refl_conventions.
     Export is_trans_conventions.
     Export mixin_of_conventions.
-    Export t_conventions.
   End ForExport.
 End PreOrder.
 Export PreOrder.ForExport.

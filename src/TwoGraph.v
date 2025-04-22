@@ -10,6 +10,7 @@ Module TwoGraph.
   }.  
 
   Module class_of_exports.
+    Coercion base : class_of >-> Graph.class_of.
   End class_of_exports.
 
   Structure t@{s|u0 u1 u2|} := Pack {
@@ -26,11 +27,17 @@ Module TwoGraph.
     : Graph.t@{Type|u0 u1}
     := Graph.Pack (base (class A)).
 
-  Definition two_hom@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A) :=
-    Graph.Pack (is2graph@{s|u0 u1 u2} (class A) x y).
+  Definition two_hom0@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A)
+    : Graph.t@{s|u1 u2}
+    := Eval cbn in Graph.Pack (is2graph@{s|u0 u1 u2} (class A) x y).
+  Definition two_hom1@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A)
+    : Graph.t@{s|u1 u2}
+    := Graph.Pack (is2graph@{s|u0 u1 u2} (class A) x y).
 
   Module two_hom_exports.
-    Canonical two_hom.
+    (* Graph.Hom <- Graph.sort ( TwoGraph.two_hom ) *)
+    Canonical two_hom0.
+    Canonical two_hom1.
   End two_hom_exports.
   Import two_hom_exports.
 
@@ -47,26 +54,12 @@ Module TwoGraph.
   Module ForExport.
     Export t_conventions.
     Coercion to_graph : t >-> Graph.t.
-    Export two_hom_exports.    
     Canonical to_graph.
-    Infix "⇒" := (Hom (t:=@two_hom _ _ _ )) (at level 39, right associativity).
+    Export two_hom_exports.
+    Infix "⇒" := (Hom (t:=@two_hom1 _ _ _ )) (at level 39, right associativity).
   End ForExport.
 End TwoGraph.
 Export TwoGraph.ForExport.
-
-(* Section test. *)
-(*   Set Printing All. *)
-(*   Set Typeclasses Debug. *)
-(*   Require Unicoq.Unicoq. *)
-(*   Set Unicoq Debug. *)
-(*   Context (A : TwoGraph.t). *)
-(*   Context (x y : A). *)
-(*   Print TwoGraph.to_graph. *)
-(*   Set Printing Coercions. *)
-(*   Print Canonical Projections. *)
-
-(*   Check (@Graph.Hom _ x y). *)
-
 
 Module TwoGraphHom.
   Class mixin_of@{s1 s2|+|} {A : TwoGraph.t@{s1|_ _ _}} {B : TwoGraph.t@{s2|_ _ _}}
@@ -81,6 +74,7 @@ Module TwoGraphHom.
          }.
   Module class_of_conventions.
     Arguments is_graph_hom [A B F].
+    Coercion is_graph_hom : class_of >-> GraphHom.class_of.
   End class_of_conventions.
   Import class_of_conventions.
   Structure t@{s1 s2|+|} (A : TwoGraph.t@{s1|_ _ _}) (B : TwoGraph.t@{s2|_ _ _})
@@ -91,15 +85,18 @@ Module TwoGraphHom.
   Module t_conventions.
     Arguments class [A B].
     Arguments Pack [A B] & [map].
+    Coercion map : t >-> Funclass.
   End t_conventions.
   Import t_conventions.
   
   Definition to_graph_hom @{s1 s2|+|} [A B] (F : t@{s1 s2|_ _ _ _ _ _} A B)
     : GraphHom.t@{Type Type|_ _ _ _} A B
     := GraphHom.Pack (is_graph_hom (class F)).
+
   Module Exports.
     Export t_conventions.
     Export class_of_conventions.
+    Coercion to_graph_hom : t >-> GraphHom.t.
   End Exports.
 End TwoGraphHom.
 Export TwoGraphHom.Exports.
