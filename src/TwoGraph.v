@@ -1,54 +1,48 @@
 From Simplex Require Import Basics Graph.
 Local Set Implicit Arguments.
 Module TwoGraph.
-  Definition mixin_of@{s|u0 u1 u2|} (A : Graph.t@{Type|u0 u1})
-    := forall (x y : A), Graph.class_of@{s|u1 u2} (Hom x y).
 
-  Record class_of@{s|u0 u1 u2|} (A : Type@{u0}) := Class {
-    base : Graph.class_of@{Type|u0 u1} A;
-    is2graph : mixin_of@{s|u0 u1 u2} (Graph.Pack base)
-  }.  
+  Definition class_of@{s|u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
+    := forall (x y : A) (f g : R x y), Type@{s|u2}.
 
-  Module class_of_exports.
-    Coercion base : class_of >-> Graph.class_of.
-  End class_of_exports.
+  Structure t@{s|u0 u1 u2|} :=
+    Pack {
+        sort : Type@{u0};
+        Hom : sort -> sort -> Type@{u1};
+        class : class_of@{s|u0 u1 u2} Hom
+      }.
 
-  Structure t@{s|u0 u1 u2|} := Pack {
-      sort : Type@{u0};
-      class : class_of@{s|u0 u1 u2} sort;
-  }.
   Module t_conventions.
     Coercion sort : t >-> Sortclass.
-    Arguments Pack [sort] &.
+    Coercion Hom : t >-> Funclass.
+    Arguments Pack [sort Hom].
+    Arguments Hom [t].
+    Arguments class [t x y].
   End t_conventions.
   Import t_conventions.
 
   Definition to_graph@{s|u0 u1 u2|} (A: t@{s|u0 u1 u2})
     : Graph.t@{Type|u0 u1}
-    := Graph.Pack (base (class A)).
+    := Graph.Pack (@Hom A).
 
-  Definition two_hom0@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A)
+  Definition two_hom@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A)
     : Graph.t@{s|u1 u2}
-    := Eval cbn in Graph.Pack (is2graph@{s|u0 u1 u2} (class A) x y).
-  Definition two_hom1@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A)
-    : Graph.t@{s|u1 u2}
-    := Graph.Pack (is2graph@{s|u0 u1 u2} (class A) x y).
+    := Graph.Pack (@class _ x y).
 
   Module two_hom_exports.
-    (* Graph.Hom <- Graph.sort ( TwoGraph.two_hom ) *)
-    Canonical two_hom0.
-    Canonical two_hom1.
+    Canonical two_hom.
   End two_hom_exports.
   Import two_hom_exports.
+
+  Definition co_class@{s|u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
+    : class_of@{s|u0 u1 u2} R -> class_of@{s|u0 u1 u2} R
+    := fun P (x y : A) (f g : R x y) => P x y g f.
 
   Definition co@{s|+|} (A : t@{s|_ _ _}) : t@{s|_ _ _}
     := {|
       sort := sort A;
-      class :=
-        {|
-          base := base (class A);
-          is2graph x y f g := Hom g f
-       |}
+      Hom := @Hom A;
+      class := co_class (@class A)
     |}.
   
   Module ForExport.
@@ -56,8 +50,11 @@ Module TwoGraph.
     Coercion to_graph : t >-> Graph.t.
     Canonical to_graph.
     Export two_hom_exports.
-    Infix "⇒" := (Hom (t:=@two_hom1 _ _ _ )) (at level 39, right associativity).
   End ForExport.
+  Module Notations.
+    Infix "~>" := (@Hom _ ) (at level 41, right associativity).
+    Infix "⇒" := (@class _ _ _) (at level 39, right associativity).
+  End Notations.
 End TwoGraph.
 Export TwoGraph.ForExport.
 

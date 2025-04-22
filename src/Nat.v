@@ -22,7 +22,7 @@ Infix "<=" := le (at level 70).
 Definition le_to_le' : forall (n m : nat), n <= m -> n <=' m
   := fix lerec (n m : nat) : n <= m -> n <=' m
     := match n with
-       | O => fun _ => le_O m
+       | O => fun _ => le_O m       (*  *)
        | S n' => match m return (S n') <= m -> (S n') <=' m with
                 | O => fun p => match p with end
                 | S m' => fun p => le_S (lerec n' m' p)

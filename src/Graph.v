@@ -3,10 +3,17 @@ Local Set Implicit Arguments.
 (** Defines a Graph. Definitions in this file are qualified, except for [Reflexive], [Transitive] and [Symmetric]. *)
 Module Graph.
   Definition class_of@{s|u0 u1|} (A : Type@{u0}) := A -> A -> Type@{s|u1}.
-  Record t@{s|u0 u1|} : Type@{max(u0+1,u1+1)}:= Pack {
-      sort : Type@{u0};
-      Hom : class_of@{s|u0 u1} sort
-                                                  }.
+  Record t@{s|u0 u1|} : Type@{max(u0+1,u1+1)}:=
+    Pack {
+        sort : Type@{u0};
+        Hom : class_of@{s|u0 u1} sort
+      }.
+
+  (** With algebraic universes we could define this in terms of "flip". It seems we can't do that here without introducing more universes and constraints.  *)
+  Definition op_class@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+    : A -> A -> Type@{s|u1}
+    := fun (a b : A) => R b a.
+
   Definition op@{s|+|} (A : t@{s|_ _}) : t@{s|_ _}
     := {|
       sort := sort A;
@@ -17,19 +24,22 @@ Module Graph.
     Arguments Hom [_].
     Arguments Pack [sort].
     Coercion sort : t >-> Sortclass.
-    Notation "x ~> y" :=
-      ltac2:(Control.refine (fun () =>
-       Std.eval_cbn hnf_red_flags
-         (otc (Hom $preterm:x $preterm:y)))) (at level 41) : type_scope.
+    (* Notation "x ~> y" := *)
+    (*   ltac2:(Control.refine (fun () => *)
+    (*    Std.eval_cbn hnf_red_flags *)
+    (*      (otc (Hom $preterm:x $preterm:y)))) (at level 41) : type_scope. *)
     Declare Scope morphism_scope.
     Delimit Scope morphism_scope with hom.
     Bind Scope morphism_scope with Hom.
-    Notation Hom := Hom.
+    (* Notation Hom := Hom. *)
   End ForExport.
+  Module Notations.
+    Infix "~>" := Hom (at level 41).
+  End Notations.
 End Graph.
 Export Graph.ForExport.
+Import Graph.Notations.
 
-(* #[mode="+ -"] *)
 Class Reflexive@{s | u0 u1 |}
   [A : Type@{u0}] (R : A -> A -> Type@{s | u1})
   : Type@{s|max(u0+1,u1+1)}
@@ -69,15 +79,15 @@ Module GraphHom.
   Structure t@{s1 s2|+|} (A : Graph.t@{s1|_ _}) (B : Graph.t@{s2|_ _})
     := Pack {
            map : A -> B;
-           fmap : class_of map
+           class : class_of map
          }.
   Module Exports.
     Coercion map : t >-> Funclass.
-    Notation fmap := fmap.
     Arguments fmap' [A B] F {class_of} [x y].
-    Arguments fmap [A B] t [x y].
+    Arguments class [A B] t [x y].
     Arguments Pack [A B map].
-    Existing Instance fmap.
+    Existing Instance class.
+    Notation fmap := class.
   End Exports.
 End GraphHom.
 Export GraphHom.Exports.
