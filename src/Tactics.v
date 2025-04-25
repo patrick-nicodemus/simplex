@@ -22,4 +22,3 @@ Ltac2 refine0 (x : preterm) :=
     )).
 
 Ltac2 Notation "refine" x(preterm) := refine0 x.
-

@@ -1,6 +1,8 @@
 From Simplex Require Import Basics.
+
 Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
+
 
 Local Set Warnings "-notation-overridden".
 Notation "x = y" := (eq x y)
@@ -10,6 +12,9 @@ Notation "x = y" := (eq x y)
 Register eq as core.identity.type.
 Register eq_refl as core.identity.refl.
 Register eq_rect as core.identity.ind.
+
+Definition f_equal (A B : Type) (f : A -> B) (x y : A) : x = y -> f x = f y
+  := fun p => match p with eq_refl _ => eq_refl (f x) end.
 
 Module Strict_anti_univalence.
   (** Importing this module leads to inconsistency with the univalence axiom.  *)
@@ -91,3 +96,20 @@ Module Strict.
                end.
   End Interval.
 End Strict.
+
+Module SEqType.
+  Class class_of (A: Type) := {
+      seq_rel : A -> A -> SProp;
+      seq_if : forall (a b : A), seq_rel a b -> eq a b;
+      seq_only_if : forall (a b : A), eq a b -> seq_rel a b
+    }.
+
+  Structure t := {
+      sort : Type;
+      is_seqtype : class_of sort
+    }.
+  Module Exports.
+    Infix "==" := seq_rel (at level 70).
+  End Exports.
+End SEqType.
+Export SEqType.Exports.

@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Graph.
+From Simplex Require Import Basics Graph Eq Nat.
 Local Set Implicit Arguments.
 Module PreOrder.
   Class class_of@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
@@ -58,7 +58,7 @@ Module PreOrder.
     Existing Instance is_trans.
   End is_trans_conventions.
   Import is_trans_conventions.
-  
+
   Definition op@{s|+|+} (A : t@{s|_ _}) : t@{s| _ _}
     := Pack (op_class (class A)).
   
@@ -74,3 +74,15 @@ Module PreOrder.
   End Notations.
 End PreOrder.
 Export PreOrder.ForExport.
+
+Inductive unitBtree :=
+| Unit
+| Morphism
+| Comp : unitBtree -> unitBtree -> unitBtree.
+
+Fixpoint length : unitBtree -> nat :=
+  fun t => match t with
+        | Unit => 0
+        | Morphism => Nat.S 0
+        | Comp x y => Nat.add (length x) (length y)
+        end.

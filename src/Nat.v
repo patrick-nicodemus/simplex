@@ -1,6 +1,8 @@
 From Corelib Require Import Datatypes.
-Notation nat := nat.
-Require Import Simplex.Basics.
+Require Import Simplex.Basics Simplex.Eq.
+
+Notation nat := Datatypes.nat.
+Notation S := Datatypes.S.
 
 (* The scope is automatically opened in a file that imports this one. *)
 Inductive le' : nat -> nat -> Set :=
@@ -77,3 +79,36 @@ Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint
 Number Notation Number.int Number.int_of_int Number.int_of_int
   : dec_int_scope.
 Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
+
+Definition seq : forall (n m : nat), SProp  :=
+  fix seq n m :=
+    match n with
+    | O => match m with
+          | O => sUnit
+          | _ => sEmpty
+          end
+    | S n' => match m with
+             | O => sEmpty
+             | S m' => seq n' m'
+             end
+    end.
+
+Definition eq_S : forall (n m : nat), n = m -> S n = S m
+  := fun n m p => match p with | eq_refl _ => eq_refl (S n) end.
+
+#[refine]
+Instance seq_nat : SEqType.class_of nat := {
+    seq_rel := seq;
+  }.
+Proof.
+  - intro a; induction a.
+    + intro b; destruct b > [reflexivity|].
+      intro h. simpl in h.
+      refine '(match h return O = S b with end).
+    + intro b; destruct b.
+      * intro h; refine '(match h return S a = O with end).
+      * simpl. intro h. apply eq_S. apply IHa. assumption.
+  - intros a b p; destruct p. induction a.
+    + exact stt.
+    + simpl. apply IHa.
+Defined.

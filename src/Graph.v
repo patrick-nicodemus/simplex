@@ -1,7 +1,10 @@
 From Simplex Require Import Basics Tactics.
+From Simplex Require Nat.
 Local Set Implicit Arguments.
 (** Defines a Graph. Definitions in this file are qualified, except for [Reflexive], [Transitive] and [Symmetric]. *)
 Module Graph.
+  Import Nat.
+
   Definition class_of@{s|u0 u1|} (A : Type@{u0}) := A -> A -> Type@{s|u1}.
   Record t@{s|u0 u1|} : Type@{max(u0+1,u1+1)}:=
     Pack {
@@ -19,6 +22,58 @@ Module Graph.
       sort := sort A;
       Hom a b := Hom A b a
     |}.
+
+  Inductive path@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
+    : A -> Type@{max(u0,u1)}
+    := 
+  | nil : path R a a
+  | cons (x y : A) (f : R x y) (p : path R a x) : path R a y.
+
+  Definition length@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
+    : forall (b : A), path@{s|u0 u1} R a b -> nat
+    := fix length _ path :=
+         match path with
+         | nil _ _ => 0
+         | cons _ _ p' => Nat.S(length _ p')
+         end.
+
+  Definition nth_vertex @{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
+    : forall (b : A) (n : nat), path@{s|u0 u1} R a b -> A
+    := fix nth b n p :=
+      match n with
+      | 0 => b
+      | S n' => match p with
+               | nil _ _ => a
+               | cons _ _ p => nth _ n' p
+               end
+      end.
+
+  Definition drop@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+    (a : A)
+    : forall (b : A) (n : nat) (p : path@{s|u0 u1} R a b), path@{s|u0 u1} R a (nth_vertex n p).
+  Proof.
+    intros b n; revert b.
+    refine ((fix recfun (n : nat) := _) n).
+    destruct n.
+    (* refine ((fix recfun (n : nat) := match n with | O => _ | S n' => _ end) n). *)
+    (* induction n. *)
+    - exact (fun _ x => x).
+    - intros b p; destruct p; simpl.
+      + exact (nil _ _).
+      + apply recfun.
+  Defined.
+
+  Definition take@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+    (a : A)
+    : forall (b : A) (n : nat) (p : path@{s|u0 u1} R a b), path@{s|u0 u1} R (nth_vertex n p) b.
+  Proof.
+    intros b n; revert b.
+    refine ((fix recfun (n : nat) := _) n); destruct n.
+    - simpl. exact (fun _ _ => nil _ _).
+    - intros b p; destruct p; simpl.
+      + exact (nil _ _).
+      + exact (cons _ f (recfun n x p)).
+  Defined.
 
   Module ForExport.
     Arguments Hom [_].

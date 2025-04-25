@@ -1,4 +1,7 @@
 From Simplex Require Import Basics Nat Graph PreOrder.
+
+Canonical nat_rel := Graph.Pack le.
+
 Module Example1.
   Canonical nat_rel := Graph.Pack le.
   Canonical nat_preorder : PreOrder.t
