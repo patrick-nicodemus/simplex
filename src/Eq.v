@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Relations Tactics.
+From Simplex Require Import Basics Relations.
 
 Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
@@ -30,7 +30,7 @@ Definition f_equal (A B : Type) (f : A -> B) (x y : A) : x = y -> f x = f y
   := fun p => match p with eq_refl _ => eq_refl (f x) end.
 
 Module Strict_anti_univalence.
-  (** Importing this module leads to inconsistency with the univalence axiom.  *)
+  (** Importing this module leads to inconsistency with the univalence axiom. *)
   Local Set Definitional UIP.
   Local Set Universe Polymorphism.
   Inductive SEq@{u} {A : Type@{u}} (a : A) : A -> SProp :=
@@ -143,5 +143,5 @@ Instance seq_rel_symmetric@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
   Symmetric@{SProp|u Set} (@SEqType.seq_rel A class).
 Proof.
   intros x y p.
-  apply (SEqType.seq_if) in p. destruct p. reflexivity.
+  apply (SEqType.seq_if) in p. destruct p. exact (reflexive _).
 Defined.
