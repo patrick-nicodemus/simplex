@@ -1,15 +1,20 @@
-From Corelib Require Import Datatypes.
-Require Import Simplex.Basics Simplex.Eq.
+From Simplex Require Import Basics Eq.
+From Simplex Require Import Datatypes.
 
-Notation nat := Datatypes.nat.
-Notation S := Datatypes.S.
+Notation nat := Corelib.Init.Datatypes.nat.
+Notation O := Corelib.Init.Datatypes.O.
+Notation S := Corelib.Init.Datatypes.S.
+Notation "x + y" := (Nat.add x y) (at level 50, left associativity) : nat_scope.
+Notation "x - y" := (Nat.sub x y) (at level 50, left associativity) : nat_scope.
+Delimit Scope nat_scope with nat.
 
 (* The scope is automatically opened in a file that imports this one. *)
 Inductive le' : nat -> nat -> Set :=
 | le_O n : le' O n
 | le_S n m : le' n m -> le' (S n) (S m).
 Arguments le_S {_ _}.
-Infix "<='" := le' (at level 70).
+
+Infix "<='" := le' (at level 70) : nat_scope.
 
 Fixpoint le (n : nat) : forall (m : nat), SProp :=
   match n with
@@ -19,7 +24,9 @@ Fixpoint le (n : nat) : forall (m : nat), SProp :=
                  | S m' => le n' m'
                  end
   end.
-Infix "<=" := le (at level 70).
+
+Infix "<=" := le (at level 70) : nat_scope.
+Open Scope nat_scope.
 
 Definition le_to_le' : forall (n m : nat), n <= m -> n <=' m
   := fix lerec (n m : nat) : n <= m -> n <=' m
@@ -58,6 +65,11 @@ Fixpoint le_refl (x : nat) : x <= x
      | S y => le_refl y
      end.
 
+Theorem le_n_S : forall n m : nat, n <= m -> S n <= S m.
+Proof.
+  exact (fun n m p => p).
+Defined.
+
 Definition nle_Sn_O  : forall (n : nat), ~ (S n <= O)
   := fun n p => p.
 
@@ -71,7 +83,6 @@ Proof.
     + apply H.
 Defined.
 
-Open Scope nat_scope.
 Arguments Nat.of_uint d%_dec_uint_scope.
 Arguments Nat.of_int d%_dec_int_scope.
 Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint

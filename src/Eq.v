@@ -1,8 +1,7 @@
-From Simplex Require Import Basics.
+From Simplex Require Import Basics Relations Tactics.
 
 Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
-
 
 Local Set Warnings "-notation-overridden".
 Notation "x = y" := (eq x y)
@@ -12,6 +11,20 @@ Notation "x = y" := (eq x y)
 Register eq as core.identity.type.
 Register eq_refl as core.identity.refl.
 Register eq_rect as core.identity.ind.
+
+Instance eq_refl' (A : Type) : Reflexive (eq (A:=A)) := @eq_refl A.
+
+Instance eq_trans (A : Type) : Transitive (eq (A:=A)) :=
+  fun (a b c : A) (p : a = b) =>
+    match p in _ = b return b = c -> a = c with
+    | eq_refl _ => fun q => q
+    end.
+
+Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
+  fun (a b : A) (p : a = b) =>
+    match p in _ = b return b = a with
+    | eq_refl _ => eq_refl a
+    end.
 
 Definition f_equal (A B : Type) (f : A -> B) (x y : A) : x = y -> f x = f y
   := fun p => match p with eq_refl _ => eq_refl (f x) end.
@@ -109,7 +122,26 @@ Module SEqType.
       is_seqtype : class_of sort
     }.
   Module Exports.
+    Arguments seq_rel [A] {class_of} a b : simpl never.
     Infix "==" := seq_rel (at level 70).
   End Exports.
 End SEqType.
 Export SEqType.Exports.
+
+Instance seq_rel_reflexive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
+  Reflexive@{SProp|u Set} (@SEqType.seq_rel A class)
+  := fun h => SEqType.seq_only_if h h (eq_refl h).
+
+Instance seq_rel_transitive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
+  Transitive@{SProp|u Set} (@SEqType.seq_rel A class).
+Proof.
+  intros x y z p.
+  apply (SEqType.seq_if) in p. destruct p. exact (fun q => q).
+Defined.
+
+Instance seq_rel_symmetric@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
+  Symmetric@{SProp|u Set} (@SEqType.seq_rel A class).
+Proof.
+  intros x y p.
+  apply (SEqType.seq_if) in p. destruct p. reflexivity.
+Defined.
