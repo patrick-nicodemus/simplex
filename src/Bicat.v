@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Graph TwoGraph PreOrder.
+From Simplex Require Import Basics Graph TwoGraph PreOrder.Core.
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 

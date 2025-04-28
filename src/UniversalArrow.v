@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Graph PreOrder TwoGraph Bicat Pseudofunctor.
+From Simplex Require Import Basics Graph PreOrder.Core TwoGraph Bicat Pseudofunctor.
 
 Module UniversalArrow0.
   #[mode="! ! ! ! -"]

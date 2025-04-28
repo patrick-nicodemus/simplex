@@ -3,7 +3,7 @@ From Simplex Require Export Relations.
 Local Set Implicit Arguments.
 (** Defines a Graph. Definitions in this file are qualified, except for [Reflexive], [Transitive] and [Symmetric]. *)
 Module Graph.
-  Definition class_of@{s|u0 u1|} (A : Type@{u0}) := A -> A -> Type@{s|u1}.
+  Notation class_of := Relation.
   Record t@{s|u0 u1|} : Type@{max(u0+1,u1+1)}:=
     Pack {
         sort : Type@{u0};

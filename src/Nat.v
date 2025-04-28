@@ -1,14 +1,15 @@
-From Simplex Require Import Basics Eq.
-From Simplex Require Import Datatypes.
+From Simplex Require Import Basics Relations Eq Datatypes PreOrder.Core SPropEquiv Classes.
+
+(** 1. Definitions of [Type]-valued and [SProp]-valued inequalities on [nat], proofs of equivalence; proof that [<=] forms a preorder. *)
 
 Notation nat := Corelib.Init.Datatypes.nat.
 Notation O := Corelib.Init.Datatypes.O.
 Notation S := Corelib.Init.Datatypes.S.
 Notation "x + y" := (Nat.add x y) (at level 50, left associativity) : nat_scope.
+Notation "(+)" := Nat.add (only parsing).
 Notation "x - y" := (Nat.sub x y) (at level 50, left associativity) : nat_scope.
 Delimit Scope nat_scope with nat.
 
-(* The scope is automatically opened in a file that imports this one. *)
 Inductive le' : nat -> nat -> Set :=
 | le_O n : le' O n
 | le_S n m : le' n m -> le' (S n) (S m).
@@ -25,7 +26,15 @@ Fixpoint le (n : nat) : forall (m : nat), SProp :=
                  end
   end.
 
-Infix "<=" := le (at level 70) : nat_scope.
+Fixpoint le_refl : Reflexive le
+  := fun x => match x with
+     | O => stt
+     | S y => le_refl y
+     end.
+
+Existing Instance le_refl.
+
+Local Infix "<=" := le (at level 70) : nat_scope.
 Open Scope nat_scope.
 
 Definition le_to_le' : forall (n m : nat), n <= m -> n <=' m
@@ -45,6 +54,12 @@ Definition le'_to_le : forall (n m : nat), n <=' m -> n <= m
        | @le_S n' m' p' => lerec n' m' p'
        end.
 
+Instance le_le'_equiv (n m : nat)
+  : SPropEquiv (le' n m) (le n m) := {
+    to_sprop := le'_to_le n m;
+    to_type := le_to_le' n m;
+  }.
+
 Fixpoint le_induction@{s|u|}
   (P : nat -> nat -> Type@{s|u})
   (H0 : forall n : nat, P O n)
@@ -59,12 +74,6 @@ Fixpoint le_induction@{s|u|}
                     end
      end m p.
 
-Fixpoint le_refl (x : nat) : x <= x
-  := match x with
-     | O => stt
-     | S y => le_refl y
-     end.
-
 Theorem le_n_S : forall n m : nat, n <= m -> S n <= S m.
 Proof.
   exact (fun n m p => p).
@@ -73,15 +82,18 @@ Defined.
 Definition nle_Sn_O  : forall (n : nat), ~ (S n <= O)
   := fun n p => p.
 
-Theorem le_trans {n m k : nat} : n <= m -> m <= k -> n <= k.
+Instance le_trans : Transitive@{SProp|Set Set} le.
 Proof.
-  intro H; revert n m H k.
-  apply (le_induction (fun n m => forall k, m <= k -> n <= k)).
+  intros n m k H; revert n m H k.
+  apply (le_induction@{SProp|Set} (fun n m => forall k, m <= k -> n <= k)).
   - constructor.
   - intros n m H k; simpl. destruct k.
     + exact (fun x => x).
     + apply H.
 Defined.
+
+Definition Nat_le := PreOrder.Pack (PreOrder.Class (R:=le) _ _).
+Canonical Nat_le.
 
 Arguments Nat.of_uint d%_dec_uint_scope.
 Arguments Nat.of_int d%_dec_int_scope.
@@ -91,6 +103,7 @@ Number Notation Number.int Number.int_of_int Number.int_of_int
   : dec_int_scope.
 Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
 
+(** 2. [SProp]-valued equality for naturals. *)
 Definition seq : forall (n m : nat), SProp  :=
   fix seq n m :=
     match n with
@@ -123,3 +136,74 @@ Proof.
     + exact stt.
     + simpl. apply IHa.
 Defined.
+
+(** 3. Theorems of arithmetic *)
+Instance plus_n_O : RightId@{Type|Set Set} (@eq nat) 0 (+).
+Proof.
+  intro n; induction n as [|n IHn].
+  - reflexivity.
+  - simpl. apply eq_S. apply IHn.
+Qed.
+
+Theorem add_succ_comm : forall (n m : nat), S n + m = n + S m.
+Proof.
+  intro n; induction n as [|n IHn].
+  - reflexivity.
+  - intro m. simpl. apply eq_S. apply IHn.
+Qed.
+
+Instance add_comm : Comm (@eq nat) (+).
+Proof.
+  intro n; induction n.
+  - intro y. apply symmetry. apply right_id.
+  - intro y. simpl. rewrite <- add_succ_comm.
+    apply eq_S. apply IHn.
+Qed.
+
+Theorem sub_0_r : forall n : nat, n - 0 = n.
+Proof.
+  destruct n; reflexivity.
+Defined.
+
+Theorem nat_sub_diag : forall n : nat, n - n = 0.
+Proof.
+  induction n > [reflexivity | auto].
+Qed.
+
+Theorem add_sub : forall n m : nat, n + m - m = n.
+Proof.
+  intros n m; revert n; induction m as [|m IHm].
+  - intros. rewrite plus_n_O. apply sub_0_r. 
+  - intro n. simpl. rewrite <- add_succ_comm.
+    apply IHm.
+Qed.
+
+Theorem add_sub_eq_l : forall n m p : nat, m + p = n -> n - m = p.
+  intros n m p H.
+  rewrite <- H.
+  rewrite (comm (R:=@eq nat) (f:=(+))).
+  exact (add_sub _ _).
+Qed.
+
+Theorem add_sub_eq_r: forall n m p : nat, m + p = n -> n - p = m.
+Proof.
+  intros n m p.
+  rewrite (comm (R:=@eq nat) (f:=(+))).
+  exact (add_sub_eq_l _ _ _).
+Qed.
+
+Theorem le_add_r : forall n m : nat, n <= n + m.
+Proof.
+  induction n as [|n IHn].
+  - exact (fun _ => stt).
+  - intro m; exact (IHn _).
+Qed.
+
+Theorem le_add_l : forall n m : nat, m <= n + m.
+Proof.
+  induction m as [|m IHm].
+  - exact stt.
+  - simpl. destruct n.
+    + simpl. apply IHm.
+    + simpl. destruct (add_succ_comm n m). exact IHm.
+Qed.

@@ -1,5 +1,7 @@
 From Simplex Require Import Basics.
 
+Definition Relation@{s|u0 u1|} (A : Type@{u0}) := A -> A -> Type@{s|u1}.
+
 Class Reflexive@{s | u0 u1 |}
   [A : Type@{u0}] (R : A -> A -> Type@{s | u1})
   : Type@{s|max(u0+1,u1+1)}
