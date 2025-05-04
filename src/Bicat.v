@@ -17,7 +17,6 @@ Definition RightUnitor@{s|u0 u1 u2|}
   (t : PreOrder.class_of@{Type|u0 u1} A)
   := forall (x y : A) (f : A x y), Couple _ (f · (1 y)) f.
 
-Set Printing All.
 Module OneBicat.
   Import TwoGraph.Notations.
   Record class_of@{s|u0 u1 u2|}

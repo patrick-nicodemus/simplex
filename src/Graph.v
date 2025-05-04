@@ -75,6 +75,12 @@ Module GraphHom.
 End GraphHom.
 Export GraphHom.Exports.
 
+Definition Transformation@{s|uA uB0 uB1|}
+  (A : Type@{uA}) (B : Graph.t@{s|uB0 uB1})
+  (F G : A -> B)
+  := forall a : A, Graph.Hom (F a) (G a).
+Arguments Transformation [A B].
+
 Module Graph_of_Graphs.
-  (* Definition Graph. *)
+
 End Graph_of_Graphs.
