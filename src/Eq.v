@@ -145,3 +145,25 @@ Proof.
   intros x y p.
   apply (SEqType.seq_if) in p. destruct p. exact (reflexive _).
 Defined.
+
+Theorem isContr_lemma (A : Type) (H : forall y z : A, y = z)
+  (y0 z0 y1 z1 : A) (p : y0 = y1) (q : z0 = z1)
+  :
+  p = match H y0 z0 in eq _ z0 return forall q : z0 = z1, y0 = y1
+      with
+      | eq_refl _ => match H y1 z1 in eq _ z1 return forall q : y0 = z1, y0 = y1 with
+                    |  eq_refl _ => fun q => q
+                    end
+      end q.
+Proof.
+  destruct q, p, (H y0 z0).
+  exact (eq_refl _).
+Defined.
+
+Theorem isContr_up (A : Type) (H : forall y z : A, y = z)
+  (y z : A) (p q : y = z) : p = q.
+Proof.
+  rewrite (isContr_lemma A H _ _ _ _ p q).
+  apply symmetry.
+  exact (isContr_lemma A H _ _ _ _ q q).
+Defined.
