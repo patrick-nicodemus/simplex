@@ -9,12 +9,12 @@ Definition Associative@{s|u0 u1 u2|} (A : TwoGraph.t@{s|u0 u1 u2})
 
 Definition LeftUnitor@{s|u0 u1 u2|}
   (A : TwoGraph.t@{s|u0 u1 u2 })
-  (t : PreOrder.class_of@{Type|u0 u1} A)
+  (t : PreOrder.class_of@{Type|u0 u1} (@TwoGraph.Hom A))
   := forall (x y : A) (f : A x y), Couple@{s|u1 u2} _ ((1 x) · f) f.
 
 Definition RightUnitor@{s|u0 u1 u2|}
   (A : TwoGraph.t@{s|u0 u1 u2})
-  (t : PreOrder.class_of@{Type|u0 u1} A)
+  (t : PreOrder.class_of@{Type|u0 u1} (@TwoGraph.Hom A))
   := forall (x y : A) (f : A x y), Couple _ (f · (1 y)) f.
 
 Module OneBicat.
@@ -139,6 +139,7 @@ Module OneBicat.
     Existing Instance is_vpreorder_instance.
   End Exports.
   Module Notations.
+    Local Set Warnings "-notation-overridden".
     Infix "~>" := Hom (at level 41).
     Infix "⇒" := two_cells (at level 39).
   End Notations.

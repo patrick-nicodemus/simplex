@@ -1,7 +1,6 @@
 From Simplex Require Import Basics Graph.
 Local Set Implicit Arguments.
 Module TwoGraph.
-
   Definition class_of@{s|u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
     := forall (x y : A) (f g : R x y), Type@{s|u2}.
 
@@ -14,7 +13,7 @@ Module TwoGraph.
 
   Module t_conventions.
     Coercion sort : t >-> Sortclass.
-    Coercion Hom : t >-> Funclass.
+    (* Coercion Hom : t >-> Funclass. *)
     Arguments Pack [sort Hom].
     Arguments Hom [t].
     Arguments class [t x y].
@@ -31,6 +30,7 @@ Module TwoGraph.
 
   Module two_hom_exports.
     Canonical two_hom.
+    Coercion two_hom : t >-> Funclass.
   End two_hom_exports.
   Import two_hom_exports.
 

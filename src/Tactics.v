@@ -142,7 +142,7 @@ Ltac2 symmetry_lookup (r : constr) := constr:(symmetry (R:=$r)).
 
 Ltac2 symmetry0 (cl : Std.clause) : unit :=
   match cl with
-  | { Std.on_hyps := on_hyps; Std.on_concl := occ} =>
+  | { Std.on_hyps := on_hyps; Std.on_concl := _} =>
       (match on_hyps with
        | Some hyps =>
            List.iter
@@ -151,7 +151,8 @@ Ltac2 symmetry0 (cl : Std.clause) : unit :=
                 | Std.InHyp | Std.InHypTypeOnly =>
                 let t0 := Control.hyp ident in
                 let t1 := Constr.type t0 in
-                (Message.print (Message.of_constr t0); Message.print (Message.of_constr t1));
+                (* (Message.print (Message.of_constr t0); *)
+                (*  Message.print (Message.of_constr t1)); *)
                 let a := Symmetry.sym_pf t0 t1 in
                 Std.clear [ident]; Std.pose (Some ident) a
                 | Std.InHypValueOnly => failwith "Not implemented"

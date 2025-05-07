@@ -2,7 +2,7 @@
 (coq.theory
  (name Simplex)
  (package simplex-cat)
- (flags -noinit)
+ (flags -noinit -w -ambiguous-paths)
  ;(stdlib no)
  (theories Ltac2)
 )

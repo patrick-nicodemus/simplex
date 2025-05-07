@@ -81,9 +81,6 @@ Proof.
     + simpl. intro h. apply recp. exact h.
 Defined.
 
-Print Notation "_ <= _".
-Print "_ <= _".
-Print Canonical Projections.
 Theorem take_length@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
   a b (p : path R a b) (k : nat) (le : k <= length p)
   : length (take k p) = k.

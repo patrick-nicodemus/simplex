@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Graph PreOrder.Core TwoGraph Bicat.
+From Simplex Require Import Basics Graph PreOrder.Core TwoGraph OneBicat.
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
@@ -8,7 +8,7 @@ Module Lax1Functor.
     Import TwoGraph.Notations.
     Class mixin_of@{s1 s2|u0a u1a u0b u1b u2b|}
       (A : PreOrder.t@{s1|u0a u1a})
-      (B : TwoGraph.t@{s2|u0b u1b u2b}) {Bp: PreOrder.class_of B}
+      (B : TwoGraph.t@{s2|u0b u1b u2b}) {Bp: PreOrder.class_of (@TwoGraph.Hom B)}
       (F : GraphHom.t A B)
       : Type@{s2|max(u0a,u1a,u2b)}
       := Mixin {
@@ -20,8 +20,9 @@ Module Lax1Functor.
   Include _mixin.
 
   Class class_of@{s1 s2|+|+}
-    (A : TwoGraph.t@{s1|_ _ _ }) {Ap : PreOrder.class_of A}
-    (B : TwoGraph.t@{s2|_ _ _}) {Bp : PreOrder.class_of B} (F: A -> B)
+    (A : TwoGraph.t@{s1|_ _ _ }) {Ap : PreOrder.class_of (@TwoGraph.Hom A)}
+    (B : TwoGraph.t@{s2|_ _ _}) {Bp : PreOrder.class_of (@TwoGraph.Hom B)}
+    (F: A -> B)
     := Class {
       is2graph_hom: TwoGraphHom.class_of F;
       mixin : mixin_of (A:=PreOrder.Pack Ap) (Bp:=Bp) 
@@ -86,7 +87,7 @@ Export Lax1Functor.Exports.
 Module Colax1Functor.
   Class mixin_of@{s1 s2|+|+}
     (A : PreOrder.t@{s1|_ _})
-    (B : TwoGraph.t@{s2|_ _ _}) {Bp: PreOrder.class_of B}
+    (B : TwoGraph.t@{s2|_ _ _}) {Bp: PreOrder.class_of (@TwoGraph.Hom B)}
     (F : GraphHom.t A B)
     := colax_mixin
       : Lax1Functor.mixin_of@{s1 s2|_ _ _ _ _}
@@ -95,8 +96,9 @@ Module Colax1Functor.
   Typeclasses Transparent mixin_of.
 
   Class class_of@{s1 s2|+|}
-    (A : TwoGraph.t@{s1|_ _ _}) (Ap : PreOrder.class_of A)
-    (B : TwoGraph.t@{s2|_ _ _}) (Bp : PreOrder.class_of B) (F: A -> B)
+    (A : TwoGraph.t@{s1|_ _ _}) (Ap : PreOrder.class_of (@TwoGraph.Hom A))
+    (B : TwoGraph.t@{s2|_ _ _}) (Bp : PreOrder.class_of (@TwoGraph.Hom B))
+    (F: A -> B)
     := Class {
       is2graph_hom: TwoGraphHom.class_of F;
       mixin : mixin_of (A:=PreOrder.Pack Ap) (Bp:=Bp) 
@@ -132,7 +134,7 @@ End Colax1Functor.
 Module Pseudo1Functor.
   Class mixin_of@{s1 s2|u0a u1a u0b u1b u2b|}
     (A : PreOrder.t@{s1|u0a u1a})
-    (B : TwoGraph.t@{s2|u0b u1b u2b}) {Bp: PreOrder.class_of B}
+    (B : TwoGraph.t@{s2|u0b u1b u2b}) {Bp: PreOrder.class_of (@TwoGraph.Hom B)}
     (F : GraphHom.t A B)
     : Type@{s2|max(u0a,u1a,u2b)}
     := Mixin {
@@ -141,15 +143,15 @@ Module Pseudo1Functor.
          }.
 
   Class class_of@{s1 s2|+|+}
-    (A : TwoGraph.t@{s1|_ _ _}) (Ap : PreOrder.class_of A)
-    (B : TwoGraph.t@{s2|_ _ _}) (Bp : PreOrder.class_of B) (F: A -> B)
+    (A : TwoGraph.t@{s1|_ _ _}) (Ap : PreOrder.class_of (@TwoGraph.Hom A))
+    (B : TwoGraph.t@{s2|_ _ _}) (Bp : PreOrder.class_of (@TwoGraph.Hom B))
+    (F: A -> B)
     := Class {
       is2graph_hom: TwoGraphHom.class_of F;
       mixin : mixin_of (A:=PreOrder.Pack Ap) (Bp:=Bp) 
                (TwoGraphHom.to_graph_hom (TwoGraphHom.Pack is2graph_hom))
          }.
 
-  (* Local Existing Instance OneBicat.is_preorder_mixin. *)
   Structure t@{s1 s2|+|+}
     (A : OneBicat.t@{s1|_ _ _})
     (B : OneBicat.t@{s2|_ _ _})

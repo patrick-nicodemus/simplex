@@ -40,7 +40,7 @@ Module Rewriting.
     let eq_hyp_type := Constr.type eq_hyp in
     let goal := match! goal with | [|- ?g] => g end in
     let (holey_pf, holey_eq_hyp) := to_holes eq_hyp eq_hyp_type in
-    let (x, y) := match! holey_eq_hyp with (@eq _ ?x ?y) => (x,y) end in
+    let (_, y) := match! holey_eq_hyp with (@eq _ ?x ?y) => (x,y) end in
     let goal_subterm := (all_closed_subterms goal) in
     Std.unify y goal_subterm;
     Control.refine (fun () => '(match $holey_pf return $goal with eq_refl _ => _ end)).
