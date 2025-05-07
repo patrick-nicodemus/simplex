@@ -67,12 +67,18 @@ Module OneBicat.
   End t_conventions.
   Import t_conventions.
 
+  Definition is_vpreorder_instance (A: t) (x y : A)
+    : PreOrder.class_of (@two_cells A x y)
+    := is_vpreorder (class A) x y.
+
   Definition to_vpreorder@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2})
     : forall (x y : A), PreOrder.t@{s|u1 u2}
     := fun x y => PreOrder.Pack (is_vpreorder (class A) x y).
+
   Module to_vpreorder_exports.
     Coercion to_vpreorder : t >-> Funclass.
     Canonical to_vpreorder.
+    Existing Instance is_vpreorder_instance.
   End to_vpreorder_exports.
   Import to_vpreorder_exports.
 
@@ -114,9 +120,12 @@ Module OneBicat.
     : PreOrder.t@{Type|u0 u1}
     := @PreOrder.Pack _ _ (is_preorder_class A).
 
-  Definition is_vpreorder_instance (A: t) (x y : A)
-    : PreOrder.class_of (A x y)
-    := is_vpreorder (class A) x y.
+  Module preorder_exports.
+    Existing Instance is_preorder_class.
+    Coercion to_preorder : t >-> PreOrder.t.
+    Canonical to_preorder.
+  End preorder_exports.
+  Import preorder_exports.
 
   Definition co@{s|+|} : t@{s|_ _ _} -> t@{s|_ _ _}
     := fun x =>
@@ -129,15 +138,20 @@ Module OneBicat.
              |}
          end.
 
+  Record AreInverse (A : t) (x y : A)
+    (f : Hom x y) (g : Hom y x)
+    := {
+      fg_id : Couple (to_vpreorder A x x) (f · g) (1 x);
+      gf_id : Couple (to_vpreorder A y y) (g · f) (1 y)
+    }.
+
   Module Exports.
     Export t_conventions.
     Export to_graph_exports.
     Export to2graph_coercion.
     Export to_hom_graph_exports.
-    Existing Instance is_preorder_class.
-    Coercion to_preorder : t >-> PreOrder.t.
-    Canonical to_preorder.
-    Existing Instance is_vpreorder_instance.
+    Export preorder_exports.
+    Export to_vpreorder_exports.
   End Exports.
   Module Notations.
     Local Set Warnings "-notation-overridden".

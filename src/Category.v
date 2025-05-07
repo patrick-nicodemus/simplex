@@ -13,6 +13,11 @@ Module Category.
       Hom : sort -> sort -> Type;
       class : class_of Hom
     }.
+  Module t_exports.
+    Coercion sort : t >-> Sortclass.
+    Arguments Hom [t].
+  End t_exports.
+  Import t_exports.
 
   Record mixin_of (A : PreOrder.t) := Mixin {
       assoc : forall (w x y z : A) (f : w <= x) (g : x <= y) (h : y <= z),
@@ -49,4 +54,40 @@ Module Category.
                        end
          end).
   Defined.
+
+  Definition to_graph (A : t) : Graph.t := {|
+      Graph.sort := sort A;
+      Graph.Hom := @Hom A
+  |}.
+
+  Definition IsPreOrder (A : t)
+    : PreOrder.class_of (@Category.Hom A)
+    := OneBicat.is_preorder (class A).
+
+  Definition IsReflexive (A : t)
+    := PreOrder.refl (class_of:=(IsPreOrder A)).
+
+  Definition IsTransitive (A : t)
+    := PreOrder.trans (class_of:=(IsPreOrder A)).
+
+  Module to_graph_exports.
+    Coercion to_graph : t >-> Graph.t.
+    Canonical to_graph.
+    Existing Instance IsReflexive.
+    Existing Instance IsTransitive.
+  End to_graph_exports.
+  Import to_graph_exports.
+
+  Record AreInverse (C : Category.t) (x y : C)
+    (f : Category.Hom x y) (g : Category.Hom y x)
+    := {
+      fg_id : f · g = 1 x;
+      gf_id : g · f = 1 y
+    }.
+
+  Module Exports.
+    Export t_exports.
+    Export to_graph_exports.
+  End Exports.
 End Category.
+Export Category.Exports.
