@@ -54,6 +54,11 @@ Definition couple_op@{s|u0 u1|} (A: Graph.t@{s|u0 u1}) (x y : A)
   : Couple (Graph.op A) x y
   := Build_Couple (Graph.op A) _ _ (Ryx p) (Rxy p).
 
+Definition couple_sym@{s|u0 u1|} (A : Graph.t@{s|u0 u1}) (x y : A)
+  (r : Symmetric (@Graph.Hom A))
+  : x ~> y -> Couple A x y
+  := fun f => {| Rxy := f; Ryx := f^ |}.
+
 Module GraphHom.
   Class class_of@{s1 s2|+|} {A : Graph.t@{s1|_ _}} {B : Graph.t@{s2|_ _}}
     (F : A -> B)

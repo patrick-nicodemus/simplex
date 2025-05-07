@@ -15,3 +15,5 @@ Class Transitive@{s |u0 u1|}
 Class Symmetric@{s | u0 u1|} {A : Type@{u0}} (R : A -> A -> Type@{s | u1})
   : Type@{s|max(u0+1,u1+1)}
   := symmetry : forall (x y: A), R x y -> R y x.
+
+Notation "f ^" := (symmetry _ _ f).

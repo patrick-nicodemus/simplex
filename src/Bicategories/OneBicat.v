@@ -4,8 +4,9 @@ Local Open Scope morphism_scope.
 
 Definition Associative@{s|u0 u1 u2|} (A : TwoGraph.t@{s|u0 u1 u2})
   (t : Transitive@{Type|u0 u1} (@TwoGraph.Hom A))
-  := forall (w x y z : A) (f : TwoGraph.Hom w x) (g : TwoGraph.Hom x y) (h : TwoGraph.Hom y z),
-    Couple@{s|u1 u2} (* (TwoGraph.two_hom _ _) *) _ ((f · g) · h) (f · (g · h)).
+  := forall (w x y z : A)
+       (f : TwoGraph.Hom w x) (g : TwoGraph.Hom x y) (h : TwoGraph.Hom y z),
+    Couple@{s|u1 u2} _ ((f · g) · h) (f · (g · h)).
 
 Definition LeftUnitor@{s|u0 u1 u2|}
   (A : TwoGraph.t@{s|u0 u1 u2 })
