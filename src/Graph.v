@@ -28,7 +28,6 @@ Module Graph.
     Declare Scope morphism_scope.
     Delimit Scope morphism_scope with hom.
     Bind Scope morphism_scope with Hom.
-    (* Notation Hom := Hom. *)
   End ForExport.
   Module Notations.
     Infix "~>" := Hom (at level 41).
@@ -69,23 +68,33 @@ Module GraphHom.
            map : A -> B;
            class : class_of map
          }.
+  Notation fmap := class.
   Module Exports.
     Coercion map : t >-> Funclass.
     Arguments fmap' [A B] F {class_of} [x y].
     Arguments class [A B] t [x y].
     Arguments Pack [A B map].
     Existing Instance class.
-    Notation fmap := class.
+    Notation fmap := class.    
   End Exports.
 End GraphHom.
 Export GraphHom.Exports.
 
 Definition Transformation@{s|uA uB0 uB1|}
   (A : Type@{uA}) (B : Graph.t@{s|uB0 uB1})
-  (F G : A -> B)
-  := forall a : A, Graph.Hom (F a) (G a).
+  (* (F G : A -> B) *)
+  := fun (F G : A -> B) => forall (a : A), Graph.Hom (F a) (G a).
+
 Arguments Transformation [A B].
+Set Printing Universes.
+Print Transformation.
+
+(* Instance id_trans@{s|uA u0B u1B|} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B}) *)
+(*   `{Reflexive _ (@Graph.Hom B)}                     *)
+(*   : Reflexive@{s| |} (@Transformation A B) *)
+(*   := *)
+(*   fun (F : A -> B) (a : A) => 1%hom (F a). *)
+
 
 Module Graph_of_Graphs.
-
 End Graph_of_Graphs.

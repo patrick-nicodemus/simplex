@@ -26,11 +26,15 @@ Module Category.
       ru : forall (x y : A) (f : x <= y), (f · 1 y) = f
     }.
 
-  Record class_minimal (A : Type) (R : A -> A -> Type) := {
+  Class class_minimal (A : Type) (R : A -> A -> Type) := {
       is_preorder : PreOrder.class_of R;
       mixin : mixin_of (PreOrder.Pack is_preorder)
     }.
-
+  Module class_minimal_exports.
+    Arguments mixin [A R].
+  End class_minimal_exports.
+  Import class_minimal_exports.
+  
   Definition Build (A : Type) (R : A -> A -> Type) (C : class_minimal R) : t.
   Proof.
     apply (@Pack A R).
@@ -84,10 +88,16 @@ Module Category.
       fg_id : f · g = 1 x;
       gf_id : g · f = 1 y
     }.
+  Module AreInverseExports.
+    Arguments AreInverse [C x y] f g.
+  End AreInverseExports.
+  Import AreInverseExports.
 
   Module Exports.
     Export t_exports.
+    Export class_minimal_exports.
     Export to_graph_exports.
+    Export AreInverseExports.
   End Exports.
 End Category.
 Export Category.Exports.

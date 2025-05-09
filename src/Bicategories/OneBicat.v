@@ -20,22 +20,24 @@ Definition RightUnitor@{s|u0 u1 u2|}
 
 Module OneBicat.
   Import TwoGraph.Notations.
+  (** [assocm], [lum], and [rum] abbreviate "associativity mixin, left
+      unitor mixin, right unitor mixin" *)
   Record class_of@{s|u0 u1 u2|}
     (A : Type@{u0})
     (R : A -> A -> Type@{u1})
     (two_graph : TwoGraph.class_of@{s|u0 u1 u2} R)
     (G := TwoGraph.Pack two_graph) := {
-        is_preorder : PreOrder.class_of@{Type|u0 u1} R;
-        is_vpreorder : forall (x y: A),
-          PreOrder.class_of@{s|u1 u2} (two_graph x y);
-        assoc : Associative@{s|u0 u1 u2} G
-                  (PreOrder.trans (class_of:=is_preorder));
-        lu : LeftUnitor@{s|u0 u1 u2} G is_preorder;
-        ru : RightUnitor@{s|u0 u1 u2} G is_preorder;
+      is_preorder : PreOrder.class_of@{Type|u0 u1} R;
+      is_vpreorder : forall (x y: A),
+        PreOrder.class_of@{s|u1 u2} (two_graph x y);
+      assocm : Associative@{s|u0 u1 u2} G
+                (PreOrder.trans (class_of:=is_preorder));
+      lum : LeftUnitor@{s|u0 u1 u2} G is_preorder;
+      rum : RightUnitor@{s|u0 u1 u2} G is_preorder;
       hcomp2 : forall (x y z : A)
                  (f f' : TwoGraph.Hom (t:=G) x y)
                  (g g' : TwoGraph.Hom (t:=G) y z),
-          f ⇒ f' -> g ⇒ g' -> f · g ⇒ f' · g'
+        f ⇒ f' -> g ⇒ g' -> f · g ⇒ f' · g'
     }.
 
   Definition co_class@{s|u0 u1 u2|}
@@ -47,9 +49,9 @@ Module OneBicat.
          {|
            is_preorder := _;
            is_vpreorder x y := PreOrder.op_class (is_vpreorder m x y);
-           assoc w x y z f g h := Graph.couple_op (assoc m w x y z f g h);
-           lu x y f := Graph.couple_op (lu m x y f);
-           ru x y f := Graph.couple_op (ru m x y f);
+           assocm w x y z f g h := Graph.couple_op (assocm m w x y z f g h);
+           lum x y f := Graph.couple_op (lum m x y f);
+           rum x y f := Graph.couple_op (rum m x y f);
            hcomp2 x y z f f' g g' := hcomp2 m x y z f' f g' g
          |}.
 
@@ -145,6 +147,25 @@ Module OneBicat.
       gf_id : Couple (to_vpreorder A y y) (g · f) (1 y)
     }.
 
+  Definition assoc@{s|+|} (A : t@{s|_ _ _})
+    : Associative@{s|_ _ _} A _
+    := assocm (class A).
+  
+  Definition lu@{s|+|} (A : t@{s|_ _ _})
+    : LeftUnitor@{s|_ _ _} A _
+    := lum (class A).
+
+  Definition ru@{s|+|} (A : t@{s|_ _ _})
+    : RightUnitor@{s|_ _ _} A _
+    := rum (class A).
+
+  Module coherence_exports.
+    Arguments assoc [A w x y z] f g h.
+    Arguments lu [A x y] f.
+    Arguments ru [A x y] f.
+  End coherence_exports.
+  Import coherence_exports.
+
   Module Exports.
     Export t_conventions.
     Export to_graph_exports.
@@ -152,6 +173,7 @@ Module OneBicat.
     Export to_hom_graph_exports.
     Export preorder_exports.
     Export to_vpreorder_exports.
+    Export coherence_exports.
   End Exports.
   Module Notations.
     Local Set Warnings "-notation-overridden".

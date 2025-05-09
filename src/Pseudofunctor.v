@@ -12,7 +12,7 @@ Module Lax1Functor.
       (F : GraphHom.t A B)
       : Type@{s2|max(u0a,u1a,u2b)}
       := Mixin {
-             luc_mixin : forall (x : A), 1 (F x) ⇒ fmap F (1 x);
+             luc_mixin : forall (x : A), 1 (F x) ⇒ GraphHom.fmap F (1 x);
              lfc_mixin : forall (x y z: A) (f : PreOrder.Hom x y) (g : PreOrder.Hom y z),
                (fmap F f) · (fmap F g) ⇒ fmap F (f · g)
            }.

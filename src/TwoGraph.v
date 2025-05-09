@@ -61,7 +61,7 @@ Export TwoGraph.ForExport.
 Module TwoGraphHom.
   Class mixin_of@{s1 s2|+|} {A : TwoGraph.t@{s1|_ _ _}} {B : TwoGraph.t@{s2|_ _ _}}
     (F : GraphHom.t A B)
-    := ffmap : forall (x y : A), GraphHom.class_of (fmap F (x:=x) (y:=y)).
+    := ffmap : forall (x y : A), GraphHom.class_of (GraphHom.fmap F (x:=x) (y:=y)).
 
   Class class_of@{s1 s2|+|} {A : TwoGraph.t@{s1|_ _ _}} {B : TwoGraph.t@{s2|_ _ _}}
     (F : A -> B)
