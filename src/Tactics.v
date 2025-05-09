@@ -140,9 +140,10 @@ Ltac2 symmetry_lookup (r : constr) := constr:(symmetry (R:=$r)).
 (*       end *)
 (*   end. *)
 
+From Ltac2 Require Import Printf.
 Ltac2 symmetry0 (cl : Std.clause) : unit :=
   match cl with
-  | { Std.on_hyps := on_hyps; Std.on_concl := _} =>
+  | { Std.on_hyps := on_hyps; Std.on_concl := on_concl} =>
       (match on_hyps with
        | Some hyps =>
            List.iter
@@ -158,17 +159,26 @@ Ltac2 symmetry0 (cl : Std.clause) : unit :=
                 | Std.InHypValueOnly => failwith "Not implemented"
                 end
              ) hyps
-       | None => ()
-       end)
+       | None => Control.zero Not_found
+       end);
+      match on_concl with
+      | Std.AllOccurrences =>
+          match! goal with
+          | [|- ?r ?x ?y] =>
+              refine (@symmetry _ $r _ $y $x _)
+          end
+      | Std.AllOccurrencesBut (_int_list) => Control.zero Not_found
+      | Std.NoOccurrences => ()
+      | Std.OnlyOccurrences (_int_list) => Control.zero Not_found
+      end
   end.
-
-Ltac2 symmetry (cl : Std.clause) :=
-  Control.plus (fun () => symmetry0 cl)
-               (fun _ => Std.symmetry cl).
 
 Module Notations.
   Ltac2 Notation reflexivity := reflexivity().
   Ltac2 Notation "symmetry" cl(opt(clause))
-    := symmetry0 (Notations.default_on_concl cl).
+    :=
+    let cl := (Notations.default_on_concl cl) in
+    Control.plus (fun () => symmetry0 cl)
+      (fun _ => Std.symmetry cl).
 End Notations.
 Export Notations.

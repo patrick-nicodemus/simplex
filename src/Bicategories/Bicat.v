@@ -4,7 +4,7 @@ Module Bicategory.
   Set Printing All.
   Print Canonical Projections.
   Record mixin_of@{u0 u1 u2} (A : OneBicat.t@{Type|u0 u2 u2}) := {
-      is_vcat (x y : A) : Category.mixin_of (OneBicat.to_vpreorder A x y);
+      is_vcat (x y : A) : Category.Mixin.mixin_of (OneBicat.to_vpreorder A x y);
       vcat (x y : A) :=
         (@Category.Build _ _  
            (Category.Build_class_minimal

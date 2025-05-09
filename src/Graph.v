@@ -82,19 +82,23 @@ Export GraphHom.Exports.
 
 Definition Transformation@{s|uA uB0 uB1|}
   (A : Type@{uA}) (B : Graph.t@{s|uB0 uB1})
-  (* (F G : A -> B) *)
   := fun (F G : A -> B) => forall (a : A), Graph.Hom (F a) (G a).
 
 Arguments Transformation [A B].
-Set Printing Universes.
-Print Transformation.
 
-(* Instance id_trans@{s|uA u0B u1B|} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B}) *)
-(*   `{Reflexive _ (@Graph.Hom B)}                     *)
-(*   : Reflexive@{s| |} (@Transformation A B) *)
-(*   := *)
-(*   fun (F : A -> B) (a : A) => 1%hom (F a). *)
+Instance id_trans@{s|uA u0B u1B +|+} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
+  `{Reflexive _ (@Graph.Hom B)}
+  : Reflexive@{s|_ _} (@Transformation A B)
+  :=
+  fun (F : A -> B) (a : A) => 1%hom (F a).
 
+Instance compose_trans@{s|uA u0B u1B +|+} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
+  `{Transitive _ (@Graph.Hom B)}
+  : Transitive@{s|_ _} (@Transformation A B)
+  :=
+  fun (F G H: A -> B)
+    (sigma : Transformation F G) (tau : Transformation G H)
+    (a : A) => (sigma a) · (tau a).
 
 Module Graph_of_Graphs.
 End Graph_of_Graphs.
