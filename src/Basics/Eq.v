@@ -36,6 +36,22 @@ Module Strict_anti_univalence.
   Inductive SEq@{u} {A : Type@{u}} (a : A) : A -> SProp :=
     eq_refl : SEq a a.
 
+  Definition to {A : Type} {a b : A} (p : a = b) : SEq a b := match p with Eq.eq_refl _ => eq_refl _ end.
+  Definition from {A : Type} {a b : A} (q : SEq a b) : a = b := match q with eq_refl _ => Eq.eq_refl _ end.
+  
+  Lemma to_from_inv (A : Type) (a b : A) (p : a = b) : from (to p) = p.
+  Proof.
+    destruct p. reflexivity.
+  Defined.
+
+  Theorem UIP : forall (A : Type) (a : A) (p : a = a), p = Eq.eq_refl a.
+  Proof.
+    intros A a p.
+    rewrite <- (to_from_inv _ _ _ p).
+    change (to p) with (to (Eq.eq_refl a)).
+    reflexivity.
+  Defined.
+    
   Module Interval.
     Private Inductive I :=
     | zero

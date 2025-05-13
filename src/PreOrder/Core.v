@@ -24,9 +24,10 @@ Module PreOrder.
 
   Module t_conventions.
     Arguments Pack & [sort Hom].
-    Coercion sort : t >-> Sortclass.
+    #[reversible] Coercion sort : t >-> Sortclass.
     Coercion Hom : t >-> Funclass.
     Arguments Hom [t].
+    Existing Instance class.
   End t_conventions.
   Import t_conventions.
   
@@ -61,7 +62,9 @@ Module PreOrder.
 
   Definition op@{s|+|+} (A : t@{s|_ _}) : t@{s| _ _}
     := Pack (op_class (class A)).
-  
+
+  Notation compose := transitive.
+
   Module ForExport.
     Export class_of_exports.
     Export t_conventions.
@@ -71,6 +74,7 @@ Module PreOrder.
   End ForExport.
   Module Notations.
     Infix "<=" := Hom (at level 70).
+    Notation IsPreOrder := class_of.
   End Notations.
 End PreOrder.
 Export PreOrder.ForExport.

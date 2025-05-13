@@ -207,3 +207,11 @@ Proof.
     + simpl. apply IHm.
     + simpl. destruct (add_succ_comm n m). exact IHm.
 Qed.
+
+Theorem nat_rect@{u} : forall P : nat -> Type@{u}, P 0 -> (forall n, P n -> P (S n)) -> (forall n, P n).
+Proof.
+  intros P P0 PS.
+  refine '(fix recfun (n : nat) {struct n} := match n with | O => _ | S n' => _ end).
+  - exact P0.
+  - apply PS, recfun.
+Defined.

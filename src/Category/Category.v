@@ -75,7 +75,7 @@ Module Category.
 
   Definition IsPreOrder (A : t)
     : PreOrder.class_of (@Category.Hom A)
-    := OneBicat.is_preorder (class A).
+    := OneBicat.Class_of.is_preorder (class A).
 
   Definition to_preorder@{u0 u1} (A : t@{u0 u1})
     : PreOrder.t@{Type|u0 u1}
@@ -89,6 +89,7 @@ Module Category.
 
   Module PreOrder_exports.
     Canonical to_preorder.
+    Coercion to_preorder : t >-> PreOrder.t.
     Existing Instance IsReflexive.
     Existing Instance IsTransitive.    
   End PreOrder_exports.
@@ -110,19 +111,19 @@ Module Category.
         (f : Hom w x) (g : Hom x y) (h : Hom y z),
       (f · g) · h = f · (g · h).
   Proof.
-    apply (OneBicat.assocm (class A)).
+    apply (OneBicat.Class_of.assoc (class A)).
   Defined.
         
   Definition ru (A : t) : forall (x y : A) (f : Hom x y),
       f · 1 y = f.
   Proof.
-    apply (OneBicat.rum (class A)).
+    apply (OneBicat.Class_of.ru (class A)).
   Defined.
 
   Definition lu (A : t) : forall (x y : A) (f : Hom x y),
       1 x · f = f.
   Proof.
-    apply (OneBicat.lum (class A)).
+    apply (OneBicat.Class_of.lu (class A)).
   Defined.
   Module coherence_exports.
     Arguments assoc [A w x y z].

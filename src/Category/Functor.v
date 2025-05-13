@@ -12,11 +12,10 @@ Module Functor.
       F_comp : forall (x y z : A) (f : PreOrder.Hom x y) (g : PreOrder.Hom y z),
         fmap (f · g) = fmap f · fmap g
     }.
-  Module class_of_exports.
-    Arguments class_of [A B F] fmap.
-  End class_of_exports.
-  Import class_of_exports.
   
+  Arguments class_of [A B F] fmap.
+  Notation is_functor := class_of.
+
   Structure t@{u0a u1a u0b u1b}
     (A : PreOrder.t@{Type|u0a u1a})
     (B : PreOrder.t@{Type|u0a u1a})
@@ -26,9 +25,10 @@ Module Functor.
       class : class_of@{u0a u1a u0b u1b} fmap
     }.
 
-  Module Exports.
-    Export class_of_exports.
-  End Exports.
-End Functor.
-Export Functor.Exports.
+  Definition to_graph_hom (A B : PreOrder.t) (F : t A B) :
+    GraphHom.t A B := {| GraphHom.map := map F; GraphHom.fmap := fmap F |}.
+  Coercion to_graph_hom : t >-> GraphHom.t.
 
+End Functor.
+
+Export (coercions) Functor.

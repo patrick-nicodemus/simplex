@@ -20,25 +20,28 @@ Definition RightUnitor@{s|u0 u1 u2|}
 
 Module OneBicat.
   Import TwoGraph.Notations.
-  (** [assocm], [lum], and [rum] abbreviate "associativity mixin, left
-      unitor mixin, right unitor mixin" *)
-  Record class_of@{s|u0 u1 u2|}
-    (A : Type@{u0})
-    (R : A -> A -> Type@{u1})
-    (two_graph : TwoGraph.class_of@{s|u0 u1 u2} R)
-    (G := TwoGraph.Pack two_graph) := {
-      is_preorder : PreOrder.class_of@{Type|u0 u1} R;
-      is_vpreorder : forall (x y: A),
-        PreOrder.class_of@{s|u1 u2} (two_graph x y);
-      assocm : Associative@{s|u0 u1 u2} G
-                (PreOrder.trans (class_of:=is_preorder));
-      lum : LeftUnitor@{s|u0 u1 u2} G is_preorder;
-      rum : RightUnitor@{s|u0 u1 u2} G is_preorder;
-      hcomp2 : forall (x y z : A)
-                 (f f' : TwoGraph.Hom (t:=G) x y)
-                 (g g' : TwoGraph.Hom (t:=G) y z),
-        f ⇒ f' -> g ⇒ g' -> f · g ⇒ f' · g'
-    }.
+
+  Module Class_of.
+    Record t@{s|u0 u1 u2|}
+      (A : Type@{u0})
+      (R : A -> A -> Type@{u1})
+      (two_graph : TwoGraph.class_of@{s|u0 u1 u2} R)
+      (G := TwoGraph.Pack two_graph) := {
+        is_preorder : PreOrder.class_of@{Type|u0 u1} R;
+        is_vpreorder : forall (x y: A),
+          PreOrder.class_of@{s|u1 u2} (two_graph x y);
+        assoc : Associative@{s|u0 u1 u2} G
+                   (PreOrder.trans (class_of:=is_preorder));
+        lu : LeftUnitor@{s|u0 u1 u2} G is_preorder;
+        ru : RightUnitor@{s|u0 u1 u2} G is_preorder;
+        hcomp2 : forall (x y z : A)
+                   (f f' : TwoGraph.Hom (t:=G) x y)
+                   (g g' : TwoGraph.Hom (t:=G) y z),
+          f ⇒ f' -> g ⇒ g' -> f · g ⇒ f' · g'
+      }.
+  End Class_of.
+  Notation class_of := Class_of.t.
+  Import Class_of.
 
   Definition co_class@{s|u0 u1 u2|}
     (A : Type@{u0})
@@ -47,11 +50,11 @@ Module OneBicat.
     : class_of two_graph -> class_of (TwoGraph.co_class two_graph)
     := fun m =>
          {|
-           is_preorder := _;
+           Class_of.is_preorder := _;
            is_vpreorder x y := PreOrder.op_class (is_vpreorder m x y);
-           assocm w x y z f g h := Graph.couple_op (assocm m w x y z f g h);
-           lum x y f := Graph.couple_op (lum m x y f);
-           rum x y f := Graph.couple_op (rum m x y f);
+           assoc w x y z f g h := Graph.couple_op (assoc m w x y z f g h);
+           lu x y f := Graph.couple_op (lu m x y f);
+           ru x y f := Graph.couple_op (ru m x y f);
            hcomp2 x y z f f' g g' := hcomp2 m x y z f' f g' g
          |}.
 
@@ -61,7 +64,8 @@ Module OneBicat.
         Hom : sort -> sort -> Type@{u1};
         two_cells : TwoGraph.class_of@{s|u0 u1 u2} Hom;
         class : class_of@{s|u0 u1 u2} two_cells
-    }.
+      }.
+
   Module t_conventions.
     Coercion sort : t >-> Sortclass.
     Arguments Hom [t].
@@ -69,25 +73,25 @@ Module OneBicat.
   End t_conventions.
   Import t_conventions.
 
-  Definition is_vpreorder_instance (A: t) (x y : A)
+  Definition is_vpreorder@{s|u0 u1 u2|} (A: t@{s|u0 u1 u2}) (x y : A)
     : PreOrder.class_of (@two_cells A x y)
     := is_vpreorder (class A) x y.
 
-  Definition to_vpreorder@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2})
+  Definition vpreorder@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2})
     : forall (x y : A), PreOrder.t@{s|u1 u2}
-    := fun x y => PreOrder.Pack (is_vpreorder (class A) x y).
+    := fun x y => PreOrder.Pack (is_vpreorder A x y).
 
-  Module to_vpreorder_exports.
-    Coercion to_vpreorder : t >-> Funclass.
-    Canonical to_vpreorder.
-    Existing Instance is_vpreorder_instance.
-  End to_vpreorder_exports.
-  Import to_vpreorder_exports.
+  Module vpreorder_exports.
+    Canonical vpreorder.
+    Existing Instance is_vpreorder.
+    Arguments vpreorder {A}.
+  End vpreorder_exports.
+  Import vpreorder_exports.
 
   Definition to_graph@{s|u0 u1 u2|}
     (A : t@{s|u0 u1 u2}) : Graph.t@{Type|u0 u1}
     := @Graph.Pack (sort A)
-         (to_vpreorder A).
+         (@vpreorder A).
   Module to_graph_exports.
     Canonical to_graph.
   End to_graph_exports.
@@ -143,21 +147,26 @@ Module OneBicat.
   Record AreInverse (A : t) (x y : A)
     (f : Hom x y) (g : Hom y x)
     := {
-      fg_id : Couple (to_vpreorder A x x) (f · g) (1 x);
-      gf_id : Couple (to_vpreorder A y y) (g · f) (1 y)
+      fg_id : Couple (vpreorder x x) (f · g) (1 x);
+      gf_id : Couple (vpreorder y y) (g · f) (1 y)
     }.
 
   Definition assoc@{s|+|} (A : t@{s|_ _ _})
     : Associative@{s|_ _ _} A _
-    := assocm (class A).
+    := assoc (class A).
   
   Definition lu@{s|+|} (A : t@{s|_ _ _})
     : LeftUnitor@{s|_ _ _} A _
-    := lum (class A).
+    := lu (class A).
 
   Definition ru@{s|+|} (A : t@{s|_ _ _})
     : RightUnitor@{s|_ _ _} A _
-    := rum (class A).
+    := ru (class A).
+
+  Definition hcomp2@{s|+|} (A : t@{s|_ _ _})
+    := hcomp2 (class A).
+  Definition is_preorder@{s|+|} (A : t@{s|_ _ _})
+    := is_preorder (class A).  
 
   Module coherence_exports.
     Arguments assoc [A w x y z] f g h.
@@ -166,13 +175,16 @@ Module OneBicat.
   End coherence_exports.
   Import coherence_exports.
 
+  Definition compose@{s|+|} [A : t@{s|_ _ _}] :=
+    PreOrder.is_trans (to_preorder A).
+
   Module Exports.
     Export t_conventions.
     Export to_graph_exports.
     Export to2graph_coercion.
     Export to_hom_graph_exports.
     Export preorder_exports.
-    Export to_vpreorder_exports.
+    Export vpreorder_exports.
     Export coherence_exports.
   End Exports.
   Module Notations.
