@@ -19,8 +19,8 @@ Proof.
   constructor.
   - constructor; apply reflexive.
   - intros x y z f g; simpl in *. constructor.
-    + apply transitive with (fst y) > [exact (fst f) | exact (fst g)].
-    + apply transitive with (snd y) > [exact (snd f) | exact (snd g)].
+    + apply transitive with (fst y) > [exact _|exact (fst f) | exact (fst g)].
+    + apply transitive with (snd y) > [exact _|exact (snd f) | exact (snd g)].
 Defined.
 
 Arguments Prod_class [A] RA {IsPreOrder0} [B] RB {IsPreOrder1}.

@@ -1,5 +1,5 @@
 From Simplex Require Import Basics Relations.
-
+Local Set Implicit Arguments.
 Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
 
@@ -26,6 +26,12 @@ Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
     | eq_refl _ => eq_refl a
     end.
 
+Definition transport@{s|u0 u1|} (A : Type@{u0})
+  (P : A -> Type@{s|u1})
+  (a b : A) (p : a = b)
+  : P b -> P a
+  := match p with | eq_refl _ => fun x => x end.
+
 Definition f_equal (A B : Type) (f : A -> B) (x y : A) : x = y -> f x = f y
   := fun p => match p with eq_refl _ => eq_refl (f x) end.
 
@@ -47,7 +53,7 @@ Module Strict_anti_univalence.
   Theorem UIP : forall (A : Type) (a : A) (p : a = a), p = Eq.eq_refl a.
   Proof.
     intros A a p.
-    rewrite <- (to_from_inv _ _ _ p).
+    rewrite <- (to_from_inv p).
     change (to p) with (to (Eq.eq_refl a)).
     reflexivity.
   Defined.
@@ -146,7 +152,7 @@ Export SEqType.Exports.
 
 Instance seq_rel_reflexive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
   Reflexive@{SProp|u Set} (@SEqType.seq_rel A class)
-  := fun h => SEqType.seq_only_if h h (eq_refl h).
+  := fun h => SEqType.seq_only_if (eq_refl h).
 
 Instance seq_rel_transitive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
   Transitive@{SProp|u Set} (@SEqType.seq_rel A class).
@@ -179,7 +185,7 @@ Defined.
 Theorem isContr_up (A : Type) (H : forall y z : A, y = z)
   (y z : A) (p q : y = z) : p = q.
 Proof.
-  rewrite (isContr_lemma A H _ _ _ _ p q).
+  rewrite (isContr_lemma H p q).
   apply symmetry.
-  exact (isContr_lemma A H _ _ _ _ q q).
+  apply isContr_lemma.
 Defined.

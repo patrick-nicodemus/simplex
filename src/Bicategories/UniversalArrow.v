@@ -146,8 +146,8 @@ Module ColaxLeftAdjoint.
                (mixin_of:=
                   Is1Universal.is1universal
                     (F_univ1 x) (univ_object x G) _)).
-      apply (transitive _ (eta x G)) > [ apply OneBicat.lu |].
-      apply (transitive _ (eta x G · (1 _))) > [ apply OneBicat.ru |].
+      apply (transitive (y:=eta x G)) > [ apply OneBicat.lu |].
+      apply (transitive (y:=eta x G · (1 _))) > [ apply OneBicat.ru |].
       apply OneBicat.hcomp2 >  [exact (reflexive _)|].
       apply (Lax1Functor.luc).
     Defined.
@@ -161,18 +161,18 @@ Module ColaxLeftAdjoint.
                (mixin_of:=
                   Is1Universal.is1universal
                     (F_univ1 x) (univ_object z G) _)).
-      apply (transitive _ (f · (g · eta z G))) > [apply OneBicat.assoc|].
-      apply (transitive _ (f · (eta y G · (fmap G (fmap (F1 G F_univ1) g))))).
+      apply (transitive (y:= f · (g · eta z G))) > [apply OneBicat.assoc|].
+      apply (transitive (y:=f · (eta y G · (fmap G (fmap (F1 G F_univ1) g))))).
       1: apply OneBicat.hcomp2 > 
                 [ apply reflexive
                 | apply Is1Universal.universal_2cell]. 
-      apply (transitive _ 
-               (f · (eta y G) · fmap G (fmap (F1 G (fun x0 : OneBicat.to_graph P => F_univ1 x0)) g)))
+      apply (transitive
+               (y:= f · (eta y G) · fmap G (fmap (F1 G (fun x0 : OneBicat.to_graph P => F_univ1 x0)) g)))
             > [ apply OneBicat.assoc |].
-      apply (transitive _ 
-               ((eta x G · fmap G (fmap (F1 G _) f)) · fmap G (fmap (F1 G (fun x0 : OneBicat.to_graph P => F_univ1 x0)) g))).
+      apply (transitive
+               (y:=(eta x G · fmap G (fmap (F1 G _) f)) · fmap G (fmap (F1 G (fun x0 : OneBicat.to_graph P => F_univ1 x0)) g))).
       1: apply OneBicat.hcomp2 > [  apply Is1Universal.universal_2cell | apply reflexive]. 
-      apply (transitive _ (eta x G · (fmap G (fmap (F1 G _) f) · (fmap G (fmap (F1 G _) g)))))
+      apply (transitive (y:=eta x G · (fmap G (fmap (F1 G _) f) · (fmap G (fmap (F1 G _) g)))))
             > [apply OneBicat.assoc|].
       apply OneBicat.hcomp2 > [ apply reflexive |].
       apply Lax1Functor.lfc.

@@ -22,7 +22,7 @@ Module OneBicat.
   Import TwoGraph.Notations.
 
   Module Class_of.
-    Record t@{s|u0 u1 u2|}
+    Class t@{s|u0 u1 u2|}
       (A : Type@{u0})
       (R : A -> A -> Type@{u1})
       (two_graph : TwoGraph.class_of@{s|u0 u1 u2} R)
@@ -51,11 +51,11 @@ Module OneBicat.
     := fun m =>
          {|
            Class_of.is_preorder := _;
-           is_vpreorder x y := PreOrder.op_class (is_vpreorder m x y);
-           assoc w x y z f g h := Graph.couple_op (assoc m w x y z f g h);
-           lu x y f := Graph.couple_op (lu m x y f);
-           ru x y f := Graph.couple_op (ru m x y f);
-           hcomp2 x y z f f' g g' := hcomp2 m x y z f' f g' g
+           is_vpreorder x y := PreOrder.op_class (is_vpreorder (t:=m) x y);
+           assoc w x y z f g h := Graph.couple_op (assoc (t:=m) w x y z f g h);
+           lu x y f := Graph.couple_op (lu (t:=m) x y f);
+           ru x y f := Graph.couple_op (ru (t:=m) x y f);
+           hcomp2 x y z f f' g g' := hcomp2 (t:=m) x y z f' f g' g
          |}.
 
   Record t@{s|u0 u1 u2|} :=
@@ -75,7 +75,7 @@ Module OneBicat.
 
   Definition is_vpreorder@{s|u0 u1 u2|} (A: t@{s|u0 u1 u2}) (x y : A)
     : PreOrder.class_of (@two_cells A x y)
-    := is_vpreorder (class A) x y.
+    := is_vpreorder (t:=(class A)) x y.
 
   Definition vpreorder@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2})
     : forall (x y : A), PreOrder.t@{s|u1 u2}
@@ -119,7 +119,7 @@ Module OneBicat.
   Definition is_preorder_class@{s|u0 u1 u2|}
     (A : t@{s|u0 u1 u2})
     : PreOrder.class_of@{Type|u0 u1} (@Hom A)
-    := is_preorder (class A).
+    := is_preorder (t:=class A).
 
   (** The horizontal preorder, i.e. 0-cells ordered by 1-cells as relations *)
   Definition to_preorder@{s|u0 u1 u2|} (A : t@{s|u0 u1 u2})
@@ -153,20 +153,20 @@ Module OneBicat.
 
   Definition assoc@{s|+|} (A : t@{s|_ _ _})
     : Associative@{s|_ _ _} A _
-    := assoc (class A).
+    := assoc (t:=class A).
   
   Definition lu@{s|+|} (A : t@{s|_ _ _})
     : LeftUnitor@{s|_ _ _} A _
-    := lu (class A).
+    := lu (t:=class A).
 
   Definition ru@{s|+|} (A : t@{s|_ _ _})
     : RightUnitor@{s|_ _ _} A _
-    := ru (class A).
+    := ru (t:=class A).
 
   Definition hcomp2@{s|+|} (A : t@{s|_ _ _})
-    := hcomp2 (class A).
+    := hcomp2 (t:=class A).
   Definition is_preorder@{s|+|} (A : t@{s|_ _ _})
-    := is_preorder (class A).  
+    := is_preorder (t:=class A).  
 
   Module coherence_exports.
     Arguments assoc [A w x y z] f g h.
