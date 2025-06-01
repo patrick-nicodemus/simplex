@@ -20,6 +20,12 @@ Instance eq_trans (A : Type) : Transitive (eq (A:=A)) :=
     | eq_refl _ => fun q => q
     end.
 
+Definition transport@{s;u0 u1|} (A : Type@{u0})
+  (P : A -> Type@{s|u1})
+  (a b : A) (p : a = b)
+  : P b -> P a
+  := match p with | eq_refl _ => fun x => x end.
+
 Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
   fun (a b : A) (p : a = b) =>
     match p in _ = b return b = a with
@@ -28,12 +34,6 @@ Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
 
 Definition f_equal (A B : Type) (f : A -> B) (x y : A) : x = y -> f x = f y
   := fun p => match p with eq_refl _ => eq_refl (f x) end.
-
-Definition transport@{s;?|} A (B : A -> Type@{s|_}) (a a' : A) (p : a = a')
-  : B a' -> B a
-  := match p with
-     | eq_refl _ => fun s => s
-     end.
 
 Module Strict_anti_univalence.
   (** Importing this module leads to inconsistency with the univalence axiom. *)
