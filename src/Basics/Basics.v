@@ -1,6 +1,8 @@
 Require Corelib.Init.Datatypes.
+Create HintDb typeclass_instances discriminated.
 Declare Scope type_scope.
 Bind Scope type_scope with Sortclass.
+Delimit Scope type_scope with type.
 
 #[warnings="-w -notation-overridden"]
 Notation "A -> B" := (forall _ : A, B) (at level 99, B at level 200).

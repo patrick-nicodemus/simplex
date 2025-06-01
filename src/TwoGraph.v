@@ -1,10 +1,10 @@
 From Simplex Require Import Basics Graph.
 Local Set Implicit Arguments.
 Module TwoGraph.
-  Definition class_of@{s|u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
+  Definition class_of@{s;u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
     := forall (x y : A) (f g : R x y), Type@{s|u2}.
 
-  Structure t@{s|u0 u1 u2|} :=
+  Structure t@{s;u0 u1 u2|} :=
     Pack {
         sort : Type@{u0};
         Hom : sort -> sort -> Type@{u1};
@@ -20,12 +20,12 @@ Module TwoGraph.
   End t_conventions.
   Import t_conventions.
 
-  Definition to_graph@{s|u0 u1 u2|} (A: t@{s|u0 u1 u2})
-    : Graph.t@{Type|u0 u1}
+  Definition to_graph@{s;u0 u1 u2|} (A: t@{s;u0 u1 u2})
+    : Graph.t@{Type;u0 u1}
     := Graph.Pack (@Hom A).
 
-  Definition two_hom@{s|u0 u1 u2|} {A : t@{s|u0 u1 u2}} (x y : A)
-    : Graph.t@{s|u1 u2}
+  Definition two_hom@{s;u0 u1 u2|} {A : t@{s;u0 u1 u2}} (x y : A)
+    : Graph.t@{s;u1 u2}
     := Graph.Pack (@class _ x y).
 
   Module two_hom_exports.
@@ -34,11 +34,11 @@ Module TwoGraph.
   End two_hom_exports.
   Import two_hom_exports.
 
-  Definition co_class@{s|u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
-    : class_of@{s|u0 u1 u2} R -> class_of@{s|u0 u1 u2} R
+  Definition co_class@{s;u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
+    : class_of@{s;u0 u1 u2} R -> class_of@{s;u0 u1 u2} R
     := fun P (x y : A) (f g : R x y) => P x y g f.
 
-  Definition co@{s|+|} (A : t@{s|_ _ _}) : t@{s|_ _ _}
+  Definition co@{s;u0 u1 u2|} (A : t@{s;u0 u1 u2}) : t@{s;u0 u1 u2}
     := {|
       sort := sort A;
       Hom := @Hom A;
@@ -59,11 +59,12 @@ End TwoGraph.
 Export TwoGraph.ForExport.
 
 Module TwoGraphHom.
-  Class mixin_of@{s1 s2|+|} {A : TwoGraph.t@{s1|_ _ _}} {B : TwoGraph.t@{s2|_ _ _}}
+  Class mixin_of@{s1 s2;uA0 uA1 uA2 uB0 uB1 uB2|}
+    {A : TwoGraph.t@{s1|uA0 uA1 uA2}} {B : TwoGraph.t@{s2|uB0 uB1 uB2}}
     (F : GraphHom.t A B)
-    := ffmap : forall (x y : A), GraphHom.class_of (fmap F (x:=x) (y:=y)).
+    := ffmap : forall (x y : A), GraphHom.class_of (GraphHom.fmap F (x:=x) (y:=y)).
 
-  Class class_of@{s1 s2|+|} {A : TwoGraph.t@{s1|_ _ _}} {B : TwoGraph.t@{s2|_ _ _}}
+  Class class_of@{s1 s2;uA0 uA1 uA2 uB0 uB1 uB2} {A : TwoGraph.t@{s1|uA0 uA1 uA2}} {B : TwoGraph.t@{s2|uB0 uB1 uB2}}
     (F : A -> B)
     := Class {
            is_graph_hom : GraphHom.class_of F;
@@ -74,7 +75,7 @@ Module TwoGraphHom.
     Coercion is_graph_hom : class_of >-> GraphHom.class_of.
   End class_of_conventions.
   Import class_of_conventions.
-  Structure t@{s1 s2|+|} (A : TwoGraph.t@{s1|_ _ _}) (B : TwoGraph.t@{s2|_ _ _})
+  Structure t@{s1 s2;uA0 uA1 uA2 uB0 uB1 uB2} (A : TwoGraph.t@{s1|uA0 uA1 uA2}) (B : TwoGraph.t@{s2|uB0 uB1 uB2})
     := Pack {
       map : A -> B;
       class : class_of map
@@ -86,7 +87,7 @@ Module TwoGraphHom.
   End t_conventions.
   Import t_conventions.
   
-  Definition to_graph_hom @{s1 s2|+|} [A B] (F : t@{s1 s2|_ _ _ _ _ _} A B)
+  Definition to_graph_hom @{s1 s2;uA0 uA1 uA2 uB0 uB1 uB2|} [A B] (F : t@{s1 s2;uA0 uA1 uA2 uB0 uB1 uB2} A B)
     : GraphHom.t@{Type Type|_ _ _ _} A B
     := GraphHom.Pack (is_graph_hom (class F)).
 

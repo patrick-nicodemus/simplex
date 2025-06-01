@@ -13,7 +13,7 @@ Fixpoint length : unitBtree -> nat :=
         | Comp x y => Nat.add (length x) (length y)
         end.
 
-Definition compose@{s|u0 u1|}
+Definition compose@{s;u0 u1|}
   (A : PreOrder.t@{s|u0 u1})
   (a b : A)
   (p : Path.path A a b)

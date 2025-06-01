@@ -1,5 +1,5 @@
 From Simplex Require Import Basics Relations.
-
+Local Set Implicit Arguments.
 Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
 
@@ -28,6 +28,12 @@ Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
 
 Definition f_equal (A B : Type) (f : A -> B) (x y : A) : x = y -> f x = f y
   := fun p => match p with eq_refl _ => eq_refl (f x) end.
+
+Definition transport@{s;?|} A (B : A -> Type@{s|_}) (a a' : A) (p : a = a')
+  : B a' -> B a
+  := match p with
+     | eq_refl _ => fun s => s
+     end.
 
 Module Strict_anti_univalence.
   (** Importing this module leads to inconsistency with the univalence axiom. *)
@@ -130,17 +136,17 @@ Export SEqType.Exports.
 
 Instance seq_rel_reflexive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
   Reflexive@{SProp|u Set} (@SEqType.seq_rel A class)
-  := fun h => SEqType.seq_only_if h h (eq_refl h).
+  := fun h => SEqType.seq_only_if@{u} (eq_refl h).
 
-Instance seq_rel_transitive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
+Instance seq_rel_transitive@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} :
   Transitive@{SProp|u Set} (@SEqType.seq_rel A class).
 Proof.
   intros x y z p.
   apply (SEqType.seq_if) in p. destruct p. exact (fun q => q).
 Defined.
 
-Instance seq_rel_symmetric@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
-  Symmetric@{SProp|u Set} (@SEqType.seq_rel A class).
+Instance seq_rel_symmetric@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} :
+  Symmetric@{SProp|u Set} (@SEqType.seq_rel@{_} A class).
 Proof.
   intros x y p.
   apply (SEqType.seq_if) in p. destruct p. exact (reflexive _).
@@ -163,7 +169,7 @@ Defined.
 Theorem isContr_up (A : Type) (H : forall y z : A, y = z)
   (y z : A) (p q : y = z) : p = q.
 Proof.
-  rewrite (isContr_lemma A H _ _ _ _ p q).
+  rewrite (isContr_lemma (A:=A) H p q).
   apply symmetry.
-  exact (isContr_lemma A H _ _ _ _ q q).
+  exact (isContr_lemma H q q).
 Defined.

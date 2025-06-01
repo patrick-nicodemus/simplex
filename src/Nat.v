@@ -1,3 +1,5 @@
+Require Corelib.Init.Nat.
+Require Corelib.Init.Byte.
 From Simplex Require Import Basics Relations Eq Datatypes PreOrder.Core SPropEquiv Classes.
 
 (** 1. Definitions of [Type]-valued and [SProp]-valued inequalities on [nat], proofs of equivalence; proof that [<=] forms a preorder. *)
@@ -5,10 +7,14 @@ From Simplex Require Import Basics Relations Eq Datatypes PreOrder.Core SPropEqu
 Notation nat := Corelib.Init.Datatypes.nat.
 Notation O := Corelib.Init.Datatypes.O.
 Notation S := Corelib.Init.Datatypes.S.
-Notation "x + y" := (Nat.add x y) (at level 50, left associativity) : nat_scope.
-Notation "(+)" := Nat.add (only parsing).
+Notation "x + y" := (Corelib.Init.Nat.add x y) (at level 50, left associativity) : nat_scope.
+Notation "(+)" := Corelib.Init.Nat.add (only parsing).
 Notation "x - y" := (Nat.sub x y) (at level 50, left associativity) : nat_scope.
 Delimit Scope nat_scope with nat.
+Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint : dec_uint_scope.
+Number Notation Number.int Number.int_of_int Number.int_of_int
+  : dec_int_scope.
+Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
 
 Inductive le' : nat -> nat -> Set :=
 | le_O n : le' O n
@@ -60,7 +66,7 @@ Instance le_le'_equiv (n m : nat)
     to_type := le_to_le' n m;
   }.
 
-Fixpoint le_induction@{s|u|}
+Fixpoint le_induction@{s;u|}
   (P : nat -> nat -> Type@{s|u})
   (H0 : forall n : nat, P O n)
   (HS : forall n m : nat, P n m -> P (S n) (S m))
@@ -97,11 +103,10 @@ Canonical Nat_le.
 
 Arguments Nat.of_uint d%_dec_uint_scope.
 Arguments Nat.of_int d%_dec_int_scope.
-Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint
-  : dec_uint_scope.
-Number Notation Number.int Number.int_of_int Number.int_of_int
-  : dec_int_scope.
-Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
+
+(* Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint : dec_uint_scope. *)
+(* Number Notation Number.int Number.int_of_int Number.int_of_int : dec_int_scope. *)
+(* Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope. *)
 
 (** 2. [SProp]-valued equality for naturals. *)
 Definition seq : forall (n m : nat), SProp  :=

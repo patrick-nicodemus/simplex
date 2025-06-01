@@ -2,13 +2,13 @@ From Simplex Require Import Basics Graph Nat Eq PreOrder.Core Tactics.
 #[local] Set Implicit Arguments.
 (** Paths through a directed graph. *)
 
-Inductive path@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
+Inductive path@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
   : A -> Type@{max(u0,u1)}
   := 
 | nil : path R a a
 | cons (x y : A) (f : R x y) (p : path R a x) : path R a y.
 
-Definition length@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
+Definition length@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
   : forall (b : A), path@{s|u0 u1} R a b -> nat
   := fix length _ path :=
     match path with
@@ -16,7 +16,7 @@ Definition length@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
     | cons _ _ p' => Nat.S(length _ p')
     end.
 
-Theorem length0@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+Theorem length0@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
   (a b: A) (p : path R a b) (eq_pf : length p == 0) : a = b.
 Proof.
   destruct p.
@@ -24,7 +24,7 @@ Proof.
   - simpl in eq_pf. contradiction.
 Defined.
 
-Theorem length1@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+Theorem length1@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
   (a b: A) (p : path R a b) (eq_pf : length p == 1) : R a b.
 Proof.
   destruct p.
@@ -32,7 +32,7 @@ Proof.
   - simpl in eq_pf. apply length0 in eq_pf; destruct eq_pf. exact f.
 Defined.
 
-Definition nth_vertex @{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
+Definition nth_vertex @{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
   : forall (b : A) (n : nat), path@{s|u0 u1} R a b -> A
   := fix nth b n p :=
     match n with
@@ -43,7 +43,7 @@ Definition nth_vertex @{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a
              end
     end.
 
-Definition drop@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+Definition drop@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
   (a : A)
   : forall (b : A) (n : nat) (p : path@{s|u0 u1} R a b), path@{s|u0 u1} R a (nth_vertex n p).
 Proof.
@@ -56,7 +56,7 @@ Proof.
     + apply recfun.
 Defined.
 
-Definition take@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+Definition take@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
   (a : A)
   : forall (b : A) (n : nat) (p : path@{s|u0 u1} R a b), path@{s|u0 u1} R (nth_vertex n p) b.
 Proof.
@@ -68,7 +68,7 @@ Proof.
     + exact (cons _ f (recfun n x p)).
 Defined.
 
-Theorem drop_length@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+Theorem drop_length@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
   (a : A) (b :A) (p : path@{s|u0 u1} R a b) k (le : Nat.le k (length p))
   : length (drop k p) = length p - k.
 Proof.
@@ -81,8 +81,8 @@ Proof.
     + simpl. intro h. apply recp. exact h.
 Defined.
 
-Theorem take_length@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
-  a b (p : path R a b) (k : nat) (le : k <= length p)
+Theorem take_length@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+  a b (p : path@{s|u0 u1} R a b) (k : nat) (le : k <= length p)
   : length (take k p) = k.
 Proof.
   revert k le.

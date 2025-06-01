@@ -1,7 +1,7 @@
 From Simplex Require Import Basics Relations Graph.
 Local Set Implicit Arguments.
 Module PreOrder.
-  Class class_of@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+  Class class_of@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
     : Type@{s|max(u0+1,u1+1)}
     := Class {
       refl : Reflexive@{s|u0 u1} R;
@@ -15,7 +15,7 @@ Module PreOrder.
   End class_of_exports.
   Import class_of_exports.
 
-  Record t@{s|u0 u1|} :=
+  Record t@{s;u0 u1|} :=
     Pack {
         sort : Type@{u0};
         Hom : sort -> sort -> Type@{s|u1};
@@ -30,12 +30,12 @@ Module PreOrder.
   End t_conventions.
   Import t_conventions.
   
-  Definition op_class@{s|u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+  Definition op_class@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
                      (P :class_of@{s|u0 u1} R)
     : class_of@{s|u0 u1} (Graph.op_class R)
     := Class (@refl _ _ P) (fun x y z f g => trans z y x g f).
 
-  Definition to_graph@{s|u0 u1|} (A : t@{s|u0 u1}) : Graph.t@{s|u0 u1}
+  Definition to_graph@{s;u0 u1|} (A : t@{s|u0 u1}) : Graph.t@{s|u0 u1}
     := Graph.Pack (@Hom A).
 
   Module to_graph_conventions.
@@ -44,14 +44,14 @@ Module PreOrder.
   End to_graph_conventions.
   Import to_graph_conventions.
 
-  Definition is_refl@{s|u0 u1 +|+} (A : t)
+  Definition is_refl@{s;u0 u1|} (A : t@{s;u0 u1})
     : Reflexive@{s|u0 u1} (@Hom A)
     := @refl _ _ (class A).
   Module is_refl_conventions.
     Existing Instance is_refl.
   End is_refl_conventions.
 
-  Definition is_trans@{s|u0 u1 +| +} (A : t)
+  Definition is_trans@{s;u0 u1 |} (A : t@{s|u0 u1})
     : Transitive@{s|u0 u1} (@Hom A)
     := @trans _ _ (class A).
   Module is_trans_conventions.
@@ -59,7 +59,7 @@ Module PreOrder.
   End is_trans_conventions.
   Import is_trans_conventions.
 
-  Definition op@{s|+|+} (A : t@{s|_ _}) : t@{s| _ _}
+  Definition op@{s;u0 u1|} (A : t@{s|u0 u1}) : t@{s| u0 u1}
     := Pack (op_class (class A)).
   
   Module ForExport.
@@ -75,4 +75,3 @@ Module PreOrder.
 End PreOrder.
 Export PreOrder.ForExport.
 Export PreOrder.Notations.
-
