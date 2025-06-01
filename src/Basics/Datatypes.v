@@ -48,19 +48,22 @@ Definition curry@{s1 s2;u0 u1 u2|} (A : Type@{s1|u0})
   : A -> B -> C
   := fun a b => f {| fst := a; snd := b |}.
 
-Definition not@{s;u|} (A : Type@{s|u}) := A -> sEmpty.
+Definition not@{s|u|} (A : Type@{s|u}) := A -> sEmpty.
 
 Record sig@{s;u0 u1|} (A : Type@{u0})
   (P : A -> Type@{s|u1}) : Type@{max(u0,u1)}
-  := { exval : A ;  expf : P exval }.
+  := {
+    ex_val : A;
+    ex_pf : P ex_val
+  }.
 
 Definition sig_trans@{s;u0 u1|}
   (A : Type@{u0})
   (P : A -> Type@{s|u1})
   (a : A)
   (p : sig P) :
-  a = exval p -> P a
-  := fun eqp => transport P eqp (expf p).
+  a = ex_val p -> P a
+  := fun eqp => transport _ eqp (ex_pf p).
 
 Notation "{ x | P }" := (sig (fun x => P)) (at level 0, x at level 99) : type_scope.
 Notation "{ x : A | P }" :=

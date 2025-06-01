@@ -25,10 +25,11 @@ Proof.
   refine ((fix rec_t (s : unitBtree) := _ ) t).
   clear t. destruct s.
   - intros a b p h.
-    destruct (Path.length0 _ (symmetry _ _ h)).
+    destruct (Path.length0 _ (symmetry h)).
     reflexivity.
   - intros a b p e. simpl length in e. symmetry in e. apply Path.length1 in e. exact e.
-  - intros a b p e. simpl in e. apply (transitive _ (Path.nth_vertex (length s2) p)).
+  - intros a b p e. simpl in e.
+    apply (transitive (y:=Path.nth_vertex (length s2) p)).
     + apply (rec_t s1 a _ (Path.drop (length s2) p)).
       apply SEqType.seq_only_if.
       apply SEqType.seq_if in e.

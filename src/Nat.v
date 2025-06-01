@@ -1,6 +1,8 @@
 Require Corelib.Init.Nat.
 Require Corelib.Init.Byte.
 From Simplex Require Import Basics Relations Eq Datatypes PreOrder.Core SPropEquiv Classes.
+From Corelib.Init Require Import Nat.
+Require Corelib.Init.Byte.
 
 (** 1. Definitions of [Type]-valued and [SProp]-valued inequalities on [nat], proofs of equivalence; proof that [<=] forms a preorder. *)
 
@@ -101,12 +103,13 @@ Defined.
 Definition Nat_le := PreOrder.Pack (PreOrder.Class (R:=le) _ _).
 Canonical Nat_le.
 
+
 Arguments Nat.of_uint d%_dec_uint_scope.
 Arguments Nat.of_int d%_dec_int_scope.
-
-(* Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint : dec_uint_scope. *)
-(* Number Notation Number.int Number.int_of_int Number.int_of_int : dec_int_scope. *)
-(* Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope. *)
+Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint : dec_uint_scope.
+Number Notation Number.int Number.int_of_int Number.int_of_int
+  : dec_int_scope.
+Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
 
 (** 2. [SProp]-valued equality for naturals. *)
 Definition seq : forall (n m : nat), SProp  :=
@@ -212,3 +215,11 @@ Proof.
     + simpl. apply IHm.
     + simpl. destruct (add_succ_comm n m). exact IHm.
 Qed.
+
+Theorem nat_rect@{u} : forall P : nat -> Type@{u}, P 0 -> (forall n, P n -> P (S n)) -> (forall n, P n).
+Proof.
+  intros P P0 PS.
+  refine '(fix recfun (n : nat) {struct n} := match n with | O => _ | S n' => _ end).
+  - exact P0.
+  - apply PS, recfun.
+Defined.
