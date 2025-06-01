@@ -81,7 +81,7 @@ Module Category.
     : PreOrder.class_of (@Category.Hom A)
     := OneBicat.Class_of.is_preorder (t:=class A).
 
-  Definition to_preorder@{u0 u1} (A : t@{u0 u1})
+  Definition to_preorder@{u0 u1} (A : t@{u0 u1 _})
     : PreOrder.t@{Type|u0 u1}
     := @PreOrder.Pack (sort A) _ (IsPreOrder A).
 

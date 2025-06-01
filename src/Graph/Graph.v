@@ -90,25 +90,25 @@ Definition Transformation@{s;uA uB0 uB1|}
 
 Arguments Transformation [A B].
 
-Definition TransformationGraph@{s|uA u0B u1B +|+}
+Definition TransformationGraph@{s;uA u0B u1B ?|?}
   (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
   := Graph.Pack (@Transformation A B).
 
 Canonical TransformationGraph.
 
 (** This is the exponential object in the Cartesian closed category of graphs. *)
-Definition ExponentialGraph@{sA sB|u0A u1A u0B u1B +|+}
+Definition ExponentialGraph@{sA sB;u0A u1A u0B u1B ?|?}
   (A: Graph.t@{sA|u0A u1A}) (B: Graph.t@{sB|u0B u1B})
   := @Graph.Pack (Graph.sort A  -> Graph.sort B)
        (fun F G => forall x y : A, Graph.Hom x y -> Graph.Hom (F x) (G y)).
 
-Instance id_trans@{s|uA u0B u1B +|+} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
+Instance id_trans@{s;uA u0B u1B ?|?} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
   `{Reflexive _ (@Graph.Hom B)}
   : Reflexive@{s|_ _} (@Transformation A B)
   :=
   fun (F : A -> B) (a : A) => 1%hom (F a).
 
-Instance compose_trans@{s|uA u0B u1B +|+} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
+Instance compose_trans@{s;uA u0B u1B ?|?} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
   `{Transitive _ (@Graph.Hom B)}
   : Transitive@{s|_ _} (@Transformation A B)
   :=
@@ -117,7 +117,7 @@ Instance compose_trans@{s|uA u0B u1B +|+} (A : Type@{uA}) (B : Graph.t@{s|u0B u1
     (a : A) => (sigma a) · (tau a).
 
 
-Definition Prod@{s|+|+} (A : Graph.t@{s|_ _}) (B : Graph.t@{s|_ _})
+Definition Prod@{s;?|?} (A : Graph.t@{s|_ _}) (B : Graph.t@{s|_ _})
   : Graph.t@{s|_ _}
   := @Graph.Pack (sort A * sort B)
        (fun ab ab' => ((Hom (fst ab) (fst ab')) /\ (Hom (snd ab) (snd ab')))%type).

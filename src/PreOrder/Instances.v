@@ -11,7 +11,7 @@ Proof.
   constructor; exact _.
 Defined.
 
-Instance Prod_class@{s|+|+}
+Instance Prod_class@{s;?|?}
   (A : Type) (RA : A -> A -> Type@{s|_}) `{IsPreOrder RA}
   (B : Type) (RB : B -> B -> Type@{s|_}) `{IsPreOrder RB}
   : IsPreOrder (prod_binary RA RB).
@@ -24,7 +24,7 @@ Proof.
 Defined.
 
 Arguments Prod_class [A] RA {IsPreOrder0} [B] RB {IsPreOrder1}.
-Definition Prod@{s|+|+}
+Definition Prod@{s;?|?}
   (A : PreOrder.t@{s|_ _})
   (B : PreOrder.t@{s|_ _})
   : PreOrder.t@{s|_ _}

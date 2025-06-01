@@ -22,7 +22,7 @@ Module OneBicat.
   Import TwoGraph.Notations.
 
   Module Class_of.
-    Class t@{s|u0 u1 u2|}
+    Class t@{s;u0 u1 u2|}
       (A : Type@{u0})
       (R : A -> A -> Type@{u1})
       (two_graph : TwoGraph.class_of@{s|u0 u1 u2} R)

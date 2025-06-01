@@ -48,7 +48,7 @@ Definition curry@{s1 s2;u0 u1 u2|} (A : Type@{s1|u0})
   : A -> B -> C
   := fun a b => f {| fst := a; snd := b |}.
 
-Definition not@{s|u|} (A : Type@{s|u}) := A -> sEmpty.
+Definition not@{s;u|} (A : Type@{s|u}) := A -> sEmpty.
 
 Record sig@{s;u0 u1|} (A : Type@{u0})
   (P : A -> Type@{s|u1}) : Type@{max(u0,u1)}
