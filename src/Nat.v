@@ -1,4 +1,6 @@
 From Simplex Require Import Basics Relations Eq Datatypes PreOrder.Core SPropEquiv Classes.
+From Corelib.Init Require Import Nat.
+Require Corelib.Init.Byte.
 
 (** 1. Definitions of [Type]-valued and [SProp]-valued inequalities on [nat], proofs of equivalence; proof that [<=] forms a preorder. *)
 
@@ -95,10 +97,10 @@ Defined.
 Definition Nat_le := PreOrder.Pack (PreOrder.Class (R:=le) _ _).
 Canonical Nat_le.
 
+
 Arguments Nat.of_uint d%_dec_uint_scope.
 Arguments Nat.of_int d%_dec_int_scope.
-Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint
-  : dec_uint_scope.
+Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint : dec_uint_scope.
 Number Notation Number.int Number.int_of_int Number.int_of_int
   : dec_int_scope.
 Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
