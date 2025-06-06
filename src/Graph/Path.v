@@ -1,12 +1,22 @@
-From Simplex Require Import Basics Graph Nat Eq PreOrder.Core Tactics.
+From Simplex Require Import Basics Datatypes List Graph Nat Eq PreOrder.Core Tactics.
 #[local] Set Implicit Arguments.
-(** Paths through a directed graph. *)
 
+(** Paths through a directed graph. *)
 Inductive path@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
   : A -> Type@{max(u0,u1)}
   := 
 | nil : path R a a
 | cons (x y : A) (f : R x y) (p : path R a x) : path R a y.
+
+(** Paths "riding" a given list of nodes. *)
+Open Scope list_scope.
+
+Fixpoint path_on@{s;u0 u1} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+  (a : A) (l : list A) : Type@{s|u1} :=
+  match l with
+  | List.nil => unit@{s|}
+  | hd :: tl => (R a hd * path_on R hd tl)%type
+  end.
 
 Definition length@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
   : forall (b : A), path@{s|u0 u1} R a b -> nat
@@ -30,6 +40,17 @@ Proof.
   destruct p.
   - contradiction.
   - simpl in eq_pf. apply length0 in eq_pf; destruct eq_pf. exact f.
+Defined.
+
+Theorem length1_on@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})
+  (a : A) (l : list A) (p : path_on@{s|u0 u1} R a l) (eq_pf : List.length l == 1)
+  : R a (List.last a l).
+Proof.
+  destruct l.
+  - simpl in eq_pf. change _ with (List.length l == 0) in eq_pf.
+    symmetry in eq_pf. apply List.length0 in eq_pf. destruct (eq_pf^).
+    exact (fst p).
+  - contradiction.
 Defined.
 
 Definition nth_vertex @{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)

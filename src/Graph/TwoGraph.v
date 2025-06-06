@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Graph.
+From Simplex Require Import Basics Basics.Datatypes Basics.List Graph Graph.Path.
 Local Set Implicit Arguments.
 Module TwoGraph.
   Definition class_of@{s;u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
@@ -98,3 +98,17 @@ Module TwoGraphHom.
   End Exports.
 End TwoGraphHom.
 Export TwoGraphHom.Exports.
+
+(** If [G] is a [TwoGraph.t], and [p, q] are two paths in [G] from
+    node [x] to [y] along the same list of nodes, then there
+    is a natural binary relation betwen [p] and [q],
+    namely, whether their paths are related. *)
+Fixpoint path_rel@{s;u0 u1 u2} (A : TwoGraph.t@{s|u0 u1 u2})
+  (a : A) (l : list A) : Relation@{s;_ _} (path_on@{Type;u0 u1} (@TwoGraph.Hom A) a l)
+  :=
+  match l return forall p q : path_on (@TwoGraph.Hom A) a l, Type@{s|u2} with
+  | List.nil => fun _ _ => unit@{s|}
+  | hd :: tl => fun p q =>
+                ((TwoGraph.class (fst p) (fst q)) /\
+                  path_rel _ hd tl (snd p) (snd q))%type
+  end.

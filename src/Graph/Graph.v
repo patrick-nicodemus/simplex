@@ -24,7 +24,7 @@ Module Graph.
   Module ForExport.
     Arguments Hom [_].
     Arguments Pack [sort].
-    Coercion sort : t >-> Sortclass.
+    #[reversible] Coercion sort : t >-> Sortclass.
     Declare Scope morphism_scope.
     Delimit Scope morphism_scope with hom.
     Bind Scope morphism_scope with Hom.
@@ -72,6 +72,14 @@ Module GraphHom.
            class : class_of map
          }.
   Notation fmap := class.
+
+  Definition id@{s;?|} (A : Graph.t@{s|_ _}) : t A A.
+  Proof.
+    unshelve refine '(Pack _).
+    - exact (fun x => x).
+    - exact (fun x y f => f).
+  Defined.
+
   Module Exports.
     Coercion map : t >-> Funclass.
     Arguments fmap' [A B] F {class_of} [x y].
@@ -96,32 +104,42 @@ Definition TransformationGraph@{s;uA u0B u1B ?|?}
 
 Canonical TransformationGraph.
 
+Definition Prod@{s;?|} (A : Graph.t@{s|_ _}) (B : Graph.t@{s|_ _})
+  : Graph.t@{s|_ _}
+  := @Graph.Pack (sort A * sort B)
+       (fun ab ab' => ((Hom (fst ab) (fst ab')) /\ (Hom (snd ab) (snd ab')))%type).
+Canonical Prod.
+
 (** This is the exponential object in the Cartesian closed category of graphs. *)
-Definition ExponentialGraph@{sA sB;u0A u1A u0B u1B ?|?}
+Definition ExponentialGraph@{sA sB;u0A u1A u0B u1B|}
   (A: Graph.t@{sA|u0A u1A}) (B: Graph.t@{sB|u0B u1B})
   := @Graph.Pack (Graph.sort A  -> Graph.sort B)
        (fun F G => forall x y : A, Graph.Hom x y -> Graph.Hom (F x) (G y)).
 
-Instance id_trans@{s;uA u0B u1B ?|?} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
+Instance uncurry_graph@{sA sC; ? |}
+  (A: Graph.t@{sA|_ _})
+  (B: Graph.t@{sA|_ _})
+  (C: Graph.t@{sC|_ _})
+  (F : GraphHom.t A (ExponentialGraph B C)) :
+  GraphHom.class_of (uncurry (GraphHom.map F)).
+Proof.
+  intros [a b] [a' b'] [f g]; simpl in *.
+  apply (fmap F f). exact g.
+Defined.
+  
+Instance id_trans@{s;uA u0B u1B|} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
   `{Reflexive _ (@Graph.Hom B)}
   : Reflexive@{s|_ _} (@Transformation A B)
   :=
   fun (F : A -> B) (a : A) => 1%hom (F a).
 
-Instance compose_trans@{s;uA u0B u1B ?|?} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
+Instance compose_trans@{s;uA u0B u1B|} (A : Type@{uA}) (B : Graph.t@{s|u0B u1B})
   `{Transitive _ (@Graph.Hom B)}
   : Transitive@{s|_ _} (@Transformation A B)
   :=
   fun (F G H: A -> B)
     (sigma : Transformation F G) (tau : Transformation G H)
     (a : A) => (sigma a) · (tau a).
-
-
-Definition Prod@{s;?|?} (A : Graph.t@{s|_ _}) (B : Graph.t@{s|_ _})
-  : Graph.t@{s|_ _}
-  := @Graph.Pack (sort A * sort B)
-       (fun ab ab' => ((Hom (fst ab) (fst ab')) /\ (Hom (snd ab) (snd ab')))%type).
-Canonical Prod.
-
+ 
 Module Graph_of_Graphs.
 End Graph_of_Graphs.

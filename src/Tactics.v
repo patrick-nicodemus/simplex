@@ -29,7 +29,7 @@ Ltac2 Notation "refine" x(preterm) := refine0 x.
 Ltac2 contradiction0 () :=
   match! goal with
   | [ h : ?c |- ?g ] =>
-      unify $c sEmpty;
+      unify $c empty;
       let h := Control.hyp h in
       exact (match $h return $g with end)
   end.

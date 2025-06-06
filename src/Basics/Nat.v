@@ -18,25 +18,26 @@ Number Notation Number.int Number.int_of_int Number.int_of_int
   : dec_int_scope.
 Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
 
-Inductive le' : nat -> nat -> Set :=
+Unset Elimination Schemes.
+Inductive le'@{s;} : nat -> nat -> Type@{s|Set} :=
 | le_O n : le' O n
 | le_S n m : le' n m -> le' (S n) (S m).
 Arguments le_S {_ _}.
 
 Infix "<='" := le' (at level 70) : nat_scope.
 
-Fixpoint le (n : nat) : forall (m : nat), SProp :=
+Fixpoint le@{s;} (n : nat) : forall (m : nat), Type@{s|Set} :=
   match n with
-  | O => fun _ => sUnit
+  | O => fun _ => unit
   | S n' => fun m => match m with
-                 | O => sEmpty
+                 | O => empty
                  | S m' => le n' m'
                  end
   end.
 
 Fixpoint le_refl : Reflexive le
   := fun x => match x with
-     | O => stt
+     | O => tt
      | S y => le_refl y
      end.
 
@@ -45,20 +46,21 @@ Existing Instance le_refl.
 Local Infix "<=" := le (at level 70) : nat_scope.
 Open Scope nat_scope.
 
-Definition le_to_le' : forall (n m : nat), n <= m -> n <=' m
-  := fix lerec (n m : nat) : n <= m -> n <=' m
+Definition le_to_le' : forall (n m : nat), le@{SProp|} n m -> le'@{Type|} n m
+  := fix lerec (n m : nat) : le@{SProp|} n m -> le'@{Type|} n m
     := match n with
        | O => fun _ => le_O m       (*  *)
-       | S n' => match m return (S n') <= m -> (S n') <=' m with
+       | S n' => match m return le@{SProp|}(S n') m -> le'@{Type|}(S n') m with
                 | O => fun p => match p with end
-                | S m' => fun p => le_S (lerec n' m' p)
+                | S m' => fun p => le_S@{Type|} (lerec n' m' p)
                 end
        end.
 
-Definition le'_to_le : forall (n m : nat), n <=' m -> n <= m
-  := fix lerec (n m : nat) (p: n <=' m) : n <= m
+Definition le'_to_le@{; u1 u2| u1 < u2} : forall (n m : nat),
+    le'@{Type;} n m -> le@{SProp;} n m
+  := fix lerec (n m : nat) (p: le' n m) : le n m
     := match p in n <=' m return n <= m with
-       | le_O n' => stt
+       | le_O n' => tt@{s2;}
        | @le_S n' m' p' => lerec n' m' p'
        end.
 
@@ -90,10 +92,10 @@ Defined.
 Definition nle_Sn_O  : forall (n : nat), ~ (S n <= O)
   := fun n p => p.
 
-Instance le_trans : Transitive@{SProp|Set Set} le.
+Instance le_trans@{s;} : Transitive@{s|Set Set} le.
 Proof.
   intros n m k H; revert n m H k.
-  apply (le_induction@{SProp|Set} (fun n m => forall k, m <= k -> n <= k)).
+  apply (le_induction@{s|Set} (fun n m => forall k, m <= k -> n <= k)).
   - constructor.
   - intros n m H k; simpl. destruct k.
     + exact (fun x => x).
@@ -116,11 +118,11 @@ Definition seq : forall (n m : nat), SProp  :=
   fix seq n m :=
     match n with
     | O => match m with
-          | O => sUnit
-          | _ => sEmpty
+          | O => unit
+          | _ => empty
           end
     | S n' => match m with
-             | O => sEmpty
+             | O => empty
              | S m' => seq n' m'
              end
     end.
@@ -141,7 +143,7 @@ Proof.
       * intro h; refine '(match h return S a = O with end).
       * simpl. intro h. apply eq_S. apply IHa. assumption.
   - intros a b p; destruct p. induction a.
-    + exact stt.
+    + exact tt.
     + simpl. apply IHa.
 Defined.
 
@@ -203,14 +205,14 @@ Qed.
 Theorem le_add_r : forall n m : nat, n <= n + m.
 Proof.
   induction n as [|n IHn].
-  - exact (fun _ => stt).
+  - exact (fun _ => tt).
   - intro m; exact (IHn _).
 Qed.
 
 Theorem le_add_l : forall n m : nat, m <= n + m.
 Proof.
   induction m as [|m IHm].
-  - exact stt.
+  - exact tt.
   - simpl. destruct n.
     + simpl. apply IHm.
     + simpl. destruct (add_succ_comm n m). exact IHm.

@@ -6,11 +6,13 @@ Module Functor.
   Class class_of@{u0a u1a u0b u1b}
     (A : PreOrder.t@{Type|u0a u1a})
     (B : PreOrder.t@{Type|u0a u1a})
-    (F : A -> B) (fmap : forall {a b : A}, PreOrder.Hom a b -> PreOrder.Hom (F a) (F b))
+    (F : A -> B)
+    (fmap : GraphHom.class_of F)
+    (* (fmap : forall {a b : A}, PreOrder.Hom a b -> PreOrder.Hom (F a) (F b)) *)
     := {
-      F_id : forall (x : A), fmap (1 x) = 1 (F x);
+      F_id : forall (x : A), fmap _ _ (1 x) = fmap _ _ (1 x);
       F_comp : forall (x y z : A) (f : PreOrder.Hom x y) (g : PreOrder.Hom y z),
-        fmap (f · g) = fmap f · fmap g
+        fmap _ _ (f · g) = fmap _ _ f · fmap _ _ g
     }.
   
   Arguments class_of [A B F] fmap.

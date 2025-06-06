@@ -1,11 +1,8 @@
-Require Corelib.Init.Datatypes.
-From Simplex Require Import Basics Eq.
+From Simplex Require Import Basics.Basics Eq.
 Local Set Implicit Arguments.
 
-Notation unit := Datatypes.unit.
-
-Inductive sUnit : SProp := stt.
-Inductive sEmpty : SProp := .
+Inductive unit@{s;} : Type@{s|Set} := tt : unit.
+Inductive empty@{s;} : Type@{s|Set} := .
 
 Record prod@{s;u1 u2|} (A : Type@{s|u1}) (B : Type@{s|u2})
   : Type@{s|max(u1,u2)}
@@ -48,7 +45,7 @@ Definition curry@{s1 s2;u0 u1 u2|} (A : Type@{s1|u0})
   : A -> B -> C
   := fun a b => f {| fst := a; snd := b |}.
 
-Definition not@{s;u|} (A : Type@{s|u}) := A -> sEmpty.
+Definition not@{sA sn;u|} (A : Type@{sA|u}) := A -> empty@{sn|}.
 
 Record sig@{s;u0 u1|} (A : Type@{u0})
   (P : A -> Type@{s|u1}) : Type@{max(u0,u1)}
