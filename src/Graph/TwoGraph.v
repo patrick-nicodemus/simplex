@@ -13,7 +13,6 @@ Module TwoGraph.
 
   Module t_conventions.
     Coercion sort : t >-> Sortclass.
-    (* Coercion Hom : t >-> Funclass. *)
     Arguments Pack [sort Hom].
     Arguments Hom [t].
     Arguments class [t x y].
@@ -113,3 +112,26 @@ Fixpoint path_rel@{s;u0 u1 u2} (A : TwoGraph.t@{s|u0 u1 u2})
                   path_rel _ hd tl (snd p) (snd q))%type
   end.
 
+Canonical path_graph@{s;u0 u1 u2}
+  (A : TwoGraph.t@{s|u0 u1 u2})
+  (a : A) (l : list A)
+  : Graph.t@{s;u1 u2}
+  := Graph.Pack (path_rel A a l).
+
+Definition take_on@{s; u0 u1 u2} (A : TwoGraph.t@{s|u0 u1 u2}) (a : A) (l : list A)
+  (k : nat) (p q: Graph.Path.path_on (TwoGraph.Hom (t:=A)) a l) (s : Graph.Hom p q)
+  : Graph.Hom (Path.take_on@{Type|u0 u1} A a l k p)
+      (Graph.Path.take_on@{Type|u0 u1} A a l k q).
+Proof.
+  revert l a k p q s.
+  refine '(fix IH l := match l with | hd :: tl => _ | List.nil => _ end).
+  - clear l.
+    intros a k p q s.
+    simpl. destruct k.
+    + exact tt.
+    + simpl. refine '({| fst := fst s; |}).
+      apply IH.
+      exact (snd s).
+  - intros a k p q s.
+    destruct k; exact tt.
+Defined.

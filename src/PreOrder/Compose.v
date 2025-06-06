@@ -68,6 +68,7 @@ Proof.
   - intros a; destruct l.
     + intros [k s] h.
       simpl in h.
+      simpl.
       change _ with (0 == List.length l) in h.
       apply List.length0 in h; destruct (symmetry h).
       exact k.

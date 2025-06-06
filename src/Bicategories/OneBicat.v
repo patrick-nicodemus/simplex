@@ -1,5 +1,9 @@
-From Simplex Require Import Basics Datatypes Relations Graph TwoGraph
-  PreOrder.Core.
+From Simplex Require Import
+                     Basics Basics.Datatypes Basics.List
+                     Basics.Eq
+                     Nat
+  Relations Graph TwoGraph
+  PreOrder.Core PreOrder.Compose .
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
@@ -176,6 +180,49 @@ Module OneBicat.
     Arguments ru [A x y] f.
   End coherence_exports.
   Import coherence_exports.
+  Print Path.path_on.
+  Locate unitBtree.
+
+  Definition compose_path_fmap@{s;u0 u1 u2}[A : t@{s|_ _ _}] (a : A)
+    (l : list A)
+    (btree : unitBtree)
+    (p : Path.path_on@{_|u0 u1} (OneBicat.Hom@{_|u0 u1 u2} (t:=A)) a l)
+    (eq_pf : length btree == List.length l)
+    : a ~> List.last a l
+    := compose_path_on A a l btree p eq_pf.
+
+  Instance compose_path_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
+    (a : A)
+    (l : list A)
+    (btree : unitBtree)
+    (eq_pf : length btree == List.length l) :
+    GraphHom.class_of
+      (fun (p : TwoGraph.path_graph A a l) => 
+         compose_path_fmap a l btree p eq_pf).
+  Proof.
+    revert btree a l eq_pf .
+    refine '(fix IH btree := match btree
+                             with Unit => _ | Morphism => _ | Comp b1 b2 => _ end).
+    - clear btree.
+      intros a l ? f1 f2 s.
+      destruct l > [ simpl in eq_pf; Tactics.contradiction |
+                     simpl; Tactics.reflexivity ()].
+    - clear btree.
+      intros a l eq_pf f1 f2 s.
+      destruct l as [hd tl | ].
+      + simpl. simpl in eq_pf. change _ with (0 == List.length tl) in eq_pf.
+        destruct tl.
+        * simpl in eq_pf; Tactics.contradiction.
+        * exact (fst s).
+      + simpl in eq_pf; Tactics.contradiction.
+    - clear btree.
+      intros a l eq_pf f1 f2 s.
+      apply hcomp2.
+      + apply IH.
+        apply TwoGraph.take_on. exact s.
+      +
+  Abort.
+  (* needs TwoGraph.take_on *)
 
   Definition compose@{s;?|} [A : t@{s|_ _ _}] :=
     PreOrder.is_trans (to_preorder A).
