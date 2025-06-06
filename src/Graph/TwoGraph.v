@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Basics.Datatypes Basics.List Graph Graph.Path.
+From Simplex Require Import Basics Basics.Datatypes Basics.List Basics.Nat Graph Graph.Path.
 Local Set Implicit Arguments.
 Module TwoGraph.
   Definition class_of@{s;u0 u1 u2|} (A : Type@{u0}) (R : A -> A -> Type@{u1})
@@ -112,3 +112,4 @@ Fixpoint path_rel@{s;u0 u1 u2} (A : TwoGraph.t@{s|u0 u1 u2})
                 ((TwoGraph.class (fst p) (fst q)) /\
                   path_rel _ hd tl (snd p) (snd q))%type
   end.
+

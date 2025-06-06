@@ -91,3 +91,25 @@ Proof.
     + intro h. simpl. apply eq_S. apply rect, h.
     + simpl. intro; contradiction.
 Defined.
+
+Lemma nth_last_take : forall (A :Type)(a: A) (l :  list A) (k : nat),
+    List.nth k a l = List.last a (List.take k l).
+Proof.
+  intros A a l; revert a.
+  induction l.
+  - simpl. intro a; destruct k.
+    + simpl. reflexivity.
+    + simpl. apply IHl.
+  - intros a k. destruct k; reflexivity.
+Defined.
+
+Lemma nth_last_drop : forall (A :Type)(a: A) (l :  list A) (k : nat),
+    last (List.nth k a l) (List.drop k l) = List.last a l.
+Proof.
+  intros A a l; revert a.
+  induction l.
+  - intros a k. destruct k; simpl.
+    + reflexivity.
+    + apply IHl.
+  - intros a k; destruct k; reflexivity.      
+Defined.

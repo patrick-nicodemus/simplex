@@ -1,6 +1,7 @@
 From Simplex Require Import Basics Datatypes List Graph Nat Eq PreOrder.Core Tactics.
 #[local] Set Implicit Arguments.
 
+(** TODO: Group this code by [path] and [path_on] *)
 (** Paths through a directed graph. *)
 Inductive path@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1}) (a : A)
   : A -> Type@{max(u0,u1)}
@@ -87,6 +88,34 @@ Proof.
   - intros b p; destruct p; simpl.
     + exact (nil _ _).
     + exact (cons _ f (recfun n x p)).
+Defined.
+
+Definition take_on@{s;u0 u1} (A : Graph.t@{s|u0 u1})
+  (a : A) (l : list A) (k : nat) :
+  forall (p : path_on@{s;u0 u1} (Graph.Hom (t:=A)) a l),
+    path_on@{s;u0 u1} (Graph.Hom (t:=A)) a (List.take k l).
+Proof.
+  revert a l k.
+  refine (fix rect a l k := match l with | hd :: tl => _ | List.nil => _ end).
+  - destruct k.
+    + intros. exact tt.
+    + simpl; intros. refine ({| fst := fst p; snd := _ |}).
+      apply rect. exact (snd p).
+  - destruct k; exact (fun a => a).
+Defined.
+
+Definition drop_on@{s;u0 u1} (A : Graph.t@{s|u0 u1})
+  (a : A) (l : list A) (k : nat) :
+  forall (p : path_on@{s;u0 u1} (Graph.Hom (t:=A)) a l),
+    path_on@{s;u0 u1} (Graph.Hom (t:=A)) (List.nth k a l)
+      (List.drop k l).
+Proof.
+  revert a l k.
+  refine (fix rect a l k := match l with | hd :: tl => _ | List.nil => _ end).
+  - destruct k.
+    + exact (fun x => x).
+    + simpl; intros. apply rect. exact (snd p).
+  - destruct k; exact (fun a => a).
 Defined.
 
 Theorem drop_length@{s;u0 u1|} (A : Type@{u0}) (R : A -> A -> Type@{s|u1})

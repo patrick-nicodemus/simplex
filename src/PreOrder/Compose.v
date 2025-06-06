@@ -17,8 +17,8 @@ Fixpoint length : unitBtree -> nat :=
 Definition compose_path@{s;u0 u1|}
   (A : PreOrder.t@{s|u0 u1})
   (a b : A)
-  (p : Path.path A a b)
   (t : unitBtree)
+  (p : Path.path A a b)
   (eq_pf : length t == Path.length p)
   : A a b.
 Proof.
@@ -49,14 +49,13 @@ Defined.
 
 (** Very similar to [compose_path], but
     with an alternate design: that the list of nodes
-    is provided separately from the path.
- *)
+    is provided separately from the path. *)
 Definition compose_path_on@{s;u0 u1|}
   (A : PreOrder.t@{s|u0 u1})
   (a: A)
   (l : list A)
+  (t : unitBtree)  
   (p : Path.path_on@{s|u0 u1} A a l)
-  (t : unitBtree)
   (eq_pf : length t == List.length l)
   : A a (List.last a l).
 Proof.
@@ -76,5 +75,26 @@ Proof.
   - simpl; intros a l p h.
     apply (@transitive _ _ _ _ (List.last a (List.take (length s1) l)) _).
     + apply (rec_t s1).
-      * 
-Abort.    
+      * apply take_on. exact p.
+      * apply SEqType.seq_only_if. symmetry. apply List.take_length.
+        apply SEqType.seq_if in h.
+        destruct h.
+        apply le_add_r.
+    + destruct (List.nth_last_take a l (length s1)).
+      destruct (List.nth_last_drop a l (length s1)).
+      apply (rec_t s2).
+      * simpl. apply Graph.Path.drop_on. exact p.
+      * apply SEqType.seq_only_if.
+        apply SEqType.seq_if in h.
+        apply (transitive (y:=(List.length l)-(length s1))).
+        { 
+          destruct h.
+          symmetry.
+          rewrite add_comm.
+          apply add_sub.
+        }
+        symmetry.
+        apply (List.drop_length l (length s1)).
+        destruct h.
+        apply le_add_r.
+Defined.
