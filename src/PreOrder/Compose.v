@@ -77,7 +77,10 @@ Defined.
     pattern match is harder; my hope is that
     the stronger induction hypothesis given by this theorem
     will allow me to prove this without using
-    any pattern matching on equality. *)
+    any pattern matching on equality.
+    TODO: Redefine "List.last a l" as "List.nth (List.length l) a l"
+    so that we can use this on an arbitrary path without indices
+ *)
 Definition compose_path_on_indices@{s;u0 u1|}
   (A : PreOrder.t@{s|u0 u1})
   (a: A)
