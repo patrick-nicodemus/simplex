@@ -180,9 +180,6 @@ Module OneBicat.
     Arguments ru [A x y] f.
   End coherence_exports.
   Import coherence_exports.
-  Print Path.path_on.
-  Locate unitBtree.
-
   Definition compose_path_fmap@{s;u0 u1 u2}[A : t@{s|_ _ _}] (a : A)
     (l : list A)
     (btree : unitBtree)

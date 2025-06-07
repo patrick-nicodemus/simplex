@@ -1,7 +1,8 @@
 Require Corelib.Init.Nat.
 Require Corelib.Init.Byte.
-From Simplex Require Import Basics Relations Eq Datatypes PreOrder.Core SPropEquiv Classes.
+From Simplex Require Import Basics Relations Eq Datatypes PreOrder.Core SPropEquiv Classes Tactics.
 From Corelib.Init Require Import Nat.
+
 Require Corelib.Init.Byte.
 
 (** 1. Definitions of [Type]-valued and [SProp]-valued inequalities on [nat], proofs of equivalence; proof that [<=] forms a preorder. *)
@@ -13,6 +14,7 @@ Notation "x + y" := (Corelib.Init.Nat.add x y) (at level 50, left associativity)
 Notation "(+)" := Corelib.Init.Nat.add (only parsing).
 Notation "x - y" := (Nat.sub x y) (at level 50, left associativity) : nat_scope.
 Delimit Scope nat_scope with nat.
+
 Number Notation Number.uint Number.uint_of_uint Number.uint_of_uint : dec_uint_scope.
 Number Notation Number.int Number.int_of_int Number.int_of_int
   : dec_int_scope.
@@ -138,9 +140,9 @@ Proof.
   - intro a; induction a.
     + intro b; destruct b > [reflexivity|].
       intro h. simpl in h.
-      refine '(match h return O = S b with end).
+      refine (match h return O = S b with end).
     + intro b; destruct b.
-      * intro h; refine '(match h return S a = O with end).
+      * intro h; refine (match h return S a = O with end).
       * simpl. intro h. apply eq_S. apply IHa. assumption.
   - intros a b p; destruct p. induction a.
     + exact tt.
@@ -221,7 +223,14 @@ Qed.
 Theorem nat_rect@{u} : forall P : nat -> Type@{u}, P 0 -> (forall n, P n -> P (S n)) -> (forall n, P n).
 Proof.
   intros P P0 PS.
-  refine '(fix recfun (n : nat) {struct n} := match n with | O => _ | S n' => _ end).
+  refine (fix recfun (n : nat) {struct n} := match n with | O => _ | S n' => _ end).
   - exact P0.
   - apply PS, recfun.
+Defined.
+
+Theorem assoc : forall n m k, n + m + k == n + (m + k).
+Proof.
+  induction n.
+  - intros m k. reflexivity.
+  - intros m k. apply IHn.
 Defined.
