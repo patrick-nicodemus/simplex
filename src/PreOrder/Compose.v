@@ -165,7 +165,8 @@ Definition compose_path_right_assoc@{s;u0 u1|}
     TODO: Redefine "List.last a l" as "List.nth (List.length l) a l"
     so that we can use this on an arbitrary path without indices
  *)
-Definition compose_path_on_indices@{s;u0 u1|}
+
+Fixpoint compose_path_on_indices@{s;u0 u1|}
   (A : PreOrder.t@{s|u0 u1})
   (a: A)
   (l : list A)
@@ -175,48 +176,75 @@ Definition compose_path_on_indices@{s;u0 u1|}
   (h : n1 + length t <= n2)
   : A (List.nth n1 a l) (List.nth n2 a l).
 Proof.
-  revert a l p n1 n2 h.
-  revert t.
-  refine (fix IH t :=
-             match t with
-             | Compose.Unit => _
-             | Compose.Morphism => _
-             | Compose.Comp s1 s2 => _
-             end).
-  - (* Unit btree. We only care about this
-       in the case where n1 = n2, as this is the only time it should be defined. *)
-    clear t IH.
-    intros a l p n1 n2 ineq.
-    apply compose_path_right_assoc > [exact p|].
-    revert ineq. simpl.
-    exact (match (Nat.add_comm 0 n1) in eq _ y return
-                        forall (p :y <= n2), n1 <= n2
+  destruct t as [ | | s1 s2].
+  - apply compose_path_right_assoc > [ exact p| ].
+    revert h; exact (match (Nat.add_comm 0 n1) in eq _ y return
+                 forall (p :y <= n2), n1 <= n2
            with eq_refl _ => fun x => x end).
-  - (* Morphism btree. We only care about this being correct in the
-      case n2 = n1 + 1, so we can return junk outside of that. *)
-    clear t.
-    intros a l; revert l a.
-    refine (fix IHl l := match l with hd :: tl => _ | List.nil => _ end).
-    + intros a [f p] [|n1].
-      * (* Case: n=0. In this case we only really care about n2=1.
-           Return junk otherwise. *)
-        intros n2 _. simpl. destruct n2 > [ reflexivity |]. simpl.
-        (* The only important line *)
-        destruct n2 > [exact f|].
-        apply (@transitive _ _ _ _ hd) >
-                [ exact f|
-                  apply compose_path_from_hd_right_assoc; exact p].
-      * (* Case: n = S n'. Induct as before. *)
-        intros [|n2] > [intros; contradiction| simpl; intro le].
-        apply IHl > [ exact p |
-                      let h := Control.hyp (ident:(le)) in exact ($h)].
-    + intros a _ [|n1] [|n2]; intros; reflexivity.
-  - intros. apply (@transitive _ _ _ _ (nth (n1 + length s1) a l)).
-    + apply (IH s1) > [ exact p | reflexivity ].
-    + apply (IH s2) > [ exact p | simpl in h ].
-      destruct (SEqType.seq_if _ _ (Nat.assoc n1 (length s1) (length s2))).
+  - apply compose_path_right_assoc > [ exact p| ].
+    apply (@transitive  _ _ _ _ (n1 + length Morphism)).
+    + apply Nat.le_add_r.
+    + exact h.
+  -
+    intros. apply (@transitive _ _ _ _ (nth (n1 + length s1) a l)).
+    + apply (compose_path_on_indices A a l s1 p n1 (n1 + length s1)); reflexivity.
+    + apply (compose_path_on_indices A a l s2 p (n1 + length s1) n2).
+      destruct (SEqType.seq_if _ _ (Nat.assoc n1 (length s1) (length s2)))^.
       exact h.
 Defined.
+
+(* Definition compose_path_on_indices@{s;u0 u1|} *)
+(*   (A : PreOrder.t@{s|u0 u1}) *)
+(*   (a: A) *)
+(*   (l : list A) *)
+(*   (t : unitBtree) *)
+(*   (p : Path.path_on@{s|u0 u1} A a l) *)
+(*   (n1 n2 : nat) *)
+(*   (h : n1 + length t <= n2) *)
+(*   : A (List.nth n1 a l) (List.nth n2 a l). *)
+(* Proof. *)
+(*   revert a l p n1 n2 h. *)
+(*   revert t. *)
+(*   refine (fix IH t := *)
+(*              match t with *)
+(*              | Compose.Unit => _ *)
+(*              | Compose.Morphism => _ *)
+(*              | Compose.Comp s1 s2 => _ *)
+(*              end). *)
+(*   - (* Unit btree. We only care about this *)
+(*        in the case where n1 = n2, as this is the only time it should be defined. *) *)
+(*     clear t IH. *)
+(*     intros a l p n1 n2 ineq. *)
+(*     apply compose_path_right_assoc > [exact p|]. *)
+(*     revert ineq. simpl. *)
+(*     exact (match (Nat.add_comm 0 n1) in eq _ y return *)
+(*                         forall (p :y <= n2), n1 <= n2 *)
+(*            with eq_refl _ => fun x => x end). *)
+(*   - (* Morphism btree. We only care about this being correct in the *)
+(*       case n2 = n1 + 1, so we can return junk outside of that. *) *)
+(*     clear t. *)
+(*     intros a l; revert l a. *)
+(*     refine (fix IHl l := match l with hd :: tl => _ | List.nil => _ end). *)
+(*     + intros a [f p] [|n1]. *)
+(*       * (* Case: n=0. In this case we only really care about n2=1. *)
+(*            Return junk otherwise. *) *)
+(*         intros n2 _. simpl. destruct n2 > [ reflexivity |]. simpl. *)
+(*         (* The only important line *) *)
+(*         destruct n2 > [exact f|]. *)
+(*         apply (@transitive _ _ _ _ hd) > *)
+(*                 [ exact f| *)
+(*                   apply compose_path_from_hd_right_assoc; exact p]. *)
+(*       * (* Case: n = S n'. Induct as before. *) *)
+(*         intros [|n2] > [intros; contradiction| simpl; intro le]. *)
+(*         apply IHl > [ exact p | *)
+(*                       let h := Control.hyp (ident:(le)) in exact ($h)]. *)
+(*     + intros a _ [|n1] [|n2]; intros; reflexivity. *)
+(*   - intros. apply (@transitive _ _ _ _ (nth (n1 + length s1) a l)). *)
+(*     + apply (IH s1) > [ exact p | reflexivity ]. *)
+(*     + apply (IH s2) > [ exact p | simpl in h ]. *)
+(*       destruct (SEqType.seq_if _ _ (Nat.assoc n1 (length s1) (length s2))). *)
+(*       exact h. *)
+(* Defined. *)
 
 (** Very similar to [compose_path], but
     with an alternate design: that the list of nodes
