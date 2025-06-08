@@ -14,11 +14,6 @@ Open Scope list_scope.
 Definition length@{s;u} (A : Type@{s|u}) : list A -> nat :=
   fix r l := match l with | nil => O | cons _ tl => S(r tl) end.
 
-Fixpoint last@{s;u} {A:Type@{s|u}} (a : A) (l : list A) : A :=
-  match l with
-  | nil => a
-  | hd :: tl => last hd tl
-  end.
 
 Theorem length0@{s;u} (A: Type@{s|u}) (l : list A) : (0 == length l) -> l = nil.
 Proof.
@@ -39,6 +34,14 @@ Fixpoint nth@{s;u0|} (A : Type@{s|u0}) (n : nat) (a : A) (l : list A) : A :=
            | hd :: tl => nth n' hd tl
            end
   end.
+
+(* Fixpoint last@{s;u} {A:Type@{s|u}} (a : A) (l : list A) : A := *)
+(*   match l with *)
+(*   | nil => a *)
+(*   | hd :: tl => last hd tl *)
+(*   end. *)
+Definition last@{s;u} {A:Type@{s|u}} (a : A) (l : list A) : A :=
+  List.nth (List.length l) a l.
 
 Fixpoint drop@{s;u0|} (A : Type@{s|u0}) (n : nat)  (l : list A) : list A :=
   match n with

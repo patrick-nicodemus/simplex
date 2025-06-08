@@ -47,25 +47,63 @@ Proof.
       apply Nat.le_add_l.
 Defined.
 
-(** Very similar to [compose_path], but
-    with an alternate design: that the list of nodes
-    is provided separately from the path. *)
-
-Definition compose_path_from_hd_left_assoc@{s;u0 u1|}
+(** The obvious right-associative composition function
+   on paths, generalized so that it can operate on
+   a prefix of the list if necessary.
+   (Set [n = List.length l] to compose the full path.) *)
+Definition compose_path_from_hd_right_assoc@{s;u0 u1|}
   (A : PreOrder.t@{s|u0 u1})
   (a: A)
   (l : list A)
   (p : Path.path_on@{s|u0 u1} A a l)
   (n : nat)
-  : A a (List.nth n a l).
-Proof.
-  revert l a p n.
-  refine (fix IHl l := match l with | hd :: tl => _ | List.nil => _ end).
-  - simpl. intros a [f p] [|n].
-    + reflexivity.
-    + simpl. apply (@transitive _ _ _ _ hd) > [ exact f | apply IHl; exact p].
-  - simpl; intros ? ? [|?]; reflexivity.
-Defined.
+  : A a (List.nth n a l)
+  :=
+  (fix IHl (l : list A)
+    : forall (a : A) (p : Path.path_on A a l) (n : nat), A a (List.nth n a l)
+   := match l with
+      | hd :: tl => fun a p n =>
+                    match n with
+                    | O => reflexive a
+                    | S n' => transitive (fst p) (IHl tl hd (snd p) n')
+                    end
+      | List.nil => fun a p n => match n with
+                   | O => reflexive a
+                   | S n' => reflexive a
+                   end
+      end
+  ) l a p n.
+
+(** Like [compose_path_from_hd_right_assoc]
+    but drops a prefix. *)
+Definition compose_path_right_assoc@{s;u0 u1|}
+  (A : PreOrder.t@{s|u0 u1})
+  :
+  forall (a : A) (l : list A),
+  path_on@{s|u0 u1} A a l ->
+  forall n1 n2 : nat, n1 <= n2 -> nth n1 a l <= nth n2 a l :=
+  (fix compose_path_right_assoc a l p n1 n2 ineq {struct n1} :=
+  match n1 return (forall (ineq : n1 <= n2), (nth n1 a l <= nth n2 a l)) with
+  | O =>  fun _ => compose_path_from_hd_right_assoc A a l p n2
+  | S n1' =>
+      (match l return
+             (forall (p : path_on A a l) (ineq : S n1' <= n2),
+                 (nth (S n1') a l <= nth n2 a l))
+       with
+       | hd :: tl =>
+           fun p =>
+             (match n2 with
+              | S n2' => fun ineq =>
+                          compose_path_right_assoc hd tl (snd p) n1' n2' ineq
+              | O => fun ineq => match ineq with end
+              end )
+       | List.nil => fun p => match n2
+                          with
+                          | S n2' => fun _ => reflexive a
+                          | O => fun ineq => match ineq with end
+                          end 
+       end p)
+  end ineq).
 
 (** This is a modified version of [compose_path_on]
     defined later in the file. This
@@ -104,16 +142,17 @@ Proof.
        in the case where n1 = n2, as this is the only time it should be defined. *)
     clear t IH.
     intros a l; revert l a.
+    
     refine (fix IHl l := match l with hd :: tl => _ | List.nil => _ end).
     + (* If l = hd :: tl, do a case analysis on whether n = 0 or n = S n'.
          If n = 0 then any definition is valid so long as it
          returns the identity morphism in the case n' = 0
-         (which [compose_path_from_hd_left_assoc] does.)
+         (which [compose_path_from_hd_right_assoc] does.)
          If n = S n', then just induct,
          recursively reducing it to the case where
          either l is empty or n = 0. *)
       intros a [f1 p] [|n'].
-      * simpl. intros n2 _. apply compose_path_from_hd_left_assoc.
+      * simpl. intros n2 _. apply compose_path_from_hd_right_assoc.
         exact ({| fst:= f1; snd:= p |}).
       * simpl. destruct n2 > [intros ?; contradiction| intro le].
         simpl. apply IHl; assumption.
@@ -133,7 +172,7 @@ Proof.
         destruct n2 > [exact f|].
         apply (@transitive _ _ _ _ hd) >
                 [ exact f|
-                  apply compose_path_from_hd_left_assoc; exact p].
+                  apply compose_path_from_hd_right_assoc; exact p].
       * (* Case: n = S n'. Induct as before. *)
         intros [|n2] > [intros; contradiction| simpl; intro le].
         apply IHl > [ exact p |
