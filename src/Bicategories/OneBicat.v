@@ -181,14 +181,6 @@ Module OneBicat.
   End coherence_exports.
   Import coherence_exports.
 
-  Definition compose_path_fmap@{s;u0 u1 u2}[A : t@{s|_ _ _}] (a : A)
-    (l : list A)
-    (btree : unitBtree)
-    (p : Path.path_on@{_|u0 u1} (OneBicat.Hom@{_|u0 u1 u2} (t:=A)) a l)
-    (eq_pf : length btree == List.length l)
-    : a ~> List.last a l
-    := compose_path_on A a l btree p eq_pf.
-
   Definition compose_path_fmap_indices@{s;u0 u1 u2}[A : t@{s|_ _ _}] (a : A)
     (l : list A)
     (btree : unitBtree)
@@ -199,25 +191,50 @@ Module OneBicat.
     := compose_path_on_indices A a l btree p n1 n2 pf.
 
   Definition hcompose_path_from_hd_right_assoc@{s;u0 u1 u2|}
+    (A : OneBicat.t@{s|u0 u1 u2}):
+    forall (a : A) (l : list A) (n : nat),
+      GraphHom.class_of
+        (fun p : path_graph A a l =>
+           compose_path_from_hd_right_assoc
+             (OneBicat.to_preorder A) a l p n :>
+             Graph.sort (OneBicat.to_hom_graph A a (nth n a l))).
+  Proof.
+    intros a l; revert l a.
+    refine '(fix IHl l := match l with | hd :: tl => _ | List.nil => _ end).
+    - clear l.
+      intros a n [p0 p] [q0 q] [r0 r]. simpl in *.
+      destruct n.
+      + exact (1 _).
+      + apply hcomp2 > [ exact r0 | apply IHl; exact r].
+    - intros a n; destruct n.
+      + exact (fun _ _ _ => (1 _)).
+      + exact (fun _ _ _ => (1 _)).
+  Defined.
+
+  Definition hcompose_path_right_assoc@{s;u0 u1 u2|}
   (A : OneBicat.t@{s|u0 u1 u2})
   (a: A)
   (l : list A)
-  (n : nat)
+  (n1 n2 : nat)
+  (ineq : n1 <= n2)
     : GraphHom.class_of
       (fun (p : TwoGraph.path_graph A a l) => 
-         (compose_path_from_hd_right_assoc A a l p n :>
-            Graph.sort (to_hom_graph A a (List.nth n a l)))).
+         (compose_path_right_assoc A a l p n1 n2 ineq :>
+            Graph.sort (to_hom_graph A (List.nth n1 a l) (List.nth n2 a l)))).
   Proof.
-    revert l a n.
-    refine '(fix IH l :=
-               match l with
-               | hd :: tl => _
-               | List.nil => _
-               end).
-    - intros a [|n] [p0 p] [q0 q] [r0 r].
-      + exact (1 _).
-      + apply hcomp2 > [ exact r0 | apply IH; exact r].
-    - intros a [|n]; intros ? ? ?; exact (1 _).
+    revert n1 a l n2 ineq.
+    refine '(fix IHn n1 := match n1 with | O => _ | S n1' => _ end).
+    - simpl.
+      intros ?  ? ? _;
+        apply (hcompose_path_from_hd_right_assoc A).
+    - intros a l n2 ineq.
+      destruct l.
+      + simpl. intros [p0 p] [q0 q] [r0 r]. destruct n2.
+        * Tactics.contradiction.
+        * simpl. apply IHn. exact r.
+      + destruct n2.
+        * Tactics.contradiction.
+        * exact (fun _ _ _ => 1 _).
   Defined.
 
   Instance compose_path_on_indices@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
@@ -238,16 +255,22 @@ Module OneBicat.
               | Compose.Morphism => _
               | Compose.Comp s1 s2 => _
               end).
-    - clear btree.
+    - 
+      intros.
       unfold compose_path_fmap_indices.
-      Locate compose_path_on_indices.
+      unfold compose_path_on_indices.
+
+      apply (hcompose_path_from_hd_right_assoc A).
+      simpl.
+      
+      
       refine '(fix IHl a l n1 n2 pf {struct l} := 
                 match l with
                 | hd :: tl => _
                 | List.nil => _
                 end).
-      + clear l.
-        simpl.
+      + clear l; destruct n1; simpl.
+        * intros [p0 p] [q0 q] [r0 r].
 
       intros ? [hd tl |] n1.
       + destruct n2.
@@ -309,6 +332,14 @@ Module OneBicat.
       +
   Abort.
   (* needs TwoGraph.take_on *)
+  Definition compose_path_fmap@{s;u0 u1 u2}[A : t@{s|_ _ _}] (a : A)
+    (l : list A)
+    (btree : unitBtree)
+    (p : Path.path_on@{_|u0 u1} (OneBicat.Hom@{_|u0 u1 u2} (t:=A)) a l)
+    (eq_pf : length btree == List.length l)
+    : a ~> List.last a l
+    := compose_path_on A a l btree p eq_pf.
+
 
   Definition compose@{s;?|} [A : t@{s|_ _ _}] :=
     PreOrder.is_trans (to_preorder A).

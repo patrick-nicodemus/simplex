@@ -47,10 +47,35 @@ Proof.
       apply Nat.le_add_l.
 Defined.
 
-(** The obvious right-associative composition function
-   on paths, generalized so that it can operate on
-   a prefix of the list if necessary.
-   (Set [n = List.length l] to compose the full path.) *)
+(** Takes a path with at least one edge, and composes the path
+    in a right associative way. (There is no trailing multiplication by the
+    identity at the end, so this function can be used with
+    any graph with an associative composition, even if it is not unital. *)
+Definition compose_path_from_hd_right_assoc_nonempty@{s;u0 u1|}
+  (A : PreOrder.t@{s|u0 u1})
+  (a: A)
+  (b : A)
+  (f : A a b)
+  (l : list A)
+  (p : Path.path_on@{s|u0 u1} A b l)
+  (n : nat)
+  : A a (List.nth n b l)
+  :=
+  (fix IHl (l : list A):
+    forall (a b :A) (f : A a b) (p : Path.path_on@{s|u0 u1} A b l) (n : nat), A a (List.nth n b l)
+      := match l return forall (a b :A) (f : A a b) (p : Path.path_on@{s|u0 u1} A b l) (n : nat), A a (List.nth n b l) with
+         | hd :: tl => fun a b f p n =>
+                       match n return A a (List.nth n b (hd::tl)) with
+                       | 0 => f
+                       | S n' => transitive f (IHl tl b hd (fst p) (snd p) n')
+                       end
+         | List.nil => fun a b f p n => match n with | 0 => f | S n' => f end
+         end) l a b f p n.
+
+(** A right-associative composition of paths, defined by case analysis
+    on whether the path is empty: if the path is empty, it returns the
+    identity morphism, otherwise it recursively composes all the
+    morphisms in the non-empty list. *)
 Definition compose_path_from_hd_right_assoc@{s;u0 u1|}
   (A : PreOrder.t@{s|u0 u1})
   (a: A)
@@ -59,20 +84,41 @@ Definition compose_path_from_hd_right_assoc@{s;u0 u1|}
   (n : nat)
   : A a (List.nth n a l)
   :=
-  (fix IHl (l : list A)
-    : forall (a : A) (p : Path.path_on A a l) (n : nat), A a (List.nth n a l)
-   := match l with
-      | hd :: tl => fun a p n =>
-                    match n with
-                    | O => reflexive a
-                    | S n' => transitive (fst p) (IHl tl hd (snd p) n')
-                    end
-      | List.nil => fun a p n => match n with
-                   | O => reflexive a
-                   | S n' => reflexive a
-                   end
+  match l return forall (p : Path.path_on@{s|u0 u1} A a l), A a (List.nth n a l) with
+  | hd :: tl =>
+      match n with
+      | 0 => fun p => reflexive a
+      | S n' => fun p => compose_path_from_hd_right_assoc_nonempty A a hd (fst p) tl (snd p) n'
       end
-  ) l a p n.
+  | List.nil => fun p => match n with | 0 => reflexive a | S _ => reflexive a end
+  end p.
+
+(* (** The obvious right-associative composition function *)
+(*    on paths, generalized so that it can operate on *)
+(*    a prefix of the list if necessary. *)
+(*    (Set [n = List.length l] to compose the full path.) *) *)
+(* Definition compose_path_from_hd_right_assoc@{s;u0 u1|} *)
+(*   (A : PreOrder.t@{s|u0 u1}) *)
+(*   (a: A) *)
+(*   (l : list A) *)
+(*   (p : Path.path_on@{s|u0 u1} A a l) *)
+(*   (n : nat) *)
+(*   : A a (List.nth n a l) *)
+(*   := *)
+(*   (fix IHl (l : list A) *)
+(*     : forall (a : A) (p : Path.path_on A a l) (n : nat), A a (List.nth n a l) *)
+(*    := match l with *)
+(*       | hd :: tl => fun a p n =>  *)
+(*                     match n with *)
+(*                     | O => reflexive a *)
+(*                     | S n' => transitive (fst p) (IHl tl hd (snd p) n') *)
+(*                     end *)
+(*       | List.nil => fun a p n => match n with *)
+(*                    | O => reflexive a *)
+(*                    | S n' => reflexive a *)
+(*                    end *)
+(*       end *)
+(*   ) l a p n. *)
 
 (** Like [compose_path_from_hd_right_assoc]
     but drops a prefix. *)
@@ -96,7 +142,7 @@ Definition compose_path_right_assoc@{s;u0 u1|}
               | S n2' => fun ineq =>
                           compose_path_right_assoc hd tl (snd p) n1' n2' ineq
               | O => fun ineq => match ineq with end
-              end )
+              end)
        | List.nil => fun p => match n2
                           with
                           | S n2' => fun _ => reflexive a
@@ -136,29 +182,16 @@ Proof.
              | Compose.Unit => _
              | Compose.Morphism => _
              | Compose.Comp s1 s2 => _
-             end
-         ).
+             end).
   - (* Unit btree. We only care about this
        in the case where n1 = n2, as this is the only time it should be defined. *)
     clear t IH.
-    intros a l; revert l a.
-    
-    refine (fix IHl l := match l with hd :: tl => _ | List.nil => _ end).
-    + (* If l = hd :: tl, do a case analysis on whether n = 0 or n = S n'.
-         If n = 0 then any definition is valid so long as it
-         returns the identity morphism in the case n' = 0
-         (which [compose_path_from_hd_right_assoc] does.)
-         If n = S n', then just induct,
-         recursively reducing it to the case where
-         either l is empty or n = 0. *)
-      intros a [f1 p] [|n'].
-      * simpl. intros n2 _. apply compose_path_from_hd_right_assoc.
-        exact ({| fst:= f1; snd:= p |}).
-      * simpl. destruct n2 > [intros ?; contradiction| intro le].
-        simpl. apply IHl; assumption.
-    + (* If l = nil then this is just reflexivity,
-         but we need to pattern match for this to be obvious. *)
-      intros a _ [|n1] [|n2]; intros; reflexivity.
+    intros a l p n1 n2 ineq.
+    apply compose_path_right_assoc > [exact p|].
+    revert ineq. simpl.
+    exact (match (Nat.add_comm 0 n1) in eq _ y return
+                        forall (p :y <= n2), n1 <= n2
+           with eq_refl _ => fun x => x end).
   - (* Morphism btree. We only care about this being correct in the
       case n2 = n1 + 1, so we can return junk outside of that. *)
     clear t.
