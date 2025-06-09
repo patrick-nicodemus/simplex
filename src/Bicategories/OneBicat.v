@@ -79,13 +79,13 @@ Module OneBicat.
   End t_conventions.
   Import t_conventions.
 
-  Definition is_vpreorder@{s;u0 u1 u2|} (A: t@{s|u0 u1 u2}) (x y : A)
+  Definition is_vpreorder@{s;u0 u1 u2|} {A: t@{s|u0 u1 u2}} (x y : A)
     : PreOrder.class_of (@two_cells A x y)
     := is_vpreorder (t:=(class A)) x y.
 
-  Definition vpreorder@{s;u0 u1 u2|} (A : t@{s|u0 u1 u2})
+  Definition vpreorder@{s;u0 u1 u2|} {A : t@{s|u0 u1 u2}}
     : forall (x y : A), PreOrder.t@{s|u1 u2}
-    := fun x y => PreOrder.Pack (is_vpreorder A x y).
+    := fun x y => PreOrder.Pack (is_vpreorder x y).
 
   Module vpreorder_exports.
     Canonical vpreorder.
@@ -150,26 +150,26 @@ Module OneBicat.
              |}
          end.
 
-  Record AreInverse (A : t) (x y : A)
+  Record AreInverse {A : t} (x y : A)
     (f : Hom x y) (g : Hom y x)
     := {
       fg_id : Couple (vpreorder x x) (f · g) (1 x);
       gf_id : Couple (vpreorder y y) (g · f) (1 y)
     }.
 
-  Definition assoc@{s;?|} (A : t@{s|_ _ _})
+  Definition assoc@{s;?|} {A : t@{s|_ _ _}}
     : Associative@{s|_ _ _} A _
     := assoc (t:=class A).
   
-  Definition lu@{s;?|} (A : t@{s|_ _ _})
+  Definition lu@{s;?|} {A : t@{s|_ _ _}}
     : LeftUnitor@{s|_ _ _} A _
     := lu (t:=class A).
 
-  Definition ru@{s;?|} (A : t@{s|_ _ _})
+  Definition ru@{s;?|} {A : t@{s|_ _ _}}
     : RightUnitor@{s|_ _ _} A _
     := ru (t:=class A).
 
-  Definition hcomp2@{s;?|} (A : t@{s|_ _ _})
+  Definition hcomp2@{s;?|} {A : t@{s|_ _ _}}
     := hcomp2 (t:=class A).
 
   Definition is_preorder@{s;?|} (A : t@{s|_ _ _})
@@ -179,6 +179,7 @@ Module OneBicat.
     Arguments assoc [A w x y z] f g h.
     Arguments lu [A x y] f.
     Arguments ru [A x y] f.
+    Arguments hcomp2 {A} [x y z f f' g g'].
   End coherence_exports.
   Import coherence_exports.
 
@@ -285,6 +286,58 @@ Module OneBicat.
     apply hcomp2; apply IH; exact r.
   Defined.
 
+  (** The most general composition operation for chains of morphisms
+  in a [OneBicat.t]. *)
+  Definition compose_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
+    (a : A) (l : list A) (btree : unitBtree) (pf : length btree <= List.length l)
+    : GraphHom.t (TwoGraph.path_graph A a l) 
+        (to_hom_graph A a (List.last a l))
+    := GraphHom.Pack (compose_path_on_indices A a l btree 0 (List.length l) pf).
+
+  (** Binary composition (Hom a b) × (Hom b c) -> Hom a c,
+      as a graph homomorphism. *)
+  Definition binary_compose_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
+    (a b c : A)
+    :=
+    compose_graph_hom A a [b;c] (Compose.Comp Compose.Morphism Compose.Morphism)
+      (le_refl _).
+
+  Definition left_assoc@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+    (a b c d: A)
+    :=
+    compose_graph_hom A a [b;c;d]
+      (Compose.Comp (Compose.Comp Compose.Morphism Compose.Morphism)
+         Compose.Morphism)
+      (le_refl _).
+
+  Definition right_assoc@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+    (a b c d: A)
+    :=
+    compose_graph_hom A a [b;c;d]
+      (Compose.Comp
+         Compose.Morphism
+         (Compose.Comp Compose.Morphism Compose.Morphism))
+      (le_refl _).
+
+  Definition lid@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+    (a b: A)
+    :=
+    compose_graph_hom A a [b]
+      (Compose.Comp Compose.Unit Compose.Morphism)
+      (le_refl _).
+
+  Definition id_graph_hom@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+    (a b: A)
+    :=
+    compose_graph_hom A a [b] Compose.Morphism (le_refl _).
+
+  Definition rid@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+    (a b: A)
+    :=
+    compose_graph_hom A a [b]
+      (Compose.Comp Compose.Morphism Compose.Unit)
+      (le_refl _).
+
   (* needs TwoGraph.take_on *)
   Definition compose_path_fmap@{s;u0 u1 u2}[A : t@{s|_ _ _}] (a : A)
     (l : list A)
@@ -294,7 +347,6 @@ Module OneBicat.
     : a ~> List.last a l
     := compose_path_on A a l btree p eq_pf.
 
-
   Definition compose@{s;?|} [A : t@{s|_ _ _}] :=
     PreOrder.is_trans (to_preorder A).
 
@@ -303,90 +355,91 @@ Module OneBicat.
     Universes u0 u1 u2.
     Variable A : t@{s|u0 u1 u2}.
   End composition_graph_hom.
-  (* Graph homomorphism (f, g, h) |-> (f \cdot g) \cdot h *)
-  Definition left_assoc_map@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
-    (w x y z : A)
-    := fun fgh : ((w ~> x) * (x ~> y) * (y ~> z))%type =>
-           fst (fst fgh) · snd (fst fgh) · snd fgh.
 
-  Instance left_assoc_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2}) :
-    forall (w x y z : A), GraphHom.class_of (left_assoc_map A w x y z).
-  Proof.
-    intros w x y z.
-    intros fgh fgh' str.
-    apply OneBicat.hcomp2.
-    - apply OneBicat.hcomp2.
-      + exact (fst (fst str)).
-      + exact (snd (fst str)). 
-    - exact (snd str).
-  Defined.
+  (* (* Graph homomorphism (f, g, h) |-> (f \cdot g) \cdot h *) *)
+  (* Definition left_assoc_map@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2}) *)
+  (*   (w x y z : A) *)
+  (*   := fun fgh : ((w ~> x) * (x ~> y) * (y ~> z))%type => *)
+  (*          fst (fst fgh) · snd (fst fgh) · snd fgh. *)
 
-  Definition left_assoc@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
-    (w x y z : A)
-    : GraphHom.t
-        ((w ~> x) *
-           (x ~> y) * (y ~> z))%type
-        (w ~> z)%type
-    := GraphHom.Pack (map:=left_assoc_map _ w x y z) _.
-  Canonical left_assoc.  
+  (* Instance left_assoc_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2}) : *)
+  (*   forall (w x y z : A), GraphHom.class_of (left_assoc_map A w x y z). *)
+  (* Proof. *)
+  (*   intros w x y z. *)
+  (*   intros fgh fgh' str. *)
+  (*   apply OneBicat.hcomp2. *)
+  (*   - apply OneBicat.hcomp2. *)
+  (*     + exact (fst (fst str)). *)
+  (*     + exact (snd (fst str)).  *)
+  (*   - exact (snd str). *)
+  (* Defined. *)
 
-  (* Graph homomorphism (f, g, h) |-> (f \cdot g) \cdot h *)
-  Definition right_assoc_map@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
-    (w x y z : A)
-    := fun fgh : ((w ~> x) * (x ~> y) * (y ~> z))%type =>
-           fst (fst fgh) · (snd (fst fgh) · snd fgh).
+  (* Definition left_assoc@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2}) *)
+  (*   (w x y z : A) *)
+  (*   : GraphHom.t *)
+  (*       ((w ~> x) * *)
+  (*          (x ~> y) * (y ~> z))%type *)
+  (*       (w ~> z)%type *)
+  (*   := GraphHom.Pack (map:=left_assoc_map _ w x y z) _. *)
+  (* Canonical left_assoc.   *)
 
-  Instance right_assoc_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2}) :
-    forall (w x y z : A), GraphHom.class_of (right_assoc_map A w x y z).
-  Proof.
-    intros w x y z.
-    intros fgh fgh' str.
-    apply OneBicat.hcomp2.
-    - exact (fst (fst str)).
-    - apply OneBicat.hcomp2.
-      + exact (snd (fst str)). 
-      + exact (snd str).
-  Defined.
+  (* (* Graph homomorphism (f, g, h) |-> (f \cdot g) \cdot h *) *)
+  (* Definition right_assoc_map@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2}) *)
+  (*   (w x y z : A) *)
+  (*   := fun fgh : ((w ~> x) * (x ~> y) * (y ~> z))%type => *)
+  (*          fst (fst fgh) · (snd (fst fgh) · snd fgh). *)
 
-  Definition right_assoc@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
-    (w x y z : A)
-    : GraphHom.t
-        ((w ~> x) *
-           (x ~> y) * (y ~> z))%type
-        (w ~> z)%type
-    :=
-    GraphHom.Pack (map:=right_assoc_map _ w x y z) _.
-  Canonical right_assoc.
+  (* Instance right_assoc_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2}) : *)
+  (*   forall (w x y z : A), GraphHom.class_of (right_assoc_map A w x y z). *)
+  (* Proof. *)
+  (*   intros w x y z. *)
+  (*   intros fgh fgh' str. *)
+  (*   apply OneBicat.hcomp2. *)
+  (*   - exact (fst (fst str)). *)
+  (*   - apply OneBicat.hcomp2. *)
+  (*     + exact (snd (fst str)).  *)
+  (*     + exact (snd str). *)
+  (* Defined. *)
 
-  Definition lid_map@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A) (f : x ~> y)
-    := (1 x) · f.
+  (* Definition right_assoc@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2}) *)
+  (*   (w x y z : A) *)
+  (*   : GraphHom.t *)
+  (*       ((w ~> x) * *)
+  (*          (x ~> y) * (y ~> z))%type *)
+  (*       (w ~> z)%type *)
+  (*   := *)
+  (*   GraphHom.Pack (map:=right_assoc_map _ w x y z) _. *)
+  (* Canonical right_assoc. *)
 
-  Instance lid_graph_hom@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A)
-    : GraphHom.class_of (lid_map A x y).
-  Proof.
-    intros f g s.
-    apply hcomp2.
-    - apply reflexive.
-    - exact s.
-  Defined.
+  (* Definition lid_map@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A) (f : x ~> y) *)
+  (*   := (1 x) · f. *)
 
-  Definition lid@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A)
-    := GraphHom.Pack (lid_graph_hom A x y).
+  (* Instance lid_graph_hom@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A) *)
+  (*   : GraphHom.class_of (lid_map A x y). *)
+  (* Proof. *)
+  (*   intros f g s. *)
+  (*   apply hcomp2. *)
+  (*   - apply reflexive. *)
+  (*   - exact s. *)
+  (* Defined. *)
 
-  Definition rid_map@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A) (f : x ~> y)
-    := f · (1 y).
+  (* Definition lid@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A) *)
+  (*   := GraphHom.Pack (lid_graph_hom A x y). *)
 
-  Instance rid_graph_hom@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A)
-    : GraphHom.class_of (rid_map A x y).
-  Proof.
-    intros f g s.
-    apply hcomp2.
-    - exact s.
-    - apply reflexive.
-  Defined.
+  (* Definition rid_map@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A) (f : x ~> y) *)
+  (*   := f · (1 y). *)
 
-  Definition rid@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A)
-    := GraphHom.Pack (rid_graph_hom A x y).
+  (* Instance rid_graph_hom@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A) *)
+  (*   : GraphHom.class_of (rid_map A x y). *)
+  (* Proof. *)
+  (*   intros f g s. *)
+  (*   apply hcomp2. *)
+  (*   - exact s. *)
+  (*   - apply reflexive. *)
+  (* Defined. *)
+
+  (* Definition rid@{s;?|} (A : OneBicat.t@{s|_ _ _}) (x y :A) *)
+  (*   := GraphHom.Pack (rid_graph_hom A x y). *)
   
   Module Exports.
     Export t_conventions.
@@ -412,3 +465,4 @@ Proof.
   intros [f g] [f' g'] [s t]; simpl in *.
   apply OneBicat.hcomp2; assumption.
 Defined.
+

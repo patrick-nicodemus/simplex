@@ -1,5 +1,6 @@
-From Simplex Require Import Basics Datatypes Graph PreOrder.Core PreOrder.Instances OneBicat Category Functor FunctorCat Category.NatTrans.
+From Simplex Require Import Basics Datatypes Relations Eq List Graph PreOrder.Core PreOrder.Instances OneBicat Category Functor FunctorCat Category.NatTrans.
 
+Open Scope morphism_scope.
 Module Bicategory.
   Import OneBicat.Notations.
       
@@ -29,19 +30,34 @@ Module Bicategory.
         Functor.is_functor (F:=uncurry (OneBicat.compose x y z)) _;
       assoc_nat (w x y z : A) :
       NatTrans.mixin_of
-        (OneBicat.left_assoc A w x y z)
-        (OneBicat.right_assoc A w x y z)
-        (fun (fgh: (w ~> x) * (x ~> y) * (y ~> z)%type) 
-         => Rxy (OneBicat.assoc (fst (fst fgh)) (snd (fst fgh)) (snd fgh)));
-      (* lu_nat (x y : A) : *)
-      (* NatTrans.mixin_of *)
-      (*   (OneBicat.lid A x y) *)
-      (*   _ *)
-      (*   (fun (f : x ~> y) => Rxy (OneBicat.lu f)) *)
+        (OneBicat.left_assoc w x y z)
+        (OneBicat.right_assoc w x y z)
+        (fun (fgh: TwoGraph.path_graph A w [x; y; z]) 
+         => Rxy (OneBicat.assoc (fst fgh) (fst (snd fgh)) (fst (snd (snd fgh)))));
+      lu_nat (x y : A) :
+      NatTrans.mixin_of
+        (OneBicat.lid x y)
+        (OneBicat.id_graph_hom x y)
+        (fun f => Rxy (OneBicat.lu (fst f)));
+      ru_nat (x y : A) :
+      NatTrans.mixin_of
+        (OneBicat.rid x y)
+        (OneBicat.id_graph_hom x y)
+        (fun f => Rxy (OneBicat.ru (fst f)));
+      pentagon (v w x y z : A) (f : vcat v w) (g : vcat w x)
+        (h: vcat x y) (k : vcat y z)
+        (* ((fg)h)k -> (f(gh))k -> f((gh)k) -> f(g(hk)) *)
+      : (OneBicat.hcomp2 (Rxy (OneBicat.assoc f g h)) (1 k))
+          · (Rxy (OneBicat.assoc f (g·h) k))
+          · (OneBicat.hcomp2 (1 f) (Rxy (OneBicat.assoc g h k)))
+        = (* ((fg)h)k -> (fg)(hk) -> f(g(hk))*)
+          (Rxy (OneBicat.assoc (f · g) h k))
+            · (Rxy (OneBicat.assoc f g (h · k)));
+      triangle (x y z : A) (f : vcat x y) (g : vcat y z):
+      OneBicat.hcomp2 (Rxy (OneBicat.ru f)) (1 g)
+      = Rxy (OneBicat.assoc f (1 y) g) ·
+            OneBicat.hcomp2 (1 f) (Rxy (OneBicat.lu g))
         
-      (* ru_nat : (??) ; *)
-      (* pentagon : (??) ; *)
-      (* triangle : (??) *)
     }.
 
   Structure t@{u0 u1 u2} := {
