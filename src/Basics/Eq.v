@@ -1,7 +1,16 @@
 From Simplex Require Import Basics Relations.
 Local Set Implicit Arguments.
+
+Section eq.
+Unset Elimination Schemes.
 Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
+
+Definition eq_rect@{s;u u'} {A : Type@{u}} (a : A)
+  (P : (forall (a' : A), eq a a' -> Type@{s|u'})) :
+  (P a (eq_refl a)) -> (forall (a' : A) (p : eq a a'), P a' p)
+  := fun s a' p => match p with eq_refl _ => s end.
+End eq.
 
 Local Set Warnings "-notation-overridden".
 Notation "x = y" := (eq x y)
@@ -43,6 +52,7 @@ Module Strict_anti_univalence.
     eq_refl : SEq a a.
 
   Definition to {A : Type} {a b : A} (p : a = b) : SEq a b := match p with Eq.eq_refl _ => eq_refl _ end.
+
   Definition from {A : Type} {a b : A} (q : SEq a b) : a = b := match q with eq_refl _ => Eq.eq_refl _ end.
   
   Lemma to_from_inv (A : Type) (a b : A) (p : a = b) : from (to p) = p.

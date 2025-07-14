@@ -1,10 +1,11 @@
 From Simplex Require Import Basics Datatypes Relations Eq List Graph PreOrder.Core PreOrder.Instances OneBicat Category Functor FunctorCat Category.NatTrans.
 
+Local Set Implicit Arguments.
 Open Scope morphism_scope.
 Module Bicategory.
   Import OneBicat.Notations.
       
-  Record mixin_of@{u0 u1 u2} (A : OneBicat.t@{Type|u0 u2 u2}) := {
+  Record mixin_of@{u0 u1 u2} (A : OneBicat.t@{Type|u0 u1 u2}) := {
       is_vcat (x y : A) : Category.Mixin.mixin_of (OneBicat.vpreorder x y);
       vcat (x y : A) :=
         (@Category.Build _ _ 
@@ -57,13 +58,21 @@ Module Bicategory.
       OneBicat.hcomp2 (Rxy (OneBicat.ru f)) (1 g)
       = Rxy (OneBicat.assoc f (1 y) g) ·
             OneBicat.hcomp2 (1 f) (Rxy (OneBicat.lu g))
-        
+    }.
+
+  Class class_of@{u0 u1 u2} (A : Type@{u0})
+    (R : A -> A -> Type@{u1})
+    (RR : forall (x y : A), R x y -> R x y -> Type@{u2})
+    := Class {
+      isOneBicat : OneBicat.class_of RR;
+      mixin : mixin_of (OneBicat.Pack isOneBicat)
     }.
 
   Structure t@{u0 u1 u2} := {
       sort : Type@{u0};
       Hom : sort -> sort -> Type@{u1};
       TwoHom : forall (x y : sort), Hom x y -> Hom x y -> Type@{u2};
+      class : class_of Hom TwoHom
     }.
 
 (** N. b. - to convince yourself that the definition of a bicategory is

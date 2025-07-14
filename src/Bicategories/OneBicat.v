@@ -157,22 +157,22 @@ Module OneBicat.
       gf_id : Couple (vpreorder y y) (g · f) (1 y)
     }.
 
-  Definition assoc@{s;?|} {A : t@{s|_ _ _}}
+  Definition assoc@{s;+|} {A : t@{s|_ _ _}}
     : Associative@{s|_ _ _} A _
     := assoc (t:=class A).
   
-  Definition lu@{s;?|} {A : t@{s|_ _ _}}
+  Definition lu@{s;+|} {A : t@{s|_ _ _}}
     : LeftUnitor@{s|_ _ _} A _
     := lu (t:=class A).
 
-  Definition ru@{s;?|} {A : t@{s|_ _ _}}
+  Definition ru@{s;+|} {A : t@{s|_ _ _}}
     : RightUnitor@{s|_ _ _} A _
     := ru (t:=class A).
 
-  Definition hcomp2@{s;?|} {A : t@{s|_ _ _}}
+  Definition hcomp2@{s;+|} {A : t@{s|_ _ _}}
     := hcomp2 (t:=class A).
 
-  Definition is_preorder@{s;?|} (A : t@{s|_ _ _})
+  Definition is_preorder@{s;+|} (A : t@{s|_ _ _})
     := is_preorder (t:=class A).  
 
   Module coherence_exports.
@@ -208,7 +208,7 @@ Module OneBicat.
   (*     + apply hcomp2 >[ reflexivity | ]. *)
   (* Defined. *)
 
-  Definition hcompose_path_from_hd_right_assoc@{s;u0 u1 u2|}
+  Definition hcompose_path_from_hd_right_assoc@{s;u0 u1 u2}
     (A : OneBicat.t@{s|u0 u1 u2}):
     forall (a : A) (l : list A) (n : nat),
       GraphHom.class_of
@@ -237,7 +237,7 @@ Module OneBicat.
     - intros [|n] ? ? _ ; reflexivity.
   Defined.
 
-  Definition hcompose_path_right_assoc@{s;u0 u1 u2|}
+  Definition hcompose_path_right_assoc@{s;u0 u1 u2}
   (A : OneBicat.t@{s|u0 u1 u2})
   (a: A)
   (l : list A)
@@ -263,7 +263,7 @@ Module OneBicat.
         * exact (fun _ _ _ => 1 _).
   Defined.
 
-  Instance compose_path_on_indices@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
+  Instance compose_path_on_indices@{s;u0 u1 u2} (A : OneBicat.t@{s;u0 u1 u2})
     (a : A)
     (l : list A)
     (btree : unitBtree)
@@ -288,7 +288,7 @@ Module OneBicat.
 
   (** The most general composition operation for chains of morphisms
   in a [OneBicat.t]. *)
-  Definition compose_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
+  Definition compose_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s;u0 u1 u2})
     (a : A) (l : list A) (btree : unitBtree) (pf : length btree <= List.length l)
     : GraphHom.t (TwoGraph.path_graph A a l) 
         (to_hom_graph A a (List.last a l))
@@ -296,13 +296,13 @@ Module OneBicat.
 
   (** Binary composition (Hom a b) × (Hom b c) -> Hom a c,
       as a graph homomorphism. *)
-  Definition binary_compose_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s|u0 u1 u2})
+  Definition binary_compose_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s;u0 u1 u2})
     (a b c : A)
     :=
     compose_graph_hom A a [b;c] (Compose.Comp Compose.Morphism Compose.Morphism)
       (le_refl _).
 
-  Definition left_assoc@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+  Definition left_assoc@{s;u0 u1 u2} {A : OneBicat.t@{s;u0 u1 u2}}
     (a b c d: A)
     :=
     compose_graph_hom A a [b;c;d]
@@ -310,7 +310,7 @@ Module OneBicat.
          Compose.Morphism)
       (le_refl _).
 
-  Definition right_assoc@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+  Definition right_assoc@{s;u0 u1 u2} {A : OneBicat.t@{s;u0 u1 u2}}
     (a b c d: A)
     :=
     compose_graph_hom A a [b;c;d]
@@ -319,19 +319,19 @@ Module OneBicat.
          (Compose.Comp Compose.Morphism Compose.Morphism))
       (le_refl _).
 
-  Definition lid@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+  Definition lid@{s;u0 u1 u2} {A : OneBicat.t@{s;u0 u1 u2}}
     (a b: A)
     :=
     compose_graph_hom A a [b]
       (Compose.Comp Compose.Unit Compose.Morphism)
       (le_refl _).
 
-  Definition id_graph_hom@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+  Definition id_graph_hom@{s;u0 u1 u2} {A : OneBicat.t@{s;u0 u1 u2}}
     (a b: A)
     :=
     compose_graph_hom A a [b] Compose.Morphism (le_refl _).
 
-  Definition rid@{s;u0 u1 u2} {A : OneBicat.t@{s|u0 u1 u2}}
+  Definition rid@{s;u0 u1 u2} {A : OneBicat.t@{s;u0 u1 u2}}
     (a b: A)
     :=
     compose_graph_hom A a [b]
@@ -339,7 +339,7 @@ Module OneBicat.
       (le_refl _).
 
   (* needs TwoGraph.take_on *)
-  Definition compose_path_fmap@{s;u0 u1 u2}[A : t@{s|_ _ _}] (a : A)
+  Definition compose_path_fmap@{s;u0 u1 u2}[A : t@{s;_ _ _}] (a : A)
     (l : list A)
     (btree : unitBtree)
     (p : Path.path_on@{_|u0 u1} (OneBicat.Hom@{_|u0 u1 u2} (t:=A)) a l)
@@ -347,13 +347,13 @@ Module OneBicat.
     : a ~> List.last a l
     := compose_path_on A a l btree p eq_pf.
 
-  Definition compose@{s;?|} [A : t@{s|_ _ _}] :=
+  Definition compose@{s;+|} [A : t@{s;_ _ _}] :=
     PreOrder.is_trans (to_preorder A).
 
   Section composition_graph_hom.
     Sort s.
     Universes u0 u1 u2.
-    Variable A : t@{s|u0 u1 u2}.
+    Variable A : t@{s;u0 u1 u2}.
   End composition_graph_hom.
 
   (* (* Graph homomorphism (f, g, h) |-> (f \cdot g) \cdot h *) *)

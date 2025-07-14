@@ -23,13 +23,13 @@ Proof.
   reflexivity.
 Defined.
 
-Definition prod_unary@{s;?|}
-  (A : Type) (PA : A -> Type@{s|_})
-  (B : Type) (PB : B -> Type@{s|_})
-  : A * B -> Type@{s|_}
+Definition prod_unary@{s;uA uPA uB uPB|}
+  (A : Type@{uA}) (PA : A -> Type@{s|uPA})
+  (B : Type@{uB}) (PB : B -> Type@{s|uPB})
+  : A * B -> Type@{s|max(uPA,uPB)}
   := fun ab => (PA (fst ab) /\ PB (snd ab))%type.
 
-Definition prod_binary@{s;?|}
+Definition prod_binary@{s;+|}
   (A : Type) (RA : A -> A -> Type@{s|_})
   (B : Type) (RB : B -> B -> Type@{s|_})
   : A * B -> A * B -> Type@{s|_}
