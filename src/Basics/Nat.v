@@ -21,14 +21,14 @@ Number Notation Number.int Number.int_of_int Number.int_of_int
 Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
 
 Unset Elimination Schemes.
-Inductive le'@{s;} : nat -> nat -> Type@{s|Set} :=
+Inductive le'@{s;} : nat -> nat -> Type@{s;Set} :=
 | le_O n : le' O n
 | le_S n m : le' n m -> le' (S n) (S m).
 Arguments le_S {_ _}.
 
 Infix "<='" := le' (at level 70) : nat_scope.
 
-Fixpoint le@{s;} (n : nat) : forall (m : nat), Type@{s|Set} :=
+Fixpoint le@{s;} (n : nat) : forall (m : nat), Type@{s;Set} :=
   match n with
   | O => fun _ => unit
   | S n' => fun m => match m with
@@ -48,13 +48,13 @@ Existing Instance le_refl.
 Local Infix "<=" := le (at level 70) : nat_scope.
 Open Scope nat_scope.
 
-Definition le_to_le' : forall (n m : nat), le@{SProp|} n m -> le'@{Type|} n m
-  := fix lerec (n m : nat) : le@{SProp|} n m -> le'@{Type|} n m
+Definition le_to_le' : forall (n m : nat), le@{SProp;} n m -> le'@{Type;} n m
+  := fix lerec (n m : nat) : le@{SProp;} n m -> le'@{Type;} n m
     := match n with
        | O => fun _ => le_O m       (*  *)
-       | S n' => match m return le@{SProp|}(S n') m -> le'@{Type|}(S n') m with
+       | S n' => match m return le@{SProp;}(S n') m -> le'@{Type;}(S n') m with
                 | O => fun p => match p with end
-                | S m' => fun p => le_S@{Type|} (lerec n' m' p)
+                | S m' => fun p => le_S@{Type;} (lerec n' m' p)
                 end
        end.
 
@@ -73,7 +73,7 @@ Instance le_le'_equiv (n m : nat)
   }.
 
 Fixpoint le_induction@{s;u|}
-  (P : nat -> nat -> Type@{s|u})
+  (P : nat -> nat -> Type@{s;u})
   (H0 : forall n : nat, P O n)
   (HS : forall n m : nat, P n m -> P (S n) (S m))
   (n m : nat) (p : n <= m)
@@ -91,13 +91,13 @@ Proof.
   exact (fun n m p => p).
 Defined.
 
-Definition nle_Sn_O  : forall (n : nat), ~ (S n <= O)
+Definition nle_Sn_O@{s;} : forall (n : nat), not@{_ s;_} (S n <= O)
   := fun n p => p.
 
-Instance le_trans@{s;} : Transitive@{s|Set Set} le.
+Instance le_trans@{s;} : Transitive@{s;Set Set} le.
 Proof.
   intros n m k H; revert n m H k.
-  apply (le_induction@{s|Set} (fun n m => forall k, m <= k -> n <= k)).
+  apply (le_induction@{s;Set} (fun n m => forall k, m <= k -> n <= k)).
   - constructor.
   - intros n m H k; simpl. destruct k.
     + exact (fun x => x).
@@ -106,7 +106,6 @@ Defined.
 
 Definition Nat_le := PreOrder.Pack (PreOrder.Class (R:=le) _ _).
 Canonical Nat_le.
-
 
 Arguments Nat.of_uint d%_dec_uint_scope.
 Arguments Nat.of_int d%_dec_int_scope.
@@ -150,7 +149,7 @@ Proof.
 Defined.
 
 (** 3. Theorems of arithmetic *)
-Instance plus_n_O : RightId@{Type|Set Set} (@eq nat) 0 (+).
+Instance plus_n_O : RightId@{Type;Set Set} (@eq nat) 0 (+).
 Proof.
   intro n; induction n as [|n IHn].
   - reflexivity.

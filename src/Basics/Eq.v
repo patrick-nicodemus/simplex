@@ -7,7 +7,7 @@ Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
 
 Definition eq_rect@{s;u u'} {A : Type@{u}} (a : A)
-  (P : (forall (a' : A), eq a a' -> Type@{s|u'})) :
+  (P : (forall (a' : A), eq a a' -> Type@{s;u'})) :
   (P a (eq_refl a)) -> (forall (a' : A) (p : eq a a'), P a' p)
   := fun s a' p => match p with eq_refl _ => s end.
 End eq.
@@ -30,7 +30,7 @@ Instance eq_trans (A : Type) : Transitive (eq (A:=A)) :=
     end.
 
 Definition transport@{s;u0 u1|} (A : Type@{u0})
-  (P : A -> Type@{s|u1})
+  (P : A -> Type@{s;u1})
   (a b : A) (p : a = b)
   : P b -> P a
   := match p with | eq_refl _ => fun x => x end.
@@ -161,18 +161,18 @@ End SEqType.
 Export SEqType.Exports.
 
 Instance seq_rel_reflexive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
-  Reflexive@{SProp|u Set} (@SEqType.seq_rel A class)
+  Reflexive@{SProp;u Set} (@SEqType.seq_rel A class)
   := fun h => SEqType.seq_only_if@{u} (eq_refl h).
 
 Instance seq_rel_transitive@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} :
-  Transitive@{SProp|u Set} (@SEqType.seq_rel A class).
+  Transitive@{SProp;u Set} (@SEqType.seq_rel A class).
 Proof.
   intros x y z p.
   apply (SEqType.seq_if) in p. destruct p. exact (fun q => q).
 Defined.
 
 Instance seq_rel_symmetric@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} :
-  Symmetric@{SProp|u Set} (@SEqType.seq_rel@{_} A class).
+  Symmetric@{SProp;u Set} (@SEqType.seq_rel@{_} A class).
 Proof.
   intros x y p.
   apply (SEqType.seq_if) in p. destruct p. exact (reflexive _).

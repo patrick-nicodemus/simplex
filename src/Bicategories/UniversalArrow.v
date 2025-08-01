@@ -124,6 +124,33 @@ Module ColaxLeftAdjoint.
     Context {trans : Transitive (Graph.Hom (t:=P))}.
     Context (G : Q -> P).
     Context (F_univ : forall (x : P), UniversalArrow0.t x G).
+
+    Ltac2 apply_hypothesis () :=
+      match! goal with
+      | [h : _ |- _ ] => let h := Control.hyp h in apply $h
+      end.
+
+    (* Ltac2 stronger_auto () := *)
+    (*   repeat (Control.enter (fun () => first *)
+    (*             [ unshelve econstructor | *)
+    (*               apply_hypothesis ()| *)
+    (*               auto ])). *)
+    
+    (* Goal P -> Q. *)
+    (* Proof. *)
+    (*   stronger_auto (). *)
+    (* Defined. *)
+
+    (* Goal GraphHom.t P Q. *)
+    (* Proof. *)
+    (*   stronger_auto(). *)
+    (*   simpl. *)
+    (*   intros x y f. *)
+    (*   Set Printing All. *)
+    (*   apply (F_univ x). *)
+      
+      
+    (* Defined. *)
     Definition F1 : GraphHom.t P Q
       := {|
         GraphHom.map x := univ_object x G;

@@ -8,20 +8,20 @@ From Simplex Require Import
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
-Definition Associative@{s;u0 u1 u2|} (A : TwoGraph.t@{s|u0 u1 u2})
-  (t : Transitive@{Type|u0 u1} (@TwoGraph.Hom A))
+Definition Associative@{s;u0 u1 u2|} (A : TwoGraph.t@{s;u0 u1 u2})
+  (t : Transitive@{Type;u0 u1} (@TwoGraph.Hom A))
   := forall (w x y z : A)
        (f : TwoGraph.Hom w x) (g : TwoGraph.Hom x y) (h : TwoGraph.Hom y z),
-    Couple@{s|u1 u2} _ ((f · g) · h) (f · (g · h)).
+    Couple@{s;u1 u2} _ ((f · g) · h) (f · (g · h)).
 
 Definition LeftUnitor@{s;u0 u1 u2|}
-  (A : TwoGraph.t@{s|u0 u1 u2 })
-  (t : PreOrder.class_of@{Type|u0 u1} (@TwoGraph.Hom A))
-  := forall (x y : A) (f : A x y), Couple@{s|u1 u2} _ ((1 x) · f) f.
+  (A : TwoGraph.t@{s;u0 u1 u2 })
+  (t : PreOrder.class_of@{Type;u0 u1} (@TwoGraph.Hom A))
+  := forall (x y : A) (f : A x y), Couple@{s;u1 u2} _ ((1 x) · f) f.
 
 Definition RightUnitor@{s;u0 u1 u2|}
-  (A : TwoGraph.t@{s|u0 u1 u2})
-  (t : PreOrder.class_of@{Type|u0 u1} (@TwoGraph.Hom A))
+  (A : TwoGraph.t@{s;u0 u1 u2})
+  (t : PreOrder.class_of@{Type;u0 u1} (@TwoGraph.Hom A))
   := forall (x y : A) (f : A x y), Couple _ (f · (1 y)) f.
 
 Module OneBicat.
@@ -31,15 +31,15 @@ Module OneBicat.
     Class t@{s;u0 u1 u2|}
       (A : Type@{u0})
       (R : A -> A -> Type@{u1})
-      (two_graph : TwoGraph.class_of@{s|u0 u1 u2} R)
+      (two_graph : TwoGraph.class_of@{s;u0 u1 u2} R)
       (G := TwoGraph.Pack two_graph) := {
-        is_preorder : PreOrder.class_of@{Type|u0 u1} R;
+        is_preorder : PreOrder.class_of@{Type;u0 u1} R;
         is_vpreorder : forall (x y: A),
-          PreOrder.class_of@{s|u1 u2} (two_graph x y);
-        assoc : Associative@{s|u0 u1 u2} G
+          PreOrder.class_of@{s;u1 u2} (two_graph x y);
+        assoc : Associative@{s;u0 u1 u2} G
                    (PreOrder.trans (class_of:=is_preorder));
-        lu : LeftUnitor@{s|u0 u1 u2} G is_preorder;
-        ru : RightUnitor@{s|u0 u1 u2} G is_preorder;
+        lu : LeftUnitor@{s;u0 u1 u2} G is_preorder;
+        ru : RightUnitor@{s;u0 u1 u2} G is_preorder;
         hcomp2 : forall (x y z : A)
                    (f f' : TwoGraph.Hom (t:=G) x y)
                    (g g' : TwoGraph.Hom (t:=G) y z),
@@ -52,7 +52,7 @@ Module OneBicat.
   Definition co_class@{s;u0 u1 u2|}
     (A : Type@{u0})
     (R : A -> A -> Type@{u1})
-    (two_graph : TwoGraph.class_of@{s|u0 u1 u2} R)
+    (two_graph : TwoGraph.class_of@{s;u0 u1 u2} R)
     : class_of two_graph -> class_of (TwoGraph.co_class two_graph)
     := fun m =>
          {|
@@ -68,8 +68,8 @@ Module OneBicat.
     Pack {
         sort : Type@{u0};
         Hom : sort -> sort -> Type@{u1};
-        two_cells : TwoGraph.class_of@{s|u0 u1 u2} Hom;
-        class : class_of@{s|u0 u1 u2} two_cells
+        two_cells : TwoGraph.class_of@{s;u0 u1 u2} Hom;
+        class : class_of@{s;u0 u1 u2} two_cells
       }.
 
   Module t_conventions.
@@ -79,12 +79,12 @@ Module OneBicat.
   End t_conventions.
   Import t_conventions.
 
-  Definition is_vpreorder@{s;u0 u1 u2|} {A: t@{s|u0 u1 u2}} (x y : A)
+  Definition is_vpreorder@{s;u0 u1 u2|} {A: t@{s;u0 u1 u2}} (x y : A)
     : PreOrder.class_of (@two_cells A x y)
     := is_vpreorder (t:=(class A)) x y.
 
-  Definition vpreorder@{s;u0 u1 u2|} {A : t@{s|u0 u1 u2}}
-    : forall (x y : A), PreOrder.t@{s|u1 u2}
+  Definition vpreorder@{s;u0 u1 u2|} {A : t@{s;u0 u1 u2}}
+    : forall (x y : A), PreOrder.t@{s;u1 u2}
     := fun x y => PreOrder.Pack (is_vpreorder x y).
 
   Module vpreorder_exports.
@@ -95,7 +95,7 @@ Module OneBicat.
   Import vpreorder_exports.
 
   Definition to_graph@{s;u0 u1 u2|}
-    (A : t@{s|u0 u1 u2}) : Graph.t@{Type|u0 u1}
+    (A : t@{s;u0 u1 u2}) : Graph.t@{Type;u0 u1}
     := @Graph.Pack (sort A)
          (@vpreorder A).
   Module to_graph_exports.
@@ -104,7 +104,7 @@ Module OneBicat.
   Import to_graph_exports.
 
   Definition to2graph@{s;u0 u1 u2|}
-    (A : t@{s|u0 u1 u2}) : TwoGraph.t@{s|u0 u1 u2}
+    (A : t@{s;u0 u1 u2}) : TwoGraph.t@{s;u0 u1 u2}
     := TwoGraph.Pack (@two_cells A).
 
   Module to2graph_coercion.
@@ -114,8 +114,8 @@ Module OneBicat.
   Import to2graph_coercion.
 
   Definition to_hom_graph@{s;u0 u1 u2|}
-    (A:t@{s|u0 u1 u2}) :
-    forall (x y : A), Graph.t@{s|u1 u2}
+    (A:t@{s;u0 u1 u2}) :
+    forall (x y : A), Graph.t@{s;u1 u2}
     := fun (x y : A) =>
       @Graph.Pack (Hom x y) (@two_cells _ x y).
   Module to_hom_graph_exports.
@@ -123,13 +123,13 @@ Module OneBicat.
   End to_hom_graph_exports.
 
   Definition is_preorder_class@{s;u0 u1 u2|}
-    (A : t@{s|u0 u1 u2})
-    : PreOrder.class_of@{Type|u0 u1} (@Hom A)
+    (A : t@{s;u0 u1 u2})
+    : PreOrder.class_of@{Type;u0 u1} (@Hom A)
     := is_preorder (t:=class A).
 
   (** The horizontal preorder, i.e. 0-cells ordered by 1-cells as relations *)
-  Definition to_preorder@{s;u0 u1 u2|} (A : t@{s|u0 u1 u2})
-    : PreOrder.t@{Type|u0 u1}
+  Definition to_preorder@{s;u0 u1 u2|} (A : t@{s;u0 u1 u2})
+    : PreOrder.t@{Type;u0 u1}
     := @PreOrder.Pack _ _ (is_preorder_class A).
 
   Module preorder_exports.
@@ -139,7 +139,7 @@ Module OneBicat.
   End preorder_exports.
   Import preorder_exports.
 
-  Definition co@{s;uA0 uA1 uA2|} : t@{s|uA0 uA1 uA2} -> t@{s|uA0 uA1 uA2}
+  Definition co@{s;uA0 uA1 uA2|} : t@{s;uA0 uA1 uA2} -> t@{s;uA0 uA1 uA2}
     := fun x =>
          match x with
          | @Pack sort Hom two_cells class =>
@@ -157,22 +157,22 @@ Module OneBicat.
       gf_id : Couple (vpreorder y y) (g · f) (1 y)
     }.
 
-  Definition assoc@{s;+|} {A : t@{s|_ _ _}}
-    : Associative@{s|_ _ _} A _
+  Definition assoc@{s;+|} {A : t@{s;_ _ _}}
+    : Associative@{s;_ _ _} A _
     := assoc (t:=class A).
   
-  Definition lu@{s;+|} {A : t@{s|_ _ _}}
-    : LeftUnitor@{s|_ _ _} A _
+  Definition lu@{s;+|} {A : t@{s;_ _ _}}
+    : LeftUnitor@{s;_ _ _} A _
     := lu (t:=class A).
 
-  Definition ru@{s;+|} {A : t@{s|_ _ _}}
-    : RightUnitor@{s|_ _ _} A _
+  Definition ru@{s;+|} {A : t@{s;_ _ _}}
+    : RightUnitor@{s;_ _ _} A _
     := ru (t:=class A).
 
-  Definition hcomp2@{s;+|} {A : t@{s|_ _ _}}
+  Definition hcomp2@{s;+|} {A : t@{s;_ _ _}}
     := hcomp2 (t:=class A).
 
-  Definition is_preorder@{s;+|} (A : t@{s|_ _ _})
+  Definition is_preorder@{s;+|} (A : t@{s;_ _ _})
     := is_preorder (t:=class A).  
 
   Module coherence_exports.
@@ -183,10 +183,10 @@ Module OneBicat.
   End coherence_exports.
   Import coherence_exports.
 
-  Definition compose_path_fmap_indices@{s;u0 u1 u2}[A : t@{s|_ _ _}] (a : A)
+  Definition compose_path_fmap_indices@{s;u0 u1 u2}[A : t@{s;_ _ _}] (a : A)
     (l : list A)
     (btree : unitBtree)
-    (p : Path.path_on@{_|u0 u1} (OneBicat.Hom@{_|u0 u1 u2} (t:=A)) a l)
+    (p : Path.path_on@{_;u0 u1} (OneBicat.Hom@{_;u0 u1 u2} (t:=A)) a l)
     (n1 n2: nat)
     (pf : n1 + length btree <= n2)
     : nth n1 a l <= nth n2 a l
@@ -209,7 +209,7 @@ Module OneBicat.
   (* Defined. *)
 
   Definition hcompose_path_from_hd_right_assoc@{s;u0 u1 u2}
-    (A : OneBicat.t@{s|u0 u1 u2}):
+    (A : OneBicat.t@{s;u0 u1 u2}):
     forall (a : A) (l : list A) (n : nat),
       GraphHom.class_of
         (fun p : path_graph A a l =>
@@ -238,7 +238,7 @@ Module OneBicat.
   Defined.
 
   Definition hcompose_path_right_assoc@{s;u0 u1 u2}
-  (A : OneBicat.t@{s|u0 u1 u2})
+  (A : OneBicat.t@{s;u0 u1 u2})
   (a: A)
   (l : list A)
   (n1 n2 : nat)
@@ -342,7 +342,7 @@ Module OneBicat.
   Definition compose_path_fmap@{s;u0 u1 u2}[A : t@{s;_ _ _}] (a : A)
     (l : list A)
     (btree : unitBtree)
-    (p : Path.path_on@{_|u0 u1} (OneBicat.Hom@{_|u0 u1 u2} (t:=A)) a l)
+    (p : Path.path_on@{_;u0 u1} (OneBicat.Hom@{_;u0 u1 u2} (t:=A)) a l)
     (eq_pf : length btree == List.length l)
     : a ~> List.last a l
     := compose_path_on A a l btree p eq_pf.

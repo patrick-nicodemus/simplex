@@ -30,4 +30,3 @@ Ltac2 hnf_red_flags :=
       rDelta := true;
       rConst := []
     }.
-

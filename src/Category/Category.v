@@ -6,7 +6,7 @@ Local Open Scope morphism_scope.
 
 Module Category.
   Definition class_of@{u0 u1} (A : Type@{u0}) (R : A -> A -> Type@{u1}) :=
-    @OneBicat.class_of@{Type|u0 u1 u1} A R (fun (x y : A) => @eq (R x y)).
+    @OneBicat.class_of@{Type;u0 u1 u1} A R (fun (x y : A) => @eq (R x y)).
 
   Structure t := Pack {
       sort : Type;
@@ -81,8 +81,8 @@ Module Category.
     : PreOrder.class_of (@Category.Hom A)
     := OneBicat.Class_of.is_preorder (t:=class A).
 
-  Definition to_preorder@{u0 u1} (A : t@{u0 u1 _})
-    : PreOrder.t@{Type|u0 u1}
+  Definition to_preorder@{u0 u1} (A : t@{u0 u1})
+    : PreOrder.t@{Type;u0 u1}
     := @PreOrder.Pack (sort A) _ (IsPreOrder A).
 
   Definition IsReflexive (A : t)

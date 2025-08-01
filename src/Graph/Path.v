@@ -80,7 +80,7 @@ Defined.
 
 Definition take@{s;u0 u1} (A : Type@{u0}) (R : A -> A -> Type@{s;u1})
   (a : A)
-  : forall (b : A) (n : nat) (p : path@{s|u0 u1} R a b), path@{s|u0 u1} R (nth_vertex n p) b.
+  : forall (b : A) (n : nat) (p : path@{s;u0 u1} R a b), path@{s;u0 u1} R (nth_vertex n p) b.
 Proof.
   intros b n; revert b.
   refine ((fix recfun (n : nat) := _) n); destruct n.
@@ -123,7 +123,7 @@ Theorem drop_length@{s;u0 u1} (A : Type@{u0}) (R : A -> A -> Type@{s;u1})
   : length (drop k p) = length p - k.
 Proof.
   revert k le.
-  refine ((fix recp (b0 : A) (p0 : path@{s|u0 u1} R a b0) := _ ) b p).
+  refine ((fix recp (b0 : A) (p0 : path@{s;u0 u1} R a b0) := _ ) b p).
   destruct p0.
   - intro k. destruct k; reflexivity.
   -  intro k. destruct k.

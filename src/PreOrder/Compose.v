@@ -15,7 +15,7 @@ Fixpoint length : unitBtree -> nat :=
         end.
 
 Definition compose_path@{s;u0 u1|}
-  (A : PreOrder.t@{s|u0 u1})
+  (A : PreOrder.t@{s;u0 u1})
   (a b : A)
   (t : unitBtree)
   (p : Path.path A a b)
@@ -52,18 +52,18 @@ Defined.
     identity at the end, so this function can be used with
     any graph with an associative composition, even if it is not unital. *)
 Definition compose_path_from_hd_right_assoc_nonempty@{s;u0 u1|}
-  (A : PreOrder.t@{s|u0 u1})
+  (A : PreOrder.t@{s;u0 u1})
   (a: A)
   (b : A)
   (f : A a b)
   (l : list A)
-  (p : Path.path_on@{s|u0 u1} A b l)
+  (p : Path.path_on@{s;u0 u1} A b l)
   (n : nat)
   : A a (List.nth n b l)
   :=
   (fix IHl (l : list A):
-    forall (a b :A) (f : A a b) (p : Path.path_on@{s|u0 u1} A b l) (n : nat), A a (List.nth n b l)
-      := match l return forall (a b :A) (f : A a b) (p : Path.path_on@{s|u0 u1} A b l) (n : nat), A a (List.nth n b l) with
+    forall (a b :A) (f : A a b) (p : Path.path_on@{s;u0 u1} A b l) (n : nat), A a (List.nth n b l)
+      := match l return forall (a b :A) (f : A a b) (p : Path.path_on@{s;u0 u1} A b l) (n : nat), A a (List.nth n b l) with
          | hd :: tl => fun a b f p n =>
                        match n return A a (List.nth n b (hd::tl)) with
                        | 0 => f
@@ -77,14 +77,14 @@ Definition compose_path_from_hd_right_assoc_nonempty@{s;u0 u1|}
     identity morphism, otherwise it recursively composes all the
     morphisms in the non-empty list. *)
 Definition compose_path_from_hd_right_assoc@{s;u0 u1|}
-  (A : PreOrder.t@{s|u0 u1})
+  (A : PreOrder.t@{s;u0 u1})
   (a: A)
   (l : list A)
-  (p : Path.path_on@{s|u0 u1} A a l)
+  (p : Path.path_on@{s;u0 u1} A a l)
   (n : nat)
   : A a (List.nth n a l)
   :=
-  match l return forall (p : Path.path_on@{s|u0 u1} A a l), A a (List.nth n a l) with
+  match l return forall (p : Path.path_on@{s;u0 u1} A a l), A a (List.nth n a l) with
   | hd :: tl =>
       match n with
       | 0 => fun p => reflexive a
@@ -123,10 +123,10 @@ Definition compose_path_from_hd_right_assoc@{s;u0 u1|}
 (** Like [compose_path_from_hd_right_assoc]
     but drops a prefix. *)
 Definition compose_path_right_assoc@{s;u0 u1|}
-  (A : PreOrder.t@{s|u0 u1})
+  (A : PreOrder.t@{s;u0 u1})
   :
   forall (a : A) (l : list A),
-  path_on@{s|u0 u1} A a l ->
+  path_on@{s;u0 u1} A a l ->
   forall n1 n2 : nat, n1 <= n2 -> nth n1 a l <= nth n2 a l :=
   (fix compose_path_right_assoc a l p n1 n2 ineq {struct n1} :=
   match n1 return (forall (ineq : n1 <= n2), (nth n1 a l <= nth n2 a l)) with
@@ -167,11 +167,11 @@ Definition compose_path_right_assoc@{s;u0 u1|}
  *)
 
 Fixpoint compose_path_on_indices@{s;u0 u1|}
-  (A : PreOrder.t@{s|u0 u1})
+  (A : PreOrder.t@{s;u0 u1})
   (a: A)
   (l : list A)
   (t : unitBtree)
-  (p : Path.path_on@{s|u0 u1} A a l)
+  (p : Path.path_on@{s;u0 u1} A a l)
   (n1 n2 : nat)
   (h : n1 + length t <= n2)
   : A (List.nth n1 a l) (List.nth n2 a l).
@@ -250,11 +250,11 @@ Defined.
     with an alternate design: that the list of nodes
     is provided separately from the path. *)
 Definition compose_path_on@{s;u0 u1|}
-  (A : PreOrder.t@{s|u0 u1})
+  (A : PreOrder.t@{s;u0 u1})
   (a: A)
   (l : list A)
   (t : unitBtree)  
-  (p : Path.path_on@{s|u0 u1} A a l)
+  (p : Path.path_on@{s;u0 u1} A a l)
   (eq_pf : length t == List.length l)
   : A a (List.last a l).
 Proof.

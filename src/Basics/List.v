@@ -1,8 +1,8 @@
 From Simplex Require Import Basics.Basics Basics.Nat Eq Tactics.
 Set Implicit Arguments.
 
-Inductive list@{s;u} (A: Type@{s|u}) : Type@{u} :=
-| cons (hd: A) (tl:  list A) : list A
+Inductive list@{s;u} (A: Type@{s;u}) : Type@{u} :=
+| cons (hd: A) (tl: list A) : list A
 | nil : list A.
 
 Arguments nil {A}.
@@ -11,11 +11,10 @@ Infix "::" := cons (at level 60, right associativity) : list_scope.
 Notation "[ x ; .. ; y ]" := (cons x .. (cons y nil) ..) : list_scope.
 Open Scope list_scope.
 
-Definition length@{s;u} (A : Type@{s|u}) : list A -> nat :=
+Definition length@{s;u} (A : Type@{s;u}) : list A -> nat :=
   fix r l := match l with | nil => O | cons _ tl => S(r tl) end.
 
-
-Theorem length0@{s;u} (A: Type@{s|u}) (l : list A) : (0 == length l) -> l = nil.
+Theorem length0@{s;u} (A: Type@{s;u}) (l : list A) : (0 == length l) -> l = nil.
 Proof.
   destruct l.
   - intro. contradiction.
@@ -26,7 +25,7 @@ Defined.
     presented as a pair of arguments [(hd,tl)].
     If the index is out of bounds,
     [nth] returns the last element of the list. *)
-Fixpoint nth@{s;u0|} (A : Type@{s|u0}) (n : nat) (a : A) (l : list A) : A :=
+Fixpoint nth@{s;u0|} (A : Type@{s;u0}) (n : nat) (a : A) (l : list A) : A :=
   match n with
   | O => a
   | S n' => match l with
@@ -40,10 +39,10 @@ Fixpoint nth@{s;u0|} (A : Type@{s|u0}) (n : nat) (a : A) (l : list A) : A :=
 (*   | nil => a *)
 (*   | hd :: tl => last hd tl *)
 (*   end. *)
-Definition last@{s;u} {A:Type@{s|u}} (a : A) (l : list A) : A :=
+Definition last@{s;u} {A:Type@{s;u}} (a : A) (l : list A) : A :=
   List.nth (List.length l) a l.
 
-Fixpoint drop@{s;u0|} (A : Type@{s|u0}) (n : nat)  (l : list A) : list A :=
+Fixpoint drop@{s;u0|} (A : Type@{s;u0}) (n : nat)  (l : list A) : list A :=
   match n with
   | O => l
   | S n' =>
@@ -53,7 +52,7 @@ Fixpoint drop@{s;u0|} (A : Type@{s|u0}) (n : nat)  (l : list A) : list A :=
       end
   end.
 
-Fixpoint take@{s;u0|} (A : Type@{s|u0}) (n : nat)  (l : list A) : list A :=
+Fixpoint take@{s;u0|} (A : Type@{s;u0}) (n : nat)  (l : list A) : list A :=
   match n with
   | O => nil
   | S n' =>   match l with
@@ -62,7 +61,7 @@ Fixpoint take@{s;u0|} (A : Type@{s|u0}) (n : nat)  (l : list A) : list A :=
              end
   end.
 
-Theorem drop_length@{s;u0|} (A : Type@{s|u0}) (l : list@{s|u0} A) (k : nat)
+Theorem drop_length@{s;u0|} (A : Type@{s;u0}) (l : list@{s;u0} A) (k : nat)
   (le : Nat.le k (length l))
   : length (drop k l) = length l - k.
 Proof.
@@ -79,7 +78,7 @@ Proof.
     + simpl. intro; contradiction.
 Defined.
 
-Theorem take_length@{s;u0|} (A : Type@{s|u0}) (l : list@{s|u0} A) (k : nat)
+Theorem take_length@{s;u0|} (A : Type@{s;u0}) (l : list@{s;u0} A) (k : nat)
   (le : Nat.le k (length l))
   : length (take k l) = k.
 Proof.
@@ -95,7 +94,7 @@ Proof.
     + simpl. intro; contradiction.
 Defined.
 
-Lemma nth_last_take : forall (A :Type)(a: A) (l :  list A) (k : nat),
+Lemma nth_last_take : forall (A : Type)(a : A) (l : list A) (k : nat),
     List.nth k a l = List.last a (List.take k l).
 Proof.
   intros A a l; revert a.

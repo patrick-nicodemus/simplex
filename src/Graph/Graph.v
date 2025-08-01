@@ -66,7 +66,7 @@ Module GraphHom.
     := fmap' : forall {x y  : A}, x ~> y -> F x ~> F y.
 
   Structure t@{s1 s2;uA0 uA1 uB0 uB1}
-    (A : Graph.t@{s1;uA0 uA1}) (B : Graph.t@{s2|uB0 uB1})
+    (A : Graph.t@{s1;uA0 uA1}) (B : Graph.t@{s2;uB0 uB1})
     := Pack {
            map : A -> B;
            class : class_of map
@@ -117,9 +117,6 @@ Definition ExponentialGraph@{sA sB;u0A u1A u0B u1B}
   := @Graph.Pack (Graph.sort A  -> Graph.sort B)
        (fun F G => forall x y : A, Graph.Hom x y -> Graph.Hom (F x) (G y)).
 
-Print GraphHom.class_of.
-Print Implicit GraphHom.class_of.
-Locate uncurry.
 Instance uncurry_graph@{sA sC; uA0 uA1 uB0 uB1 uC0 uC1|}
   (A: Graph.t@{sA;uA0 uA1})
   (B: Graph.t@{sA;uB0 uB1})

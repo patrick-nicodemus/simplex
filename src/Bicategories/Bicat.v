@@ -5,7 +5,7 @@ Open Scope morphism_scope.
 Module Bicategory.
   Import OneBicat.Notations.
       
-  Record mixin_of@{u0 u1 u2} (A : OneBicat.t@{Type|u0 u1 u2}) := {
+  Record mixin_of@{u0 u1 u2} (A : OneBicat.t@{Type;u0 u1 u2}) := {
       is_vcat (x y : A) : Category.Mixin.mixin_of (OneBicat.vpreorder x y);
       vcat (x y : A) :=
         (@Category.Build _ _ 

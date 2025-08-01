@@ -4,8 +4,8 @@ Local Set Implicit Arguments.
 Module Functor.
   Open Scope morphism_scope.
   Class class_of@{u0a u1a u0b u1b}
-    (A : PreOrder.t@{Type|u0a u1a})
-    (B : PreOrder.t@{Type|u0a u1a})
+    (A : PreOrder.t@{Type;u0a u1a})
+    (B : PreOrder.t@{Type;u0a u1a})
     (F : A -> B)
     (fmap : GraphHom.class_of F)
     (* (fmap : forall {a b : A}, PreOrder.Hom a b -> PreOrder.Hom (F a) (F b)) *)
@@ -19,8 +19,8 @@ Module Functor.
   Notation is_functor := class_of.
 
   Structure t@{u0a u1a u0b u1b}
-    (A : PreOrder.t@{Type|u0a u1a})
-    (B : PreOrder.t@{Type|u0a u1a})
+    (A : PreOrder.t@{Type;u0a u1a})
+    (B : PreOrder.t@{Type;u0a u1a})
     := {
       map : A -> B;
       fmap : forall (a b : A), PreOrder.Hom a b -> PreOrder.Hom (map a) (map b);
