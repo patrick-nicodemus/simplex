@@ -7,6 +7,12 @@ Class Comm@{s;u0 u1 u2|}
   (f : B -> B -> A)
   := comm x y : R (f x y) (f y x).
 
+Class Assoc@{s;u0 u1|}
+  (A : Type@{u0})
+  (op : A -> A -> A)
+  (R : Relation@{s;u0 u1} A)
+  := assoc : forall a b c : A, R(op (op a b) c)(op a (op b c)).
+
 Class LeftId@{s;u0 u1|} {A : Type@{u0}} (R : Relation@{s;u0 u1} A)
   (i : A) (f : A -> A -> A)
   :=  left_id x : R (f i x) x.
