@@ -2,6 +2,7 @@ From Simplex Require Import Basics Graph PreOrder.Core TwoGraph OneBicat.
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
+(** In this file we define a fragment of the theory of lax, colax and pseudo functors between bicategories. These are not fully coherent, because they only deal with constraints at the level of 0-cells, 1-cells and 2-cells, but they do not include the appropriate coherence constraints at level 3 (either setoid equivalences or equality constraints), such as the requirement that the lax functoriality constraint is natural in the pair of 1-cells (f,g). *)
 Module Lax1Functor.
   (** Lax unity constraint, lax functoriality constraint *)
   Module _mixin.
@@ -59,7 +60,7 @@ Module Lax1Functor.
   End to_graphHom_exports.
   Import to_graphHom_exports.
 
-  (** Lax unity constraint  *)
+  (** Lax unity constraint *)
   Definition luc@{s1 s2;uA0 uA1 uA2 uB0 uB1 uB2}
     (A : OneBicat.t@{s1;uA0 uA1 uA2})
     (B : OneBicat.t@{s2;uB0 uB1 uB2})
@@ -67,7 +68,7 @@ Module Lax1Functor.
     : forall (x : A), OneBicat.two_cells (1 (F x)) (fmap F (1 x))
     := luc_mixin (mixin_of:=mixin (class_of:=(class F))).
 
-  (** Lax functoriality constraint  *)
+  (** Lax functoriality constraint *)
   Definition lfc@{s1 s2;uA0 uA1 uA2 uB0 uB1 uB2|}
     (A : OneBicat.t@{s1;uA0 uA1 uA2})
     (B : OneBicat.t@{s2;uB0 uB1 uB2})
@@ -119,7 +120,7 @@ Module Colax1Functor.
       @OneBicat.two_cells B _ _ (fmap F (1 x)) (1 (F x))
     := fun x => Lax1Functor.luc F x.
 
-  (** Colax functoriality constraint  *)
+  (** Colax functoriality constraint *)
   Definition cfc@{s1 s2;uA0 uA1 uA2 uB0 uB1 uB2|}
     (A : OneBicat.t@{s1;uA0 uA1 uA2})
     (B : OneBicat.t@{s2;uB0 uB1 uB2})
