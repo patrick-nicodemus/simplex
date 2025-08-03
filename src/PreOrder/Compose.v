@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Basics.Datatypes Basics.List Graph Eq
+From Simplex Require Import Basics Basics.Datatypes Basics.List Graph Eq SEq
   Nat Tactics Path PreOrder.Core.
 Local Set Implicit Arguments.
 

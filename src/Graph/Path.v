@@ -1,4 +1,4 @@
-From Simplex Require Import Basics Datatypes List Graph Nat Eq PreOrder.Core Tactics.
+From Simplex Require Import Basics Datatypes List Graph Nat Eq SEq PreOrder.Core Tactics.
 #[local] Set Implicit Arguments.
 
 (** TODO: Group this code by [path] and [path_on] *)

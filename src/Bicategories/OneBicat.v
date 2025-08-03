@@ -1,6 +1,6 @@
 From Simplex Require Import
                      Basics Basics.Datatypes Basics.List
-                     Basics.Eq
+                     Basics.Eq Basics.SEq
                      Nat
                      Tactics
   Relations Graph TwoGraph

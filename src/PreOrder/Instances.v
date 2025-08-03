@@ -1,6 +1,11 @@
-From Simplex Require Import Basics Datatypes Eq PreOrder.Core Graph.
+From Simplex Require Import Basics Datatypes Eq PreOrder.Core Graph SEq.
 Local Set Implicit Arguments.
 Definition eq_preorder (A : Type) : PreOrder.class_of (@eq A).
+Proof.
+  constructor; exact _.
+Defined.
+
+Definition seq_preorder (A : Type) : PreOrder.class_of@{SProp;_ _} (@seq A).
 Proof.
   constructor; exact _.
 Defined.

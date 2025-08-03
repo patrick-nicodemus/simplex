@@ -1,4 +1,4 @@
-From Simplex Require Import Basics.Basics Basics.Nat Eq Tactics.
+From Simplex Require Import Basics.Basics Basics.Nat Eq SEq Tactics.
 Set Implicit Arguments.
 
 Inductive list@{s;u} (A: Type@{s;u}) : Type@{u} :=

@@ -3,6 +3,7 @@ Local Set Implicit Arguments.
 
 Section eq.
 Unset Elimination Schemes.
+  
 Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
   eq_refl : eq a a.
 
@@ -105,9 +106,6 @@ Proof.
   destruct s.
   reflexivity.
 Defined.
-
-(* Theorem h_invl {A : Type} {a b : A} (p q : a = b) (s : p = q) *)
-(*   : hcomp2 s (h_inv p q s) *)
 
 Definition post_whisker {A : Type} {a b c : A} [p q : a = b]
   (s : p = q) (h : b = c)
@@ -245,106 +243,6 @@ Module Strict_anti_univalence.
   End Interval.
 End Strict_anti_univalence.
 
-Module Strict_hSets.
-  (** Idea of this module: if a type is known to be an HSet, then we are allowed to use strict equality on its elements. *)
-  Record HSet@{u} := {
-      carrier :> Type@{u};
-      is_hset : IsHSet carrier
-    }.
-
-  Local Set Definitional UIP.
-  Inductive SEq@{u} {A : HSet@{u}} (a : A) : A -> SProp :=
-    seq_refl : SEq a a.
-
-  Module Interval.
-    Private Inductive I :=
-    | zero
-    | one.
-
-    Definition EC : I -> I -> Set :=
-      fun i => match i with
-            | zero => fun j => match j with
-                     | zero => unit
-                     | one => empty
-                     end
-            | one => fun j => match j with
-                    | zero => empty
-                    | one => unit
-                    end
-            end.
-
-    Instance IsHPropEC (i j : I) : IsHProp (EC i j).
-    Proof.
-      destruct i, j; exact _.
-    Defined.
-
-    Definition encode : forall i j : I,
-        EC i j -> i = j
-      := fun i => match i return forall j : I, EC i j -> i = j with
-         | zero => fun j => match j return EC zero j -> eq _ j with
-                  | zero => fun _ => eq_refl zero
-                  | one => fun e => match e with end
-                  end
-         | one => fun j => match j with
-                 | zero => fun e => match e with end
-                 | one => fun _ => eq_refl one
-                 end
-               end.
-
-    Definition decode : forall i j : I,
-        i = j -> EC i j
-      := fun i j p => match p with
-                   | eq_refl _ =>
-                       match i with
-                       | zero => tt
-                       | one => tt
-                       end
-                   end.
-
-    Theorem encode_decode_sect :
-      forall (i j: I) (a : EC i j), decode (encode _ _ a) = a.
-    Proof.
-      intros i j; destruct i, j.
-      - simpl. intro a; destruct a; reflexivity.
-      - simpl. intro a; destruct a.
-      - simpl. intro a; destruct a.
-      - simpl. intro a; destruct a; reflexivity.
-    Defined.
-
-    Theorem encode_decode_retr :
-      forall (i j: I) (a : i = j), encode i j (decode a) = a.
-    Proof.
-      intros i j a; destruct a, i; reflexivity.
-    Defined.
-
-    Definition EC_bijection (i j : I) : bijection (EC i j) (i = j) :=
-      {|
-        section := encode i j;
-        retraction := decode (i:=i) (j:=j);
-        lr_inv := fun a => encode_decode_sect i j a;
-        rl_inv := fun a => encode_decode_retr (i:=i) (j:=j) a;
-      |}.
-
-    Instance I_IsHSet : IsHSet I.
-    Proof.
-      intros i j.
-      apply (bijection_preserves_hprop (EC_bijection i j)).
-      exact _.
-    Defined.
-    
-    Axiom seg : SEq (A:= {| carrier := I; is_hset := _ |}) zero one.
-
-    Definition I_elim (P : I -> Type) (p0 : P zero) (p1 : P one)
-      (peq : (match seg in SEq _ z return forall (y : P z), Type
-              with | seq_refl _ => fun y => p0 = y end) p1)
-      : forall (i : I), P i
-      := fun i => match i with
-               | zero => p0
-               | one => p1
-               end.
-  End Interval.
-End Strict_hSets.
-
 Module Strict.
   (** Importing this module "should be consistent" with univalence (https://arxiv.org/pdf/1311.4002), see also (https://www.sciencedirect.com/science/article/pii/S0022404921000232?via%3Dihub), end of section 2 *)
   Local Set Definitional UIP.
@@ -367,42 +265,6 @@ Module Strict.
                end.
   End Interval.
 End Strict.
-
-Module SEqType.
-  Class class_of (A: Type) := {
-      seq_rel : A -> A -> SProp;
-      seq_if : forall (a b : A), seq_rel a b -> eq a b;
-      seq_only_if : forall (a b : A), eq a b -> seq_rel a b
-    }.
-
-  Structure t := {
-      sort : Type;
-      is_seqtype : class_of sort
-    }.
-  Module Exports.
-    Arguments seq_rel [A] {class_of} a b : simpl never.
-    Infix "==" := seq_rel (at level 70).
-  End Exports.
-End SEqType.
-Export SEqType.Exports.
-
-Instance seq_rel_reflexive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
-  Reflexive@{SProp;u Set} (@SEqType.seq_rel A class)
-  := fun h => SEqType.seq_only_if@{u} (eq_refl h).
-
-Instance seq_rel_transitive@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} :
-  Transitive@{SProp;u Set} (@SEqType.seq_rel A class).
-Proof.
-  intros x y z p.
-  apply (SEqType.seq_if) in p. destruct p. exact (fun q => q).
-Defined.
-
-Instance seq_rel_symmetric@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} :
-  Symmetric@{SProp;u Set} (@SEqType.seq_rel@{_} A class).
-Proof.
-  intros x y p.
-  apply (SEqType.seq_if) in p. destruct p. exact (reflexive _).
-Defined.
 
 Theorem isContr_lemma (A : Type) (H : forall y z : A, y = z)
   (y0 z0 y1 z1 : A) (p : y0 = y1) (q : z0 = z1)
