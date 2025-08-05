@@ -7,6 +7,8 @@
 (generate_opam_files true)
 
 (source (github patrick-nicodemus/simplex))
+(authors
+  "Patrick Nicodemus <gadget142@gmail.com>")
 (maintainers
   "Patrick Nicodemus <gadget142@gmail.com>")
 (package
