@@ -33,16 +33,16 @@ Record sig2@{s1 s2;u0 u1 u2|} (A : Type@{u0})
   : Type@{max(u0,u1,u2)}
   := { ex2val : A; ex2P : P ex2val; ex2Q : Q ex2val }.
 
-Definition prod_unary@{s;uA uPA uB uPB|}
+Definition prod_unary@{s;uA uPA uB uPB uPAB|uPA<=uPAB,uPB<=uPAB}
   (A : Type@{uA}) (PA : A -> Type@{s;uPA})
   (B : Type@{uB}) (PB : B -> Type@{s;uPB})
-  : A * B -> Type@{s;max(uPA,uPB)}
+  : A * B -> Type@{s;uPAB}
   := fun ab => (PA (fst ab) /\ PB (snd ab))%type.
 
-Definition prod_binary@{s;+|}
-  (A : Type) (RA : A -> A -> Type@{s;_})
-  (B : Type) (RB : B -> B -> Type@{s;_})
-  : A * B -> A * B -> Type@{s;_}
+Definition prod_binary@{s;uA uPA uB uPB uPAB|uPA<=uPAB,uPB<=uPAB}
+  (A : Type@{uA}) (RA : A -> A -> Type@{s;uPA})
+  (B : Type@{uB}) (RB : B -> B -> Type@{s;uPB})
+  : A * B -> A * B -> Type@{s;uPAB}
   := fun ab ab' => (RA (fst ab) (fst ab') /\ RB (snd ab) (snd ab'))%type.
 
 Definition uncurry@{s1 s2;u0 u1 u2|} (A : Type@{s1;u0})

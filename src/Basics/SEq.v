@@ -23,14 +23,15 @@ Private Inductive seq@{u} {A : Type@{u}} (a : A) : A -> SProp :=
 
 Infix "≡" := seq (at level 44).
 
-Instance Reflexive_seq@{u} {A :Type@{u}} : Reflexive (@seq A) := fun x => seq_refl _.
+Instance Reflexive_seq@{u} {A :Type@{u}} :
+  Reflexive@{SProp;u Set} (@seq A) := fun x => seq_refl _.
 
-Instance Symmmetric_seq@{u} {A :Type@{u}} : Symmetric (@seq A) 
+Instance Symmmetric_seq@{u} {A :Type@{u}} : Symmetric@{SProp;u Set} (@seq A) 
   := fun x y p => match p in seq _ y return seq y x with
                | seq_refl _ => seq_refl _
                end.
 
-Instance Transitive_seq@{u} {A :Type@{u}} : Transitive (@seq A) 
+Instance Transitive_seq@{u} {A :Type@{u}} : Transitive@{SProp;u Set} (@seq A) 
   := fun x y z p => match p in seq _ y return seq y z -> seq x z with
                  | seq_refl _ => fun q => q
                  end.
@@ -92,7 +93,7 @@ Module U1_Truncated : U1_Truncated_Sig.
   Defined.
                    
   Definition u1_2truncated (A : Type@{Set+1}) (a b: A) : IsHSet (a = b)
-    := all_hsets@{1} (A:= a=b) .
+    := all_hsets (A:= a=b).
 End U1_Truncated.
 Export U1_Truncated.
 
@@ -190,7 +191,9 @@ Module Interval.
 End Interval.
 
 Module S1.
-  Private Inductive t : Type@{1} := pt.
+  (* This can't live in Set. TODO: When universe polymorphism is merged,
+      change to Set+1 *)
+  Private Inductive t : Type := pt.
   Axiom loop : pt = pt.
 
   Definition elim (P : t -> Type)
