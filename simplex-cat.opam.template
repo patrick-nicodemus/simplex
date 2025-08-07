@@ -1,4 +1,6 @@
 depends:[
+  "dune" {>= "3.13"}
+  "odoc" {with-doc}
   coq-core
   rocq-runtime
   rocq-core
