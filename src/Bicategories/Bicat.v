@@ -4,7 +4,7 @@ Local Set Implicit Arguments.
 Open Scope morphism_scope.
 Module Bicategory.
   Import OneBicat.Notations.
-      
+
   Record mixin_of@{u0 u1 u2} (A : OneBicat.t@{Type;u0 u1 u2}) := {
       (** 2-cells form a category under vertical composition. *)
       is_vcat (x y : A) : Category.Mixin.mixin_of (OneBicat.vpreorder x y);

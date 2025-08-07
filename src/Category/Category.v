@@ -4,7 +4,7 @@ From Simplex Require Import Basics Eq Graph TwoGraph
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
-(** This module defines categories. Categories are are defined as a specialization of OneBicat's to the case where the setoid equivalence relation on homs is type-valued equality. A Category.t is a triple consisting of the sort of objects, a dependent Hom type, and a proof that this pair forms a category.
+(** This module defines categories with the standard Martin-Löf equality on Homs. Categories are are defined as a specialization of OneBicat's to the case where the setoid equivalence relation on homs is type-valued equality. A Category.t is a triple consisting of the sort of objects, a dependent Hom type, and a proof that this pair forms a category.
 
    The module includes a mixin class showing how to upgrade a PreOrder.t to a category by supplying a left and right preorder. It also
    contains a coercion from a category down to a preorder, and a way to extract reflexivity and transitivity proofs.
