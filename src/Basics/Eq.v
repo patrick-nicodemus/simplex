@@ -42,6 +42,13 @@ Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
     | eq_refl _ => eq_refl a
     end.
 
+Definition apd@{u0 u1} [A : Type@{u0}]
+  (P : A -> Type@{u1})
+  (f : forall (a: A), P a)
+  (a b : A) (p : a = b) :
+  (f a = transport P p (f b))
+    := match p with | eq_refl _ => eq_refl _ end.
+
 Local Infix "·" := transitive (at level 60).
 
 Definition eq_assoc {A : Type}
@@ -65,23 +72,8 @@ Record bijection (A B : Type) :=
     rl_inv : forall (b : B), section (retraction b) = b;
   }.
 
-Class IsHProp@{u} (A: Type@{u}) : Type@{u}
-  := is_hprop: forall x y : A, eq@{u} x y.
-
-Instance IsHProp_unit : IsHProp unit.
-Proof.
-  intros x y.
-  destruct x, y.
-  reflexivity.
-Defined.
-
-Instance IsHProp_empty : IsHProp empty.
-Proof.
-  intros x ; destruct x.
-Defined.
-
-Class IsHSet@{u} (A :Type@{u})
-  := hprop_eq : forall x y : A, IsHProp (eq@{u} x y).
+(* Class IsHProp@{u} (A: Type@{u}) : Type@{u} *)
+(*   := is_hprop: forall x y : A, eq@{u} x y. *)
 
 Definition eq_natural (A B: Type) (f g : A -> B) (h : forall x, f x = g x)
   (a0 a1 : A) (s : a0 = a1)
@@ -107,6 +99,20 @@ Proof.
   reflexivity.
 Defined.
 
+Definition sym_inv {A : Type} {a b : A} (p : a = b) : p^^ = p.
+Proof.
+  destruct p; reflexivity.
+Defined.
+
+Definition h_inv' {A : Type} {a b :A} {p q : a = b} : p^ = q^ -> p = q.
+Proof.
+  intro s.
+  apply h_inv in s.
+  destruct (sym_inv p)^.
+  destruct (sym_inv q)^.
+  exact s.
+Defined.
+
 Definition post_whisker {A : Type} {a b c : A} [p q : a = b]
   (s : p = q) (h : b = c)
   := hcomp2 s (eq_refl h).
@@ -119,6 +125,14 @@ Definition right_unitor {A : Type} {a b :A} (q : a = b) : q · eq_refl _ = q.
 Proof.
   destruct q.
   reflexivity.
+Defined.
+
+Lemma apd1 [A: Type] (a x1 x2 : A) (p : x1 = x2) (q: a = x2):
+  transport (fun x => a = x) p q = q · p^.
+Proof.
+  destruct p.
+  simpl. unfold symmetry. simpl.
+  apply symmetry; exact (right_unitor _).
 Defined.
 
 Theorem postcomp_iso {A : Type} {a b c : A} (p q : a = b) (s : b = c)
@@ -170,36 +184,6 @@ Proof.
   rewrite hcomp2_rid_nat in t.
   apply precomp_iso in t.
   exact t.
-Defined.
-
-Theorem bijection_preserves_hprop (A B: Type) :
-  bijection A B -> IsHProp A -> IsHProp B.
-Proof.
-  intros [section retraction' lr_inv' rl_inv'] is_hprop'.
-  intros p q.
-  destruct (rl_inv' p).
-  destruct (rl_inv' q).
-  destruct (is_hprop' (retraction' p) (retraction' q)).
-  reflexivity.
-Defined.
-
-Theorem bijection_preserves_hset (A B : Type) (p : bijection A B) :
-  IsHSet A -> IsHSet B.
-Proof.
-  intros IsHSetA b b'.
-  eapply (@bijection_preserves_hprop ((retraction p b) = (retraction p b'))).
-  - unshelve econstructor.
-    + intro k. apply (f_equal (section p)) in k.
-      destruct (rl_inv p b)^.
-      destruct (rl_inv p b')^.
-      exact k.
-    + exact (f_equal (retraction p) (x:=b) (y:=b')).
-    + apply (fun a => IsHSetA (retraction p b) (retraction p b') _ a).
-    + simpl. intro eq_bb'.
-      destruct eq_bb',
-        (rl_inv p b).
-      reflexivity.
-  - apply IsHSetA.
 Defined.
 
 Module Strict_anti_univalence.

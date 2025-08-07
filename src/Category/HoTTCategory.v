@@ -39,8 +39,8 @@ Module Category.
   (* Import t_exports. *)
 
   Module Mixin.
-    Record mixin_of (A : PreOrder.t) := Mixin {
-      isHSet : forall x y: A, IsHSet (PreOrder.Hom x y)                                            ;
+    Record mixin_of (A : PreOrder.t) : SProp := Mixin {
+      isHSet : forall x y: A, IsHSet (PreOrder.Hom x y);
       assoc : forall (w x y z : A) (f : w <= x) (g : x <= y) (h : y <= z),
         ((f · g) · h) ≡ f · (g · h);
       lu : forall (x y : A) (f : x <= y), (1 x · f) ≡ f;
