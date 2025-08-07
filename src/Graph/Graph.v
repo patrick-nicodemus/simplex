@@ -92,15 +92,14 @@ End GraphHom.
 Export GraphHom.Exports.
 
 Definition Transformation@{s;+|+}
-  (A : Type) (B : Graph.t)
+  (A : Type) (B : Graph.t@{s; _ _})
   : @Relation (A -> B)
   := fun (F G : A -> B) => forall (a : A), Graph.Hom (F a) (G a).
 
-Arguments Transformation [A B].
-
-Definition TransformationGraph@{s;uA u0B u1B|}
+Definition TransformationGraph@{s;uA u0B u1B uA0B uA1B|
+                                   uA<=uA0B, u0B<=uA0B, uA <= uA1B, u1B<=uA1B}
   (A : Type@{uA}) (B : Graph.t@{s;u0B u1B})
-  := Graph.Pack (@Transformation@{s;_ _ _ _ _} A B).
+  := Graph.Pack@{s;uA0B uA1B} (@Transformation@{s;_ _ _ _ _} A B).
 
 Canonical TransformationGraph.
 
