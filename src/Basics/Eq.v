@@ -4,7 +4,7 @@ Local Set Implicit Arguments.
 Section eq.
 Unset Elimination Schemes.
   
-Inductive eq@{u} {A : Type@{u}} (a : A) : A -> Type@{u} :=
+Inductive eq@{s;u} {A : Type@{u}} (a : A) : A -> Type@{s;u} :=
   eq_refl : eq a a.
 
 Definition eq_rect@{s;u u'} {A : Type@{u}} (a : A)
@@ -186,70 +186,6 @@ Proof.
   exact t.
 Defined.
 
-Module Strict_anti_univalence.
-  (** Importing this module leads to inconsistency with the univalence axiom. *)
-  Local Set Definitional UIP.
-  Local Set Universe Polymorphism.
-  Inductive SEq@{u} {A : Type@{u}} (a : A) : A -> SProp :=
-    eq_refl : SEq a a.
-
-  Definition to {A : Type} {a b : A} (p : a = b) : SEq a b := match p with Eq.eq_refl _ => eq_refl _ end.
-
-  Definition from {A : Type} {a b : A} (q : SEq a b) : a = b := match q with eq_refl _ => Eq.eq_refl _ end.
-  
-  Lemma to_from_inv (A : Type) (a b : A) (p : a = b) : from (to p) = p.
-  Proof.
-    destruct p. reflexivity.
-  Defined.
-
-  Theorem UIP : forall (A : Type) (a : A) (p : a = a), p = Eq.eq_refl a.
-  Proof.
-    intros A a p.
-    rewrite <- (to_from_inv p).
-    change (to p) with (to (Eq.eq_refl a)).
-    reflexivity.
-  Defined.
-    
-  Module Interval.
-    Private Inductive I :=
-    | zero
-    | one.
-
-    Axiom seg : SEq zero one.
-    Definition I_elim (P : I -> Type) (p0 : P zero) (p1 : P one)
-      (peq : (match seg in SEq _ z return forall (y : P z), Type
-              with | eq_refl _ => fun y => p0 = y end) p1)
-      : forall (i : I), P i
-      := fun i => match i with
-               | zero => p0
-               | one => p1
-               end.
-  End Interval.
-End Strict_anti_univalence.
-
-Module Strict.
-  (** Importing this module "should be consistent" with univalence (https://arxiv.org/pdf/1311.4002), see also (https://www.sciencedirect.com/science/article/pii/S0022404921000232?via%3Dihub), end of section 2 *)
-  Local Set Definitional UIP.
-  Inductive SEq {A : Set} (a : A) : A -> SProp :=
-    eq_refl : SEq a a.
-
-  Module Interval.
-    Private Inductive I :=
-    | zero
-    | one.
-
-    Axiom seg : SEq zero one.
-    Definition I_elim (P : I -> Type) (p0 : P zero) (p1 : P one)
-      (peq : (match seg in SEq _ z return forall (y : P z), Type
-              with | eq_refl _ => fun y => p0 = y end) p1)
-      : forall (i : I), P i
-      := fun i => match i with
-               | zero => p0
-               | one => p1
-               end.
-  End Interval.
-End Strict.
-
 Theorem isContr_lemma (A : Type) (H : forall y z : A, y = z)
   (y0 z0 y1 z1 : A) (p : y0 = y1) (q : z0 = z1)
   :
@@ -267,7 +203,7 @@ Defined.
 Theorem isContr_up (A : Type) (H : forall y z : A, y = z)
   (y z : A) (p q : y = z) : p = q.
 Proof.
-  rewrite (isContr_lemma H p q).
+  destruct (isContr_lemma H p q)^.
   apply symmetry.
   apply isContr_lemma.
 Defined.

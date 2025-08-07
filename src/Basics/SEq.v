@@ -2,7 +2,6 @@ From Simplex Require Import Basics Relations Datatypes_core Eq.
 Local Set Implicit Arguments.
 
 Local Set Definitional UIP.
-Unset Elimination Schemes.
 
 (** This file defines the strict-prop valued equality seq. In order to
     preserve some homotopical content and make HoTT-style mathematics
@@ -39,7 +38,7 @@ Proof.
 Defined.
 
 Class IsHSet@{u} (A :Type@{u})
-  := hprop_eq : forall x y : A, IsHProp (eq@{u} x y).
+  := hprop_eq : forall x y : A, IsHProp (eq@{Type;u} x y).
 
 Instance Reflexive_seq@{u} {A :Type@{u}} : Reflexive (@seq A)
   := fun x => seq_refl _.
@@ -64,9 +63,24 @@ Definition seq_rect@{s;u u1} {A : Type@{u}} (a : A)
                | seq_refl _ => e
                   end.
 
+
 Definition seq_implies_eq@{u} {A : Type@{u}} (a b: A)
-  (h: IsHProp (a = b)) : a ≡ b -> a = b
-  := fun p => match p with | seq_refl _ => eq_refl _ end.
+: a ≡ b -> a = b.
+Proof.
+  intro p; destruct p.
+  exact (eq_refl a).
+Defined.
+Set Printing All.
+Set Printing Universes.
+Print seq_implies_eq.
+
+
+Definition seq_implies_eq'@{u} {A : Type@{u}} (a b: A) : a ≡ b -> unit
+  := fun p => match p in _ ≡ a0 return unit with | seq_refl _ => tt end.
+
+Definition seq_implies_eq@{u} {A : Type@{u}} (a b: A)
+  (h: IsHProp (a = b)) : a ≡ a -> a = b
+  := fun p => match p in _ ≡ a0 return a = a0 with | seq_refl _ => eq_refl a end.
 
 Definition seq_implies_eq_hprop@{u} {A : Type@{u}} (a b: A)
   (h: IsHProp A) : a ≡ b -> a = b
