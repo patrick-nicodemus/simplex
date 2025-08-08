@@ -184,7 +184,9 @@ Qed.
 Theorem add_sub : forall n m : nat, n + m - m = n.
 Proof.
   intros n m; revert n; induction m as [|m IHm].
-  - intros. rewrite plus_n_O. apply sub_0_r. 
+  - intros.
+    destruct (plus_n_O n)^.
+    apply sub_0_r. 
   - intro n. simpl. rewrite <- add_succ_comm.
     apply IHm.
 Qed.
@@ -192,14 +194,14 @@ Qed.
 Theorem add_sub_eq_l : forall n m p : nat, m + p = n -> n - m = p.
   intros n m p H.
   rewrite <- H.
-  rewrite (comm (R:=@eq nat) (f:=(+))).
+  destruct ((comm (R:=@eq nat) (f:=(+)) m p))^.
   exact (add_sub _ _).
 Qed.
 
 Theorem add_sub_eq_r: forall n m p : nat, m + p = n -> n - p = m.
 Proof.
   intros n m p.
-  rewrite (comm (R:=@eq nat) (f:=(+))).
+  destruct ((comm (R:=@eq nat) (f:=(+))) p m).
   exact (add_sub_eq_l _ _ _).
 Qed.
 

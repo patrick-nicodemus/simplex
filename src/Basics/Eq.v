@@ -14,9 +14,9 @@ Definition eq_rect@{s;u u'} {A : Type@{u}} (a : A)
 End eq.
 
 Local Set Warnings "-notation-overridden".
-Notation "x = y" := (eq x y)
+Notation "x = y" := (eq@{Type;_} x y)
                       (at level 70, y at next level, no associativity) : type_scope.
-Notation "x = y" := (eq x y)
+Notation "x = y" := (eq@{Type;_} x y)
     (at level 70, y at next level, no associativity).
 Register eq as core.identity.type.
 Register eq_refl as core.identity.refl.
