@@ -1,5 +1,5 @@
 From Simplex Require Import Basics Basics.Datatypes Basics.List Graph Eq SEq
-  Nat Tactics Path PreOrder.Core.
+  Nat Tactics Rewriting Path PreOrder.Core.
 Local Set Implicit Arguments.
 
 Inductive unitBtree :=
@@ -35,8 +35,17 @@ Proof.
     + apply (rec_t s1 a _ (Path.drop (length s2) p)).
       apply SEqType.seq_only_if.
       apply SEqType.seq_if in e.
-      Print Implicit Path.drop_length.
-      rewrite Path.drop_length
+      Check @Path.drop_length.
+      set (j := drop_length).
+      forall x1...xn. t1 = tn
+      apply symmetry in j.
+      (* drop_length *)
+     (* : forall (A : Set) (R : A -> A -> Set) (a b : A) (p : path R a b) (k : nat), *)
+     (*   le k (Path.length p) -> eq (Path.length (drop k p)) (Path.length p - k) *)  
+      Rewriting.rewrite_fst '@Path.drop_length.
+      Control.refine (fun () => '0).
+      Control.plus (fun () => Rewriting.rewrite_fst '@Path.drop_length)
+                   (fun e => Message.print (Message.of_exn e)).
               > [apply symmetry, add_sub_eq_r; exact e|].
       destruct e.
       apply Nat.le_add_l.
