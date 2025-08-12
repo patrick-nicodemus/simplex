@@ -66,6 +66,29 @@ Definition le'_to_le@{; u1 u2| u1 < u2} : forall (n m : nat),
        | @le_S n' m' p' => lerec n' m' p'
        end.
 
+From Simplex Require Import Basics.Induction.
+(* Inductive Squash (A : Type) : SProp *)
+(*   := unbox (a : A) : Squash A. *)
+
+(* Class SPropEquiv (A : Type) := sprop_elim : Squash A -> A. *)
+
+Instance le_sprop (n m : nat) : SPropEquiv (le'@{Type;} n  m).
+Proof.
+  intro H.
+  apply le_to_le'.
+  destruct H.
+  apply le'_to_le.
+  exact a.
+Defined.
+
+Theorem abc : forall n m : nat, Squash (le'@{Type;} n m) -> n + 1 <= m + 1.
+Proof.
+  intros n m h.
+  
+  Elpi induction.
+Defined.
+
+
 Instance le_le'_equiv (n m : nat)
   : SPropEquiv (le' n m) (le n m) := {
     to_sprop := le'_to_le n m;
