@@ -1,6 +1,7 @@
 From Simplex Require Import Basics Datatypes Eq PreOrder.Core Graph SEq.
 Local Set Implicit Arguments.
-Definition eq_preorder (A : Type) : PreOrder.class_of (@eq A).
+
+Instance eq_preorder (A : Type) : PreOrder.class_of (@eq A).
 Proof.
   constructor; exact _.
 Defined.
@@ -35,3 +36,12 @@ Definition Prod@{s;+|+}
   : PreOrder.t@{s;_ _}
   := PreOrder.Pack (Prod_class (PreOrder.Hom (t:=A)) (PreOrder.Hom (t:=B))).
 Canonical Prod.
+
+Instance Type_reflexive@{s;u} : @Reflexive@{_;_ _} Type@{s;u} (fun A B => A -> B)
+  := fun A a => a.
+
+Instance Type_transitive@{s;u} : @Transitive@{_;_ _} Type@{s;u} (fun A B => A -> B)
+  := fun A B C f g a => g (f a).
+
+Instance TypeIsPreOrder@{s;u} : PreOrder.class_of (fun A B : Type@{s;u} => A -> B)
+  := {}.

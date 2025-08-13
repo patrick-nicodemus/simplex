@@ -1,6 +1,10 @@
 From Simplex Require Import Basics Eq Graph TwoGraph
-  PreOrder.Core PreOrder.Instances
-  OneBicat.
+                     PreOrder.Core PreOrder.Instances
+                     Datatypes_core
+                     Graph
+                     OneBicat.
+
+Import Graph.Notations.
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
@@ -21,7 +25,7 @@ Module Category.
       Hom : sort -> sort -> Type;
       class : class_of Hom
    }.
-  
+
   Module t_exports.
     Coercion sort : t >-> Sortclass.
     Instance category_is_onebicat (A : Category.t) :
@@ -31,6 +35,14 @@ Module Category.
   End t_exports.
   Import t_exports.
 
+  Definition to_onebicat (A : Category.t) : OneBicat.t :=
+    {|
+      OneBicat.sort := @sort A;
+      OneBicat.Hom := @Hom A;
+      OneBicat.two_cells := _ ;
+      OneBicat.class := category_is_onebicat A
+    |}.
+  
   Module Mixin.
   Record mixin_of (A : PreOrder.t) := Mixin {
       assoc : forall (w x y z : A) (f : w <= x) (g : x <= y) (h : y <= z),
@@ -119,6 +131,14 @@ Module Category.
   End AreInverseExports.
   Import AreInverseExports.
 
+  Definition Isomorphic {C : Category.t} (x y : C) :=
+    ({ f : (x ~> y), g : (y ~> x) | AreInverse f g })%type.
+
+  Class IsIsomorphism (C : Category.t) (x y : C) (f : x ~> y) := {
+      inverse : y~>x;
+      is_inverse : AreInverse f inverse
+    }.
+  
   Definition assoc (A : t)
     : forall (w x y z: A)
         (f : Hom w x) (g : Hom x y) (h : Hom y z),
