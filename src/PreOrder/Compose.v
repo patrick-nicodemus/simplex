@@ -28,7 +28,8 @@ Proof.
   - intros a b p h.
     destruct (Path.length0 _ (symmetry h)).
     reflexivity.
-  - intros a b p e. simpl length in e. symmetry in e. apply Path.length1 in e. exact e.
+  - intros a b p e. simpl length in e. symmetry in e. apply Path.length1 in e.
+    exact e.
   - intros a b p e. simpl in e.
     apply (transitive (y:=Path.nth_vertex (length s2) p)).
     + apply (rec_t s1 a _ (Path.drop (length s2) p)).
@@ -180,11 +181,11 @@ Definition compose_path_on@{s;u0 u1|}
 Proof.
   revert a l p eq_pf.
   refine ((fix rec_t (s : unitBtree) := _ ) t).
-  clear t. destruct s.
-  - intros a; destruct l.
-    + simpl. intros. contradiction.
-    + simpl; intros; reflexivity.
-  - intros a; destruct l.
+  clear t. destruct s; intro a.
+  - destruct l.
+    + intros; contradiction.
+    + intros; reflexivity.
+  - destruct l.
     + intros [k s] h.
       simpl in h.
       simpl.
@@ -192,7 +193,7 @@ Proof.
       apply List.length0 in h; destruct (symmetry h).
       exact k.
     + simpl. intros ? ?; contradiction.
-  - simpl; intros a l p h.
+  - intros l p h.
     apply (@transitive _ _ _ _ (List.last a (List.take (length s1) l)) _).
     + apply (rec_t s1).
       * apply take_on. exact p.
@@ -209,7 +210,7 @@ Proof.
         apply (transitive (y:=(List.length l)-(length s1))).
         { 
           destruct h.
-          symmetry.
+          symmetry. simpl.
           rewrite add_comm.
           apply add_sub.
         }

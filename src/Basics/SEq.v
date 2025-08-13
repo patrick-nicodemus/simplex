@@ -287,38 +287,39 @@ End S1.
     then X is path discrete. Certainly if it's a deformation retract
     then X is discrete. 
  *)
-(* Module SEqType. *)
-(*   Class class_of (A: Type) := { *)
-(*       seq_rel : A -> A -> SProp; *)
-(*       seq_if : forall (a b : A), seq_rel a b -> eq a b; *)
-(*       seq_only_if : forall (a b : A), eq a b -> seq_rel a b *)
-(*     }. *)
 
-(*   Structure t := { *)
-(*       sort : Type; *)
-(*       is_seqtype : class_of sort *)
-(*     }. *)
-(*   Module Exports. *)
-(*     Arguments seq_rel [A] {class_of} a b : simpl never. *)
-(*     Infix "==" := seq_rel (at level 70). *)
-(*   End Exports. *)
-(* End SEqType. *)
-(* Export SEqType.Exports. *)
+Module SEqType.
+  Class class_of (A: Type) := {
+      seq_rel : A -> A -> SProp;
+      seq_if : forall (a b : A), seq_rel a b -> eq a b;
+      seq_only_if : forall (a b : A), eq a b -> seq_rel a b
+    }.
 
-(* Instance seq_rel_reflexive@{u} (A : Type@{u}) `{class : SEqType.class_of A} : *)
-(*   Reflexive@{SProp;u Set} (@SEqType.seq_rel A class) *)
-(*   := fun h => SEqType.seq_only_if@{u} (eq_refl h). *)
+  Structure t := {
+      sort : Type;
+      is_seqtype : class_of sort
+    }.
+  Module Exports.
+    Arguments seq_rel [A] {class_of} a b : simpl never.
+    Infix "==" := seq_rel (at level 70).
+  End Exports.
+End SEqType.
+Export SEqType.Exports.
 
-(* Instance seq_rel_transitive@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} : *)
-(*   Transitive@{SProp;u Set} (@SEqType.seq_rel A class). *)
-(* Proof. *)
-(*   intros x y z p. *)
-(*   apply (SEqType.seq_if) in p. destruct p. exact (fun q => q). *)
-(* Defined. *)
+Instance seq_rel_reflexive@{u} (A : Type@{u}) `{class : SEqType.class_of A} :
+  Reflexive@{SProp;u Set} (@SEqType.seq_rel A class)
+  := fun h => SEqType.seq_only_if@{u} (eq_refl h).
 
-(* Instance seq_rel_symmetric@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} : *)
-(*   Symmetric@{SProp;u Set} (@SEqType.seq_rel@{_} A class). *)
-(* Proof. *)
-(*   intros x y p. *)
-(*   apply (SEqType.seq_if) in p. destruct p. exact (reflexive _). *)
-(* Defined. *)
+Instance seq_rel_transitive@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} :
+  Transitive@{SProp;u Set} (@SEqType.seq_rel A class).
+Proof.
+  intros x y z p.
+  apply (SEqType.seq_if) in p. destruct p. exact (fun q => q).
+Defined.
+
+Instance seq_rel_symmetric@{u} (A : Type@{u}) `{class : SEqType.class_of@{u} A} :
+  Symmetric@{SProp;u Set} (@SEqType.seq_rel@{_} A class).
+Proof.
+  intros x y p.
+  apply (SEqType.seq_if) in p. destruct p. exact (reflexive _).
+Defined.

@@ -4,11 +4,6 @@ Local Set Implicit Arguments.
 Inductive unit@{s;} : Type@{s;Set} := tt : unit.
 Inductive empty@{s;} : Type@{s;Set} := .
 
-Inductive Squash (A : Type) : SProp :=
-| unbox (a : A) : Squash A.
-
-Class SProp_equiv (A : Type) := sprop_elim : Squash A -> A.
-
 Record prod@{s;u1 u2|} (A : Type@{s;u1}) (B : Type@{s;u2})
   : Type@{s;max(u1,u2)}
   := { fst : A; snd : B}.

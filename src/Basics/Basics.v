@@ -30,3 +30,8 @@ Ltac2 hnf_red_flags :=
       rDelta := true;
       rConst := []
     }.
+
+Inductive Squash (A : Type) : SProp :=
+| unbox (a : A) : Squash A.
+
+Class SProp_iff (A : Type) := sprop_elim : Squash A -> A.
