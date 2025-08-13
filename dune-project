@@ -7,7 +7,13 @@
 (generate_opam_files true)
 
 (source (github patrick-nicodemus/simplex))
+(authors
+  "Patrick Nicodemus <gadget142@gmail.com>")
 (maintainers
   "Patrick Nicodemus <gadget142@gmail.com>")
+(license LGPL-2.0-or-later)  
 (package
-  (name simplex-cat))
+  (name simplex-cat)
+  (synopsis "A library for category theory compatible with univalence and SProp")
+  
+  )

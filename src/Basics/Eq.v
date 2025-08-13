@@ -42,6 +42,13 @@ Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
     | eq_refl _ => eq_refl a
     end.
 
+Definition apd@{u0 u1} [A : Type@{u0}]
+  (P : A -> Type@{u1})
+  (f : forall (a: A), P a)
+  (a b : A) (p : a = b) :
+  (f a = transport P p (f b))
+    := match p with | eq_refl _ => eq_refl _ end.
+
 Local Infix "·" := transitive (at level 60).
 
 Definition eq_assoc {A : Type}
@@ -80,6 +87,13 @@ Proof.
   intros x ; destruct x.
 Defined.
 
+Definition h_inv {A : Type} {a b : A} {p q : a = b} (s : p = q) :
+  (p^ = q^).
+Proof.
+  destruct s.
+  reflexivity.
+Defined.
+
 Class IsHSet@{u} (A :Type@{u})
   := hprop_eq : forall x y : A, IsHProp (eq@{u} x y).
 
@@ -92,6 +106,20 @@ Proof.
   exact (eq_refl _).
 Defined.
 
+Definition sym_inv {A : Type} {a b : A} (p : a = b) : p^^ = p.
+Proof.
+  destruct p; reflexivity.
+Defined.
+
+Definition h_inv' {A : Type} {a b :A} {p q : a = b} : p^ = q^ -> p = q.
+Proof.
+  intro s.
+  apply h_inv in s.
+  destruct (sym_inv p)^.
+  destruct (sym_inv q)^.
+  exact s.
+Defined.
+
 Definition hcomp2 {A : Type} {a b c : A} [p1 q1 : a = b] [p2 q2 : b = c]
   : (p1 = q1) -> (p2 = q2) -> (p1 · p2) = (q1 · q2).
 Proof.
@@ -100,26 +128,27 @@ Proof.
   reflexivity.
 Defined.
 
-Definition h_inv {A : Type} {a b : A} {p q : a = b} (s : p = q) :
-  (p^ = q^).
-Proof.
-  destruct s.
-  reflexivity.
-Defined.
-
 Definition post_whisker {A : Type} {a b c : A} [p q : a = b]
   (s : p = q) (h : b = c)
   := hcomp2 s (eq_refl h).
-
-Definition pre_whisker {A : Type} {a b c : A} [p q : b = c] (h : a = b) (s : p = q)
-  (s : p = q) 
-  := hcomp2 (eq_refl h) s.
 
 Definition right_unitor {A : Type} {a b :A} (q : a = b) : q · eq_refl _ = q.
 Proof.
   destruct q.
   reflexivity.
 Defined.
+
+Lemma apd1 [A: Type] (a x1 x2 : A) (p : x1 = x2) (q: a = x2):
+  transport (fun x => a = x) p q = q · p^.
+Proof.
+  destruct p.
+  simpl. unfold symmetry. simpl.
+  apply symmetry; exact (right_unitor _).
+Defined.
+
+Definition pre_whisker {A : Type} {a b c : A} [p q : b = c] (h : a = b) (s : p = q)
+  (s : p = q) 
+  := hcomp2 (eq_refl h) s.
 
 Theorem postcomp_iso {A : Type} {a b c : A} (p q : a = b) (s : b = c)
   (h : p · s = q · s) : p = q.
@@ -201,70 +230,6 @@ Proof.
       reflexivity.
   - apply IsHSetA.
 Defined.
-
-Module Strict_anti_univalence.
-  (** Importing this module leads to inconsistency with the univalence axiom. *)
-  Local Set Definitional UIP.
-  Local Set Universe Polymorphism.
-  Inductive SEq@{u} {A : Type@{u}} (a : A) : A -> SProp :=
-    eq_refl : SEq a a.
-
-  Definition to {A : Type} {a b : A} (p : a = b) : SEq a b := match p with Eq.eq_refl _ => eq_refl _ end.
-
-  Definition from {A : Type} {a b : A} (q : SEq a b) : a = b := match q with eq_refl _ => Eq.eq_refl _ end.
-  
-  Lemma to_from_inv (A : Type) (a b : A) (p : a = b) : from (to p) = p.
-  Proof.
-    destruct p. reflexivity.
-  Defined.
-
-  Theorem UIP : forall (A : Type) (a : A) (p : a = a), p = Eq.eq_refl a.
-  Proof.
-    intros A a p.
-    rewrite <- (to_from_inv p).
-    change (to p) with (to (Eq.eq_refl a)).
-    reflexivity.
-  Defined.
-    
-  Module Interval.
-    Private Inductive I :=
-    | zero
-    | one.
-
-    Axiom seg : SEq zero one.
-    Definition I_elim (P : I -> Type) (p0 : P zero) (p1 : P one)
-      (peq : (match seg in SEq _ z return forall (y : P z), Type
-              with | eq_refl _ => fun y => p0 = y end) p1)
-      : forall (i : I), P i
-      := fun i => match i with
-               | zero => p0
-               | one => p1
-               end.
-  End Interval.
-End Strict_anti_univalence.
-
-Module Strict.
-  (** Importing this module "should be consistent" with univalence (https://arxiv.org/pdf/1311.4002), see also (https://www.sciencedirect.com/science/article/pii/S0022404921000232?via%3Dihub), end of section 2 *)
-  Local Set Definitional UIP.
-  Inductive SEq {A : Set} (a : A) : A -> SProp :=
-    eq_refl : SEq a a.
-
-  Module Interval.
-    Private Inductive I :=
-    | zero
-    | one.
-
-    Axiom seg : SEq zero one.
-    Definition I_elim (P : I -> Type) (p0 : P zero) (p1 : P one)
-      (peq : (match seg in SEq _ z return forall (y : P z), Type
-              with | eq_refl _ => fun y => p0 = y end) p1)
-      : forall (i : I), P i
-      := fun i => match i with
-               | zero => p0
-               | one => p1
-               end.
-  End Interval.
-End Strict.
 
 Theorem isContr_lemma (A : Type) (H : forall y z : A, y = z)
   (y0 z0 y1 z1 : A) (p : y0 = y1) (q : z0 = z1)

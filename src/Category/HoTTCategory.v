@@ -29,14 +29,6 @@ Module Category.
     OneBicat.class_of (A:=A) (R:=Hom A) (fun x y => @seq (Hom A x y))
     := class A.
   Arguments Hom [t].
-  (* Module t_exports. *)
-  (*   Coercion sort : t >-> Sortclass. *)
-  (*   Instance category_is_onebicat (A : Category.t) : *)
-  (*     OneBicat.class_of (A:=A) (R:=Hom A) (fun x y => @eq (Hom A x y)) *)
-  (*     := class A. *)
-  (*   Arguments Hom [t]. *)
-  (* End t_exports. *)
-  (* Import t_exports. *)
 
   Module Mixin.
     Record mixin_of (A : PreOrder.t) := Mixin {
@@ -49,26 +41,6 @@ Module Category.
   End Mixin.
   Import Mixin.
 
-  (* Inductive SUnit : SProp := stt. *)
-  (* Unset Elimination Schemes. *)
-  (* Module Gk. *)
-  (*   Inductive G := abc. *)
-  (*   Theorem G_new_name : forall P : G -> SProp, P abc -> forall z, P z. *)
-  (*   Proof. *)
-  (*     intros p h z. *)
-  (*     destruct z. *)
-  (*     exact h. *)
-  (*   Defined. *)
-  (* End Gk. *)
-  (* Import Gk. *)
-  (* Theorem xyz : Gk.G -> SUnit. *)
-  (* Proof. *)
-  (*   intro a. *)
-  (*   induction a using G_new_name. *)
-  (*   exact stt. *)
-  (* Defined. *)
-  (* Print xyz. *)
-
   Class class_minimal (A : Type) (R : A -> A -> Type) := {
       is_preorder : PreOrder.class_of R;
       mixin : mixin_of (PreOrder.Pack is_preorder)
@@ -77,26 +49,6 @@ Module Category.
     Arguments mixin [A R].
   End class_minimal_exports.
   Import class_minimal_exports.
-
-  (* Inductive SUnit : SProp := stt. *)
-  (* Unset Elimination Schemes. *)
-  (* Module Gk. *)
-  (*   Private Inductive G := abc. *)
-  (*   Theorem G_new_name : forall P : G -> SProp, P abc -> forall z, P z. *)
-  (*   Proof. *)
-  (*     intros p h z. *)
-  (*     destruct z. *)
-  (*     exact h. *)
-  (*   Defined. *)
-  (* End Gk. *)
-  (* Import Gk. *)
-  (* Theorem xyz : Gk.G -> SUnit. *)
-  (* Proof. *)
-  (*   intro a. *)
-  (*   induction a using G_new_name. *)
-  (*   exact stt. *)
-  (* Defined. *)
-  (* Print xyz. *)
 
   Definition Build (A : Type) (R : A -> A -> Type) `{forall x y, IsHSet (R x y)}
     (C : class_minimal R) : t.

@@ -5,11 +5,14 @@ Open Scope morphism_scope.
 Module Bicategory.
   Import OneBicat.Notations.
   Record mixin_of@{u0 u1 u2|+} (A : OneBicat.t@{Type;u0 u1 u2}) := {
+      (** 2-cells form a category under vertical composition. *)      
       is_vcat (x y : A) : Category.Mixin.mixin_of (OneBicat.vpreorder x y);
+      (** The vertical category of 2-cells associated to two 0-cells. *)
       vcat (x y : A) :=
         (@Category.Build _ _ 
            (Category.Build_class_minimal
               (is_vcat x y)));
+      (** The left-to-right associator and the right-to-left associator are inverse. *)
       assoc_inv (w x y z : A)
         (f : vcat w x)
         (g : vcat x y)
@@ -20,30 +23,42 @@ Module Bicategory.
         (Rxy (OneBicat.assoc f g h) :
           (@Graph.Hom (OneBicat.to_hom_graph A w z) _ _))
         (Ryx (OneBicat.assoc f g h));
+      (** The left-to-right left unitor and the right-to-left
+          component of the left unitor are inverse. *)
       lu_inv (x y : A) (f : vcat x y)
       : @Category.AreInverse
           (vcat x y) _ _ (Rxy (OneBicat.lu f)) (Ryx (OneBicat.lu f));
+      (** The left-to-right right unitor and the right-to-left
+          component of the right unitor are inverse. *) 
       ru_inv (x y : A) (f : vcat x y)
       : @Category.AreInverse
           (vcat x y) _ _ (Rxy (OneBicat.ru f)) (Ryx (OneBicat.ru f));
+      (* The composition Hom(x,y) x Hom(y,z) -> Hom(x,z) is a functor. *)
       hcomp2_functor : forall (x y z : A),
         Functor.is_functor@{u1 u2 u1 u2} (F:=uncurry (OneBicat.compose x y z)) _;
+      (** The associator is a natural transformation between functors
+          Hom(w,x) x Hom(x,y) x Hom(y,z) -> Hom(w,z) *)
       assoc_nat (w x y z : A) :
       NatTrans.mixin_of@{_ _ _ _ u2 u2}
         (OneBicat.left_assoc w x y z)
         (OneBicat.right_assoc w x y z)
         (fun (fgh: TwoGraph.path_graph A w [x; y; z]) 
          => Rxy (OneBicat.assoc (fst fgh) (fst (snd fgh)) (fst (snd (snd fgh)))));
+      (** The left unitor is a natural transformation between functors
+          Hom(x,y) -> Hom(x,y). *)
       lu_nat (x y : A) :
       NatTrans.mixin_of
         (OneBicat.lid x y)
         (OneBicat.id_graph_hom x y)
         (fun f => Rxy (OneBicat.lu (fst f)));
+      (** The right unitor is a natural transformation between functors
+          Hom(x,y) -> Hom(x,y) *)
       ru_nat (x y : A) :
       NatTrans.mixin_of
         (OneBicat.rid x y)
         (OneBicat.id_graph_hom x y)
         (fun f => Rxy (OneBicat.ru (fst f)));
+      (** Mac Lane's pentagon axiom *)
       pentagon (v w x y z : A) (f : vcat v w) (g : vcat w x)
         (h: vcat x y) (k : vcat y z)
         (* ((fg)h)k -> (f(gh))k -> f((gh)k) -> f(g(hk)) *)
