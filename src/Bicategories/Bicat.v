@@ -4,8 +4,7 @@ Local Set Implicit Arguments.
 Open Scope morphism_scope.
 Module Bicategory.
   Import OneBicat.Notations.
-      
-  Record mixin_of@{u0 u1 u2} (A : OneBicat.t@{Type;u0 u1 u2}) := {
+  Record mixin_of@{u0 u1 u2|+} (A : OneBicat.t@{Type;u0 u1 u2}) := {
       is_vcat (x y : A) : Category.Mixin.mixin_of (OneBicat.vpreorder x y);
       vcat (x y : A) :=
         (@Category.Build _ _ 
@@ -28,9 +27,9 @@ Module Bicategory.
       : @Category.AreInverse
           (vcat x y) _ _ (Rxy (OneBicat.ru f)) (Ryx (OneBicat.ru f));
       hcomp2_functor : forall (x y z : A),
-        Functor.is_functor (F:=uncurry (OneBicat.compose x y z)) _;
+        Functor.is_functor@{u1 u2 u1 u2} (F:=uncurry (OneBicat.compose x y z)) _;
       assoc_nat (w x y z : A) :
-      NatTrans.mixin_of
+      NatTrans.mixin_of@{_ _ _ _ u2 u2}
         (OneBicat.left_assoc w x y z)
         (OneBicat.right_assoc w x y z)
         (fun (fgh: TwoGraph.path_graph A w [x; y; z]) 
@@ -60,15 +59,15 @@ Module Bicategory.
             OneBicat.hcomp2 (1 f) (Rxy (OneBicat.lu g))
     }.
 
-  Class class_of@{u0 u1 u2} (A : Type@{u0})
+  Class class_of@{u0 u1 u2|+} (A : Type@{u0})
     (R : A -> A -> Type@{u1})
     (RR : forall (x y : A), R x y -> R x y -> Type@{u2})
     := Class {
       isOneBicat : OneBicat.class_of RR;
-      mixin : mixin_of (OneBicat.Pack isOneBicat)
+      mixin : mixin_of@{u0 u1 u2} (OneBicat.Pack isOneBicat)
     }.
 
-  Structure t@{u0 u1 u2} := {
+  Structure t@{u0 u1 u2|u1 <= u2} := {
       sort : Type@{u0};
       Hom : sort -> sort -> Type@{u1};
       TwoHom : forall (x y : sort), Hom x y -> Hom x y -> Type@{u2};

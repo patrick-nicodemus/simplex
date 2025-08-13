@@ -2,12 +2,16 @@ From Simplex Require Import Basics Tactics Relations Eq Graph PreOrder.Core Cate
 Local Set Implicit Arguments.
 Module NatTrans.
   Open Scope morphism_scope.
-  Class mixin_of (A B : Graph.t) (is_transitive : Transitive (@Graph.Hom B))
+  Class mixin_of@{uA0 uA1 uB0 uB1+|+}
+    (A : Graph.t@{_;uA0 uA1})
+    (B : Graph.t@{_;uB0 uB1})
+    (is_transitive : Transitive (@Graph.Hom B))
     (F G : GraphHom.t A B)
     (tau : Transformation F G) :=
     is_nat' : forall (a b : A) (f : Graph.Hom a b),
         (fmap F f) · (tau b) = tau a · fmap G f.
   Module mixin_of_exports.
+   
     Arguments mixin_of [A B is_transitive] F G tau /.
   End mixin_of_exports.
   Import mixin_of_exports.

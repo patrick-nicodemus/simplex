@@ -62,7 +62,7 @@ Definition le'_to_le@{; u1 u2| u1 < u2} : forall (n m : nat),
     le'@{Type;} n m -> le@{SProp;} n m
   := fix lerec (n m : nat) (p: le' n m) : le n m
     := match p in n <=' m return n <= m with
-       | le_O n' => tt@{s2;}
+       | le_O n' => tt
        | @le_S n' m' p' => lerec n' m' p'
        end.
 

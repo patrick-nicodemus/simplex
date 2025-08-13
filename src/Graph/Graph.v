@@ -91,10 +91,11 @@ Module GraphHom.
 End GraphHom.
 Export GraphHom.Exports.
 
-Definition Transformation@{s;+|+}
-  (A : Type) (B : Graph.t@{s; _ _})
-  : @Relation (A -> B)
+Definition Transformation@{s;uA uB0 uB1 max_uA_uB0 max_uA_uB1|+}
+  (A : Type@{uA}) (B : Graph.t@{s;uB0 uB1})
+  : @Relation@{s;max_uA_uB0 max_uA_uB1} (A -> B)
   := fun (F G : A -> B) => forall (a : A), Graph.Hom (F a) (G a).
+Arguments Transformation [A B].
 
 Definition TransformationGraph@{s;uA u0B u1B uA0B uA1B|
                                    uA<=uA0B, u0B<=uA0B, uA <= uA1B, u1B<=uA1B}
@@ -103,38 +104,39 @@ Definition TransformationGraph@{s;uA u0B u1B uA0B uA1B|
 
 Canonical TransformationGraph.
 
-Definition Prod@{s;uA0 uA1 uB0 uB1}
+Definition Prod@{s;uA0 uA1 uB0 uB1 +|+}
   (A : Graph.t@{s;uA0 uA1}) (B : Graph.t@{s;uB0 uB1})
-  : Graph.t@{s;max(uA0,uB0) max(uA1,uB1)}
+  : Graph.t@{s;_ _}
   := @Graph.Pack (sort A * sort B)
        (fun ab ab' => ((Hom (fst ab) (fst ab')) /\ (Hom (snd ab) (snd ab')))%type).
 Canonical Prod.
 
 (** This is the exponential object in the Cartesian closed category of graphs. *)
-Definition ExponentialGraph@{sA sB;u0A u1A u0B u1B}
+Definition ExponentialGraph@{sA sB;u0A u1A u0B u1B + | +}
   (A: Graph.t@{sA;u0A u1A}) (B: Graph.t@{sB;u0B u1B})
   := @Graph.Pack (Graph.sort A  -> Graph.sort B)
        (fun F G => forall x y : A, Graph.Hom x y -> Graph.Hom (F x) (G y)).
 
-Instance uncurry_graph@{sA sC; uA0 uA1 uB0 uB1 uC0 uC1|}
+Instance uncurry_graph@{sA sC; uA0 uA1 uB0 uB1 uC0 uC1 +|+}
   (A: Graph.t@{sA;uA0 uA1})
   (B: Graph.t@{sA;uB0 uB1})
   (C: Graph.t@{sC;uC0 uC1})
   (F : GraphHom.t A (ExponentialGraph B C)) :
-  GraphHom.class_of@{sA sC; max(uA0,uB0) max(uA1,uB1) uC0 uC1}
+  GraphHom.class_of@{sA sC; _ _ uC0 uC1}
     (uncurry (GraphHom.map F)).
 Proof.
   intros [a b] [a' b'] [f g]; simpl in *.
   apply (fmap F f). exact g.
 Defined.
   
-Instance id_trans@{s;uA u0B u1B} (A : Type@{uA}) (B : Graph.t@{s;u0B u1B})
+Instance id_trans@{s;uA u0B u1B +|+} (A : Type@{uA}) (B : Graph.t@{s;u0B u1B})
   `{Reflexive _ (@Graph.Hom B)}
   : Reflexive@{s;_ _} (@Transformation A B)
   :=
   fun (F : A -> B) (a : A) => 1%hom (F a).
 
-Instance compose_trans@{s;uA u0B u1B} (A : Type@{uA}) (B : Graph.t@{s;u0B u1B})
+
+Instance compose_trans@{s;uA u0B u1B + | +} (A : Type@{uA}) (B : Graph.t@{s;u0B u1B})
   `{Transitive _ (@Graph.Hom B)}
   : Transitive@{s;_ _} (@Transformation A B)
   :=
