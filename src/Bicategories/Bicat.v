@@ -1,9 +1,23 @@
-From Simplex Require Import Basics Datatypes Relations Eq List Graph PreOrder.Core PreOrder.Instances OneBicat Category Functor FunctorCat Category.NatTrans.
+From Simplex Require Import Basics Datatypes Relations Eq List Graph PreOrder.Core PreOrder.Instances OneBicat Category Functor Category.ProdCat FunctorCat Category.NatTrans.
 
 Local Set Implicit Arguments.
 Open Scope morphism_scope.
 Module Bicategory.
   Import OneBicat.Notations.
+
+  Class pre_bicat (A : Type) (Hom : A -> A -> Category.t)
+    (Equiv : forall (C D : Category.t) (F G : Functor.t C D), Type)
+    (IsPreOrder : forall (C D : Category.t), PreOrder.class_of (Equiv C D))
+    := {
+      compose (a b c : A) : Functor.t ((Hom a b) × (Hom b c)) (Hom a c);
+      unit (a : A) : Hom a a;
+      (* lu (a b : A), Equiv  *)
+      (* ru,
+         assoc
+         pentagon
+         triangle
+       *)
+    }.
 
   Record mixin_of@{u0 u1 u2} (A : OneBicat.t@{Type;u0 u1 u2}) := {
       (** 2-cells form a category under vertical composition. *)

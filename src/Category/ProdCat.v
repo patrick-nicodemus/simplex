@@ -1,7 +1,12 @@
 From Simplex Require Import Basics Eq Graph Datatypes
-  PreOrder.Instances
+                     PreOrder.Instances
+                     PreOrder.Compose
   OneBicat
-  Category.
+  Category
+  Functor
+  Graph.
+
+Import Graph.Notations.
 
 Definition product@{;uAob uAarr uBob uBarr|}
   (A : Category.t@{; uAob uAarr})
@@ -22,3 +27,27 @@ Proof.
 Defined.
 
 Infix "×" := product (at level 70).
+
+Definition left_specialize (C D E : Category.t) (F : Functor.t (C × D) E) (c : C)
+  : Functor.t D E.
+Proof.
+  unshelve econstructor.
+  - exact (fun d => (F (c, d))).
+  - intros a b f; simpl. refine '(fmap F _ ). exact ( 1 c , f )%hom.
+  - constructor.
+    + reflexivity.
+    + simpl. intros x y z f g.
+
+      refine '(match (Category.lu (1%hom c)) in eq _ zz
+                    return
+                    (Functor.fmap F (c,x) (c,z) (zz, f · g)) =
+                      _ with eq_refl _ => _ end).
+      refine '(transitive
+                 (y:=((Functor.fmap F (c, x) (c, z)
+                         (OneBicat.compose (A:=C×D) (c,x) (c,y) (c,z)                            (1%hom c, f) (1%hom c, g))
+                 )))
+                 _ _
+        ) ; try(exact _).
+      * reflexivity.
+      * apply (Functor.F_comp (c,x) (c,y) (c,z)).
+Defined.

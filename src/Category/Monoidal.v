@@ -3,7 +3,6 @@ From Simplex Require Import
   Category.ProdCat
 .
                      
-
 Module MonoidalCat.
   Class class_of (C : Category.t) := {
       tensor : Functor.t (C × C) C;

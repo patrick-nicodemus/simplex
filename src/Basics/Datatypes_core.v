@@ -8,6 +8,8 @@ Record prod@{s;u1 u2|} (A : Type@{s;u1}) (B : Type@{s;u2})
   : Type@{s;max(u1,u2)}
   := { fst : A; snd : B}.
 
+Notation "( x , y )" := {| fst := x; snd := y |}.
+
 Infix "*" := prod (at level 40, left associativity)
     : type_scope.
 Infix "/\" := prod (at level 80, right associativity)

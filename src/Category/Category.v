@@ -35,13 +35,14 @@ Module Category.
   End t_exports.
   Import t_exports.
 
-  Definition to_onebicat (A : Category.t) : OneBicat.t :=
+  Canonical to_onebicat (A : Category.t) : OneBicat.t :=
     {|
       OneBicat.sort := @sort A;
       OneBicat.Hom := @Hom A;
       OneBicat.two_cells := _ ;
       OneBicat.class := category_is_onebicat A
     |}.
+  Coercion to_onebicat : Category.t >-> OneBicat.t.
   
   Module Mixin.
   Record mixin_of (A : PreOrder.t) := Mixin {
@@ -175,3 +176,4 @@ Module Category.
   End Exports.
 End Category.
 Export Category.Exports.
+Export (canonicals,coercions) Category.

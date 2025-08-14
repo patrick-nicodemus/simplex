@@ -15,11 +15,11 @@ From Simplex Require Import Basics Category
     because without further assumptions on [D], the
     composition of natural transformations is not necessarily
     associative.
-    One must assume additional coherence conditions on D.
+    One must assume additional coherence conditions on [D].
  *)
 Module TwoOneCat.
   Import OneBicat.Notations.
-  Locate to_onebicat.
+
   Definition mixin_of@{u0 u1} (A : Category.t@{u0 u1}) :=
     Bicategory.mixin_of (Category.to_onebicat A).
 
