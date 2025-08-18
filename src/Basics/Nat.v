@@ -45,7 +45,7 @@ Fixpoint le_refl : Reflexive le
 
 Existing Instance le_refl.
 
-Local Infix "<=" := le (at level 70) : nat_scope.
+Infix "<=" := le (at level 70) : nat_scope.
 Open Scope nat_scope.
 
 Definition le_to_le' : forall (n m : nat), le@{SProp;} n m -> le'@{Type;} n m

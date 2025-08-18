@@ -4,5 +4,5 @@
  (package simplex-cat)
  (flags -noinit -w -ambiguous-paths)
  ;(stdlib no)
- (theories Ltac2)
+ (theories Ltac2 elpi_elpi elpi)
 )

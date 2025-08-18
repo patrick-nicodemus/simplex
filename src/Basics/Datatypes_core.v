@@ -8,6 +8,8 @@ Record prod@{s;u1 u2|} (A : Type@{s;u1}) (B : Type@{s;u2})
   : Type@{s;max(u1,u2)}
   := { fst : A; snd : B}.
 
+Notation "( x , y )" := {| fst := x; snd := y |}.
+
 Infix "*" := prod (at level 40, left associativity)
     : type_scope.
 Infix "/\" := prod (at level 80, right associativity)
@@ -32,6 +34,21 @@ Record sig2@{s1 s2;u0 u1 u2|} (A : Type@{u0})
   (Q : A -> Type@{s2;u2})
   : Type@{max(u0,u1,u2)}
   := { ex2val : A; ex2P : P ex2val; ex2Q : Q ex2val }.
+
+Record sigAB@{s;u0 u1 u2|}
+  (A : Type@{u0})
+  (B : Type@{u1})
+  (P : A -> B -> Type@{s;u2})
+  : Type@{max(u0,u1,u2)}
+  := {
+    eltA : A;
+    eltB : B;
+    pfP : P eltA eltB
+  }.
+
+Notation "{ x : A , y : B | P }" :=
+  (sigAB (fun (x : A) (y : B) => P))
+    (at level 0, x at level 99, y at level 98) : type_scope.
 
 Definition prod_unary@{s;uA uPA uB uPB uPAB|uPA<=uPAB,uPB<=uPAB}
   (A : Type@{uA}) (PA : A -> Type@{s;uPA})
