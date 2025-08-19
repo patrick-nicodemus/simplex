@@ -6,6 +6,8 @@ From Simplex Require Import Basics Eq Graph Datatypes
   Functor
   Graph.
 
+From Simplex Require Tactics.
+
 Import Graph.Notations.
 
 Definition product@{;uAob uAarr uBob uBarr|}
@@ -26,7 +28,14 @@ Proof.
   - intros [x0 x1] [y0 y1] [f0 f1]; simpl in *; apply prod_eq; apply Category.ru.
 Defined.
 
+Canonical product.
 Infix "×" := product (at level 70).
+
+Definition arrow_pair {C D : Category.t} {c c' : C} {d d' : D}
+  (f : Category.Hom c c') (g : Category.Hom d d') :
+  @Category.Hom (product C D) (c,d) (c',d') := (f,g).
+
+Notation "⟨ f , g ⟩" := (arrow_pair f g) (at level 90).
 
 Definition left_specialize (C D E : Category.t) (F : Functor.t (C × D) E) (c : C)
   : Functor.t D E.
@@ -37,17 +46,13 @@ Proof.
   - constructor.
     + reflexivity.
     + simpl. intros x y z f g.
-
       refine '(match (Category.lu (1%hom c)) in eq _ zz
                     return
                     (Functor.fmap F (c,x) (c,z) (zz, f · g)) =
                       _ with eq_refl _ => _ end).
       refine '(transitive
-                 (y:=((Functor.fmap F (c, x) (c, z)
-                         (OneBicat.compose (A:=C×D) (c,x) (c,y) (c,z)                            (1%hom c, f) (1%hom c, g))
-                 )))
-                 _ _
-        ) ; try(exact _).
+                 (y:=((Functor.fmap F _ _ ((⟨ id c , f ⟩) · (⟨ id c, g ⟩)))
+                 )) _ _ ) ; try(exact _).
       * reflexivity.
       * apply (Functor.F_comp (c,x) (c,y) (c,z)).
 Defined.

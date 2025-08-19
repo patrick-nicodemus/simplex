@@ -101,6 +101,7 @@ Module Category.
   Definition IsPreOrder (A : t)
     : PreOrder.class_of (@Category.Hom A)
     := OneBicat.Class_of.is_preorder (t:=class A).
+  Existing Instance IsPreOrder.
 
   Definition to_preorder@{u0 u1} (A : t@{u0 u1})
     : PreOrder.t@{Type;u0 u1}
@@ -108,9 +109,11 @@ Module Category.
 
   Definition IsReflexive (A : t)
     := PreOrder.refl (class_of:=(IsPreOrder A)).
-
+  Existing Instance IsReflexive.
+  
   Definition IsTransitive (A : t)
     := PreOrder.trans (class_of:=(IsPreOrder A)).
+  Existing Instance IsTransitive.
 
   Module PreOrder_exports.
     Canonical to_preorder.
@@ -176,4 +179,6 @@ Module Category.
   End Exports.
 End Category.
 Export Category.Exports.
-Export (canonicals,coercions) Category.
+Definition id {C : Category.t} (c : C) := reflexive (R:=@Category.Hom C) c.
+Export (canonicals,coercions, hints) Category.
+
