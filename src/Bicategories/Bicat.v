@@ -53,7 +53,7 @@ Module Bicategory.
           (@Graph.Hom (OneBicat.to_hom_graph A w z) _ _))
         (Ryx (OneBicat.assoc f g h));
       (** The left-to-right left unitor and the right-to-left
-      component of the left unitor are inverse. *)
+          component of the left unitor are inverse. *)
       lu_inv (x y : A) (f : vcat x y)
       : @Category.AreInverse
           (vcat x y) _ _ (Rxy (OneBicat.lu f)) (Ryx (OneBicat.lu f));

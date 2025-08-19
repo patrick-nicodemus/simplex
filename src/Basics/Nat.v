@@ -58,7 +58,7 @@ Definition le_to_le' : forall (n m : nat), le n m -> le' n m
                 end
        end.
 
-Definition le'_to_le@{; u1 u2| u1 < u2} : forall (n m : nat),
+Definition le'_to_le@{} : forall (n m : nat),
     le' n m -> le n m
   := fix lerec (n m : nat) (p: le' n m) : le n m
     := match p in n <=' m return n <= m with
@@ -112,7 +112,7 @@ Definition nle_Sn_O : forall (n : nat), not (S n <= O)
 Instance le_trans : Transitive@{_;Set Set} le.
 Proof.
   intros n m k H; revert n m H k.
-  apply (le_induction (fun n m => forall k, m <= k -> n <= k)).
+  apply (le_induction@{SProp;Set} (fun n m => forall k, m <= k -> n <= k)).
   - constructor.
   - intros n m H k; simpl. destruct k.
     + exact (fun x => x).

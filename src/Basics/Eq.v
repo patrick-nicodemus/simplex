@@ -81,6 +81,11 @@ Proof.
   exact (eq_refl _).
 Defined.
 
+Definition sym_inv {A : Type} {a b : A} (p : a = b) : p^^ = p.
+Proof.
+  destruct p; reflexivity.
+Defined.
+
 Definition hcomp2 {A : Type} {a b c : A} [p1 q1 : a = b] [p2 q2 : b = c]
   : (p1 = q1) -> (p2 = q2) -> (p1 · p2) = (q1 · q2).
 Proof.
@@ -96,11 +101,6 @@ Proof.
   reflexivity.
 Defined.
 
-Definition sym_inv {A : Type} {a b : A} (p : a = b) : p^^ = p.
-Proof.
-  destruct p; reflexivity.
-Defined.
-
 Definition h_inv' {A : Type} {a b :A} {p q : a = b} : p^ = q^ -> p = q.
 Proof.
   intro s.
@@ -113,10 +113,6 @@ Defined.
 Definition post_whisker {A : Type} {a b c : A} [p q : a = b]
   (s : p = q) (h : b = c)
   := hcomp2 s (eq_refl h).
-
-Definition pre_whisker {A : Type} {a b c : A} [p q : b = c] (h : a = b) (s : p = q)
-  (s : p = q) 
-  := hcomp2 (eq_refl h) s.
 
 Definition right_unitor {A : Type} {a b :A} (q : a = b) : q · eq_refl _ = q.
 Proof.
@@ -131,6 +127,10 @@ Proof.
   simpl. unfold symmetry. simpl.
   apply symmetry; exact (right_unitor _).
 Defined.
+
+Definition pre_whisker {A : Type} {a b c : A} [p q : b = c] (h : a = b) (s : p = q)
+  (s : p = q) 
+  := hcomp2 (eq_refl h) s.
 
 Theorem postcomp_iso {A : Type} {a b c : A} (p q : a = b) (s : b = c)
   (h : p · s = q · s) : p = q.
