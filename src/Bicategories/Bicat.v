@@ -1,4 +1,18 @@
-From Simplex Require Import Basics Datatypes Relations Eq List Graph PreOrder.Core PreOrder.Instances OneBicat Category Functor Category.ProdCat FunctorCat Category.NatTrans.
+From Simplex Require Import
+  Basics
+  Datatypes
+  Relations
+  Eq
+  List
+  Graph
+  PreOrder.Core
+  PreOrder.Instances
+  OneBicat
+  Category.Category
+  Functor
+  Category.ProdCat
+  FunctorCat
+  Category.NatTrans.
 
 Local Set Implicit Arguments.
 Open Scope morphism_scope.

@@ -72,9 +72,6 @@ Record bijection (A B : Type) :=
     rl_inv : forall (b : B), section (retraction b) = b;
   }.
 
-(* Class IsHProp@{u} (A: Type@{u}) : Type@{u} *)
-(*   := is_hprop: forall x y : A, eq@{u} x y. *)
-
 Definition eq_natural (A B: Type) (f g : A -> B) (h : forall x, f x = g x)
   (a0 a1 : A) (s : a0 = a1)
   : f_equal f s · (h a1) = (h a0) · f_equal g s.
@@ -206,4 +203,33 @@ Proof.
   rewrite (isContr_lemma H p q).
   apply symmetry.
   apply isContr_lemma.
+Defined.
+
+Theorem sig_eq@{s;+|} (A : Type) (P : A->Type@{_})
+  (x y : @sig A P ) :
+  forall p : ex_val x = ex_val y,
+    ex_pf x = transport P p (ex_pf y) -> x = y.
+Proof.
+  destruct x, y.
+  simpl.
+  destruct p.
+  simpl; intro k; destruct k.
+  reflexivity.
+Defined.
+
+Theorem sig2_eq@{s;+|} (A : Type)
+  (P : A->Type@{_})
+  (Q : A->Type@{_})
+  (x y : @sig2 A P Q) :
+  forall p : ex2val x = ex2val y,
+    ex2P x = transport P p (ex2P y) ->
+    ex2Q x = transport Q p (ex2Q y) ->
+    x = y.
+Proof.
+  destruct x, y.
+  simpl.
+  destruct p.
+  simpl; intro k; destruct k.
+  intro k; destruct k.
+  reflexivity.
 Defined.

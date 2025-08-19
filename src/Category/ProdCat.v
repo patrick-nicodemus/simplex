@@ -1,10 +1,15 @@
-From Simplex Require Import Basics Eq Graph Datatypes
-                     PreOrder.Instances
-                     PreOrder.Compose
+From Simplex Require Import
+  Basics.Basics
+  Basics.Eq
+  Datatypes
+  PreOrder.Instances
+  PreOrder.Compose
   OneBicat
-  Category
-  Functor
-  Graph.
+  Category.Category
+  Category.Functor
+  Graph.Graph
+  Category.CategoricalProduct
+.
 
 From Simplex Require Tactics.
 
@@ -30,6 +35,14 @@ Defined.
 
 Canonical product.
 Infix "×" := product (at level 70).
+
+Definition univ_map (A X Y : Category.t)
+  (F : Functor.t A X)
+  (G : Functor.t A Y)
+  : Functor.t A (X × Y).
+Proof.
+  unshelve econstructor.
+  Abort.
 
 Definition arrow_pair {C D : Category.t} {c c' : C} {d d' : D}
   (f : Category.Hom c c') (g : Category.Hom d d') :

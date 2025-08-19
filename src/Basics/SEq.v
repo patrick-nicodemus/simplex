@@ -83,6 +83,10 @@ Definition seq_implies_eq_hprop@{u} {A : Type@{u}} (a b: A)
   (h: IsHProp A) : a ≡ b -> a = b
   := fun p => match p with | seq_refl _ => eq_refl _ end.
 
+Definition eq_implies_seq@{u} {A : Type@{u}} (a b: A)
+  : a = b -> a ≡ b
+  := fun p => match p with | eq_refl _ => seq_refl _ end.
+
 (** Elimination into SProps is unrestricted. *)
 Definition seq_selim@{u} {A : Type@{u}} (a : A)
   (P : forall b, a ≡ b -> SProp)

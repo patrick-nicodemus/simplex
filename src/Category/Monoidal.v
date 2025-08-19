@@ -1,5 +1,8 @@
 From Simplex Require Import
-  Basics.Basics Category Functor Datatypes_core
+  Basics.Basics
+  Basics.Datatypes_core
+  Category.Category
+  Category.Functor
   Category.ProdCat
 .
                      

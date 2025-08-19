@@ -1,4 +1,6 @@
-From Simplex Require Import Basics Category
+From Simplex Require Import
+  Basics
+  Category.Category
   Bicategories.OneBicat
   Bicategories.Bicat.
 
