@@ -5,7 +5,7 @@ From Simplex Require Import Basics Eq SEq Graph TwoGraph
 Local Set Implicit Arguments.
 Local Open Scope morphism_scope.
 
-(** This module defines categories. Categories are are defined as a specialization of OneBicat's to the case where the setoid equivalence relation on homs is type-valued equality. A Category.t is a triple consisting of the sort of objects, a dependent Hom type, and a proof that this pair forms a category.
+(** This module defines HoTT-style categories, which are defined to be 1-truncated, and so are structured using SProp-valued equality. Categories are are defined as a specialization of OneBicat's to the case where the setoid equivalence relation on homs is type-valued equality. A Category.t is a triple consisting of the sort of objects, a dependent Hom type, and a proof that this pair forms a category.
 
    The module includes a mixin class showing how to upgrade a PreOrder.t to a category by supplying a left and right preorder. It also
    contains a coercion from a category down to a preorder, and a way to extract reflexivity and transitivity proofs.
@@ -31,8 +31,8 @@ Module Category.
   Arguments Hom [t].
 
   Module Mixin.
-    Record mixin_of (A : PreOrder.t) := Mixin {
-      isHSet : forall x y: A, IsHSet (PreOrder.Hom x y)                                            ;
+    Record mixin_of (A : PreOrder.t) : SProp := Mixin {
+      isHSet : forall x y: A, IsHSet (PreOrder.Hom x y);
       assoc : forall (w x y z : A) (f : w <= x) (g : x <= y) (h : y <= z),
         ((f · g) · h) ≡ f · (g · h);
       lu : forall (x y : A) (f : x <= y), (1 x · f) ≡ f;
@@ -41,6 +41,7 @@ Module Category.
   End Mixin.
   Import Mixin.
 
+  (** A helper class to upgrade a preorder to a category. *)
   Class class_minimal (A : Type) (R : A -> A -> Type) := {
       is_preorder : PreOrder.class_of R;
       mixin : mixin_of (PreOrder.Pack is_preorder)

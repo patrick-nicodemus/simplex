@@ -7,10 +7,6 @@ authors: ["Patrick Nicodemus <gadget142@gmail.com>"]
 license: "LGPL-2.0-or-later"
 homepage: "https://github.com/patrick-nicodemus/simplex"
 bug-reports: "https://github.com/patrick-nicodemus/simplex/issues"
-depends: [
-  "dune" {>= "3.13"}
-  "odoc" {with-doc}
-]
 build: [
   ["dune" "subst"] {dev}
   [
@@ -26,3 +22,15 @@ build: [
   ]
 ]
 dev-repo: "git+https://github.com/patrick-nicodemus/simplex.git"
+depends:[
+  "dune" {>= "3.13"}
+  "odoc" {with-doc}
+  coq-core
+  rocq-runtime
+  rocq-core
+]
+pin-depends: [
+  ["rocq-runtime.dev" "git+https://github.com/mattam82/rocq.git#universes-clauses"]
+  ["rocq-core.dev" "git+https://github.com/mattam82/rocq.git#universes-clauses"]
+  ["coq-core.dev" "git+https://github.com/mattam82/rocq.git#universes-clauses"]
+]

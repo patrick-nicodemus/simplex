@@ -296,6 +296,7 @@ Module OneBicat.
 
   (** Binary composition (Hom a b) × (Hom b c) -> Hom a c,
       as a graph homomorphism. *)
+
   Definition binary_compose_graph_hom@{s;u0 u1 u2} (A : OneBicat.t@{s;u0 u1 u2})
     (a b c : A)
     :=

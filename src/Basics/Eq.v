@@ -72,31 +72,6 @@ Record bijection (A B : Type) :=
     rl_inv : forall (b : B), section (retraction b) = b;
   }.
 
-Class IsHProp@{u} (A: Type@{u}) : Type@{u}
-  := is_hprop: forall x y : A, eq@{u} x y.
-
-Instance IsHProp_unit : IsHProp unit.
-Proof.
-  intros x y.
-  destruct x, y.
-  reflexivity.
-Defined.
-
-Instance IsHProp_empty : IsHProp empty.
-Proof.
-  intros x ; destruct x.
-Defined.
-
-Definition h_inv {A : Type} {a b : A} {p q : a = b} (s : p = q) :
-  (p^ = q^).
-Proof.
-  destruct s.
-  reflexivity.
-Defined.
-
-Class IsHSet@{u} (A :Type@{u})
-  := hprop_eq : forall x y : A, IsHProp (eq@{u} x y).
-
 Definition eq_natural (A B: Type) (f g : A -> B) (h : forall x, f x = g x)
   (a0 a1 : A) (s : a0 = a1)
   : f_equal f s · (h a1) = (h a0) · f_equal g s.
@@ -111,6 +86,21 @@ Proof.
   destruct p; reflexivity.
 Defined.
 
+Definition hcomp2 {A : Type} {a b c : A} [p1 q1 : a = b] [p2 q2 : b = c]
+  : (p1 = q1) -> (p2 = q2) -> (p1 · p2) = (q1 · q2).
+Proof.
+  intro h; destruct h.
+  intro h'; destruct h'.
+  reflexivity.
+Defined.
+
+Definition h_inv {A : Type} {a b : A} {p q : a = b} (s : p = q) :
+  (p^ = q^).
+Proof.
+  destruct s.
+  reflexivity.
+Defined.
+
 Definition h_inv' {A : Type} {a b :A} {p q : a = b} : p^ = q^ -> p = q.
 Proof.
   intro s.
@@ -118,14 +108,6 @@ Proof.
   destruct (sym_inv p)^.
   destruct (sym_inv q)^.
   exact s.
-Defined.
-
-Definition hcomp2 {A : Type} {a b c : A} [p1 q1 : a = b] [p2 q2 : b = c]
-  : (p1 = q1) -> (p2 = q2) -> (p1 · p2) = (q1 · q2).
-Proof.
-  intro h; destruct h.
-  intro h'; destruct h'.
-  reflexivity.
 Defined.
 
 Definition post_whisker {A : Type} {a b c : A} [p q : a = b]
@@ -201,36 +183,6 @@ Proof.
   exact t.
 Defined.
 
-Theorem bijection_preserves_hprop (A B: Type) :
-  bijection A B -> IsHProp A -> IsHProp B.
-Proof.
-  intros [section retraction' lr_inv' rl_inv'] is_hprop'.
-  intros p q.
-  destruct (rl_inv' p).
-  destruct (rl_inv' q).
-  destruct (is_hprop' (retraction' p) (retraction' q)).
-  reflexivity.
-Defined.
-
-Theorem bijection_preserves_hset (A B : Type) (p : bijection A B) :
-  IsHSet A -> IsHSet B.
-Proof.
-  intros IsHSetA b b'.
-  eapply (@bijection_preserves_hprop ((retraction p b) = (retraction p b'))).
-  - unshelve econstructor.
-    + intro k. apply (f_equal (section p)) in k.
-      destruct (rl_inv p b)^.
-      destruct (rl_inv p b')^.
-      exact k.
-    + exact (f_equal (retraction p) (x:=b) (y:=b')).
-    + apply (fun a => IsHSetA (retraction p b) (retraction p b') _ a).
-    + simpl. intro eq_bb'.
-      destruct eq_bb',
-        (rl_inv p b).
-      reflexivity.
-  - apply IsHSetA.
-Defined.
-
 Theorem isContr_lemma (A : Type) (H : forall y z : A, y = z)
   (y0 z0 y1 z1 : A) (p : y0 = y1) (q : z0 = z1)
   :
@@ -251,4 +203,33 @@ Proof.
   rewrite (isContr_lemma H p q).
   apply symmetry.
   apply isContr_lemma.
+Defined.
+
+Theorem sig_eq@{s;u0 u1 +|+} (A : Type@{u0}) (P : A->Type@{u1})
+  (x y : @sig A P ) :
+  forall p : ex_val x = ex_val y,
+    ex_pf x = transport P p (ex_pf y) -> x = y.
+Proof.
+  destruct x, y.
+  simpl.
+  destruct p.
+  simpl; intro k; destruct k.
+  reflexivity.
+Defined.
+
+Theorem sig2_eq@{s;+|+} (A : Type)
+  (P : A->Type@{_})
+  (Q : A->Type@{_})
+  (x y : @sig2 A P Q) :
+  forall p : ex2val x = ex2val y,
+    ex2P x = transport P p (ex2P y) ->
+    ex2Q x = transport Q p (ex2Q y) ->
+    x = y.
+Proof.
+  destruct x, y.
+  simpl.
+  destruct p.
+  simpl; intro k; destruct k.
+  intro k; destruct k.
+  reflexivity.
 Defined.

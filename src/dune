@@ -2,6 +2,7 @@
 (coq.theory
  (name Simplex)
  (package simplex-cat)
+ (synopsis "A library for category theory compatible with univalence and SProp")
  (flags -noinit -w -ambiguous-paths)
  ;(stdlib no)
  (theories Ltac2 elpi_elpi elpi)

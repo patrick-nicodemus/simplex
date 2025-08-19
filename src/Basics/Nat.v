@@ -1,6 +1,6 @@
 Require Corelib.Init.Nat.
 Require Corelib.Init.Byte.
-From Simplex Require Import Basics Relations Eq SEq Datatypes PreOrder.Core SPropEquiv Classes Tactics.
+From Simplex Require Import Basics Relations Eq SEq Datatypes_core Datatypes PreOrder.Core Classes SPropEquiv Tactics Induction.
 From Corelib.Init Require Import Nat.
 
 Require Corelib.Init.Byte.
@@ -21,14 +21,14 @@ Number Notation Number.int Number.int_of_int Number.int_of_int
 Number Notation nat Nat.of_num_uint Nat.to_num_uint (abstract after 5000) : nat_scope.
 
 Unset Elimination Schemes.
-Inductive le'@{s;} : nat -> nat -> Type@{s;Set} :=
+Inductive le' : nat -> nat -> Set :=
 | le_O n : le' O n
 | le_S n m : le' n m -> le' (S n) (S m).
 Arguments le_S {_ _}.
 
 Infix "<='" := le' (at level 70) : nat_scope.
 
-Fixpoint le@{s;} (n : nat) : forall (m : nat), Type@{s;Set} :=
+Fixpoint le (n : nat) : forall (m : nat), SProp :=
   match n with
   | O => fun _ => unit
   | S n' => fun m => match m with
@@ -37,7 +37,7 @@ Fixpoint le@{s;} (n : nat) : forall (m : nat), Type@{s;Set} :=
                  end
   end.
 
-Fixpoint le_refl : Reflexive le
+Fixpoint le_refl@{} : Reflexive@{SProp;Set Set} le
   := fun x => match x with
      | O => tt
      | S y => le_refl y
@@ -48,25 +48,40 @@ Existing Instance le_refl.
 Infix "<=" := le (at level 70) : nat_scope.
 Open Scope nat_scope.
 
-Definition le_to_le' : forall (n m : nat), le@{SProp;} n m -> le'@{Type;} n m
-  := fix lerec (n m : nat) : le@{SProp;} n m -> le'@{Type;} n m
+Definition le_to_le'@{} : forall (n m : nat), le n m -> le' n m
+  := fix lerec (n m : nat) : le n m -> le' n m
     := match n with
-       | O => fun _ => le_O m       (*  *)
-       | S n' => match m return le@{SProp;}(S n') m -> le'@{Type;}(S n') m with
+       | O => fun _ => le_O m
+       | S n' => match m return le (S n') m -> le'(S n') m with
                 | O => fun p => match p with end
-                | S m' => fun p => le_S@{Type;} (lerec n' m' p)
+                | S m' => fun p => le_S(lerec n' m' p)
                 end
        end.
 
-Definition le'_to_le@{; u1 u2| u1 < u2} : forall (n m : nat),
-    le'@{Type;} n m -> le@{SProp;} n m
+Definition le'_to_le@{} : forall (n m : nat),
+    le' n m -> le n m
   := fix lerec (n m : nat) (p: le' n m) : le n m
     := match p in n <=' m return n <= m with
        | le_O n' => tt
        | @le_S n' m' p' => lerec n' m' p'
        end.
 
-Instance le_le'_equiv (n m : nat)
+(* Elpi Accumulate induction.db lp:{{ *)
+(*     associated Tm Tm' :- *)
+(*       coq.typecheck Tm {{le lp:N lp:M}} ok, *)
+(*       Tm' = {{le_to_le' lp:N lp:M lp:Tm}}. *)
+(*   }}. *)
+
+(* From elpi Require Import elpi. *)
+
+(* Goal forall n m : nat, n <= m -> n + 1 <= m + 1. *)
+(* Proof. *)
+(*   intros n m h. *)
+(*   ltac1:(elpi induction (h)). *)
+(*   Message.print (Message.of_string "Tactic complete"). *)
+(*   Abort. *)
+
+Instance le_le'_equiv@{} (n m : nat)
   : SPropEquiv (le' n m) (le n m) := {
     to_sprop := le'_to_le n m;
     to_type := le_to_le' n m;
@@ -86,25 +101,25 @@ Fixpoint le_induction@{s;u|}
                     end
      end m p.
 
-Theorem le_n_S : forall n m : nat, n <= m -> S n <= S m.
+Theorem le_n_S@{} : forall n m : nat, n <= m -> S n <= S m.
 Proof.
   exact (fun n m p => p).
 Defined.
 
-Definition nle_Sn_O@{s;} : forall (n : nat), not@{_ s;_} (S n <= O)
+Definition nle_Sn_O : forall (n : nat), not (S n <= O)
   := fun n p => p.
 
-Instance le_trans@{s;} : Transitive@{s;Set Set} le.
+Instance le_trans@{} : Transitive@{_;Set Set} le.
 Proof.
   intros n m k H; revert n m H k.
-  apply (le_induction@{s;Set} (fun n m => forall k, m <= k -> n <= k)).
+  apply (le_induction@{SProp;Set} (fun n m => forall k, m <= k -> n <= k)).
   - constructor.
   - intros n m H k; simpl. destruct k.
     + exact (fun x => x).
     + apply H.
 Defined.
 
-Definition Nat_le := PreOrder.Pack (PreOrder.Class (R:=le) _ _).
+Definition Nat_le@{} := PreOrder.Pack@{SProp;Set Set} (PreOrder.Class (R:=le) _ _).
 Canonical Nat_le.
 
 Arguments Nat.of_uint d%_dec_uint_scope.
@@ -230,6 +245,6 @@ Defined.
 Theorem assoc : forall n m k, n + m + k == n + (m + k).
 Proof.
   induction n.
-  - intros m k. reflexivity.
+  - intros m k. apply reflexive.
   - intros m k. apply IHn.
 Defined.

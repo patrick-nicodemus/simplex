@@ -24,7 +24,7 @@ Module Functor.
     := {
       map : A -> B;
       fmap : forall (a b : A), PreOrder.Hom a b -> PreOrder.Hom (map a) (map b);
-      class : class_of@{u0a u1a u0b u1b} fmap
+      class :: class_of@{u0a u1a u0b u1b} fmap
     }.
 
   Definition to_graph_hom (A B : PreOrder.t) (F : t A B) :
@@ -33,4 +33,4 @@ Module Functor.
 
 End Functor.
 
-Export (coercions) Functor.
+Export (coercions,hints) Functor.

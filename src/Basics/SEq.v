@@ -1,4 +1,5 @@
-From Simplex Require Import Basics Relations Datatypes_core Eq.
+From Simplex Require Import Basics Relations Datatypes_core.
+From Simplex Require Export Eq.
 Local Set Implicit Arguments.
 
 Local Set Definitional UIP.
@@ -23,6 +24,34 @@ Private Inductive seq@{u} {A : Type@{u}} (a : A) : A -> SProp :=
 
 Infix "≡" := seq (at level 44).
 
+Class Contraction (A : Type) (inhabited : A ) :=
+  contraction : forall (a : A), inhabited ≡ a.
+
+Class Contractible (A : Type) : SProp :=
+  contractible : (exists (fun (a:A) => Contraction a)).
+
+Class IsHProp (A: Type) : SProp
+  := is_hprop: forall x y : A, seq x y.
+
+Notation exists_unique := Contractible.
+
+Notation "∃! A" := (Contractible A) (at level 45).
+
+Instance IsHProp_unit : IsHProp unit.
+Proof.
+  intros x y.
+  destruct x, y.
+  reflexivity.
+Defined.
+
+Instance IsHProp_empty : IsHProp empty.
+Proof.
+  intros x ; destruct x.
+Defined.
+
+Class IsHSet@{u} (A :Type@{u})
+  := hprop_eq : forall x y : A, IsHProp (eq@{u} x y).
+
 Instance Reflexive_seq@{u} {A :Type@{u}} :
   Reflexive@{SProp;u Set} (@seq A) := fun x => seq_refl _.
 
@@ -38,13 +67,25 @@ Instance Transitive_seq@{u} {A :Type@{u}} : Transitive@{SProp;u Set} (@seq A)
 
 (** The usual path induction scheme with an extra requirement -
     it can only be used at contractible components of a space. *)
-Definition seq_rec@{s;u u1}  {A : Type@{u}} (a : A)
+Definition seq_rect@{s;u u1} {A : Type@{u}} (a : A)
   (h: forall b, IsHProp (a = b))
   (P : forall b, a ≡ b -> Type@{s;u1})
   : P a (seq_refl a) -> forall (b : A) (p : a ≡ b), P b p
   := fun e b p => match p with
                | seq_refl _ => e
-               end.
+                  end.
+
+Definition seq_implies_eq@{u} {A : Type@{u}} (a b: A)
+  (h: IsHProp (a = b)) : a ≡ b -> a = b
+  := fun p => match p with | seq_refl _ => eq_refl _ end.
+
+Definition seq_implies_eq_hprop@{u} {A : Type@{u}} (a b: A)
+  (h: IsHProp A) : a ≡ b -> a = b
+  := fun p => match p with | seq_refl _ => eq_refl _ end.
+
+Definition eq_implies_seq@{u} {A : Type@{u}} (a b: A)
+  : a = b -> a ≡ b
+  := fun p => match p with | eq_refl _ => seq_refl _ end.
 
 (** Elimination into SProps is unrestricted. *)
 Definition seq_selim@{u} {A : Type@{u}} (a : A)
@@ -63,6 +104,25 @@ Definition seq_set@{s;u} {A : Set} (a : A)
   := fun e b p => match p with
            | seq_refl _ => e
                end.
+
+Theorem IsHProp_implies_IsHSet (A: Type) : IsHProp A -> IsHSet A.
+Proof.
+  intros f a b p q.
+  enough (f' : forall x y : A, x = y).
+  {
+    set (g1 := (fun (p' : a = b) => apd (fun y => (a = y)) (f' a) p')).
+    set (k := g1 p). rewrite apd1 in k.
+    set (k2 := g1 q). rewrite apd1 in k2.
+    destruct (k2^); clear k2.
+    apply precomp_iso in k.
+    apply symmetry in k.
+    apply h_inv' in k.
+    destruct k.
+    reflexivity.
+  }
+  intros x y.
+  apply seq_implies_eq_hprop; auto.
+Defined.
 
 Module Type U1_Truncated_Sig.
   Parameter u1_2truncated : forall (A : Type@{Set+1}) (a b: A), IsHSet (a = b).
@@ -85,8 +145,9 @@ Module U1_Truncated : U1_Truncated_Sig.
   Definition endo_id@{u} (A: Type@{u}) (a b: A) (p : a = b) : endo p = p
     := match p with eq_refl _ => eq_refl _ end.
 
-  Theorem all_hsets@{u} (A: Type@{u}) (a b: A) (p q: a = b) : p = q.
+  Theorem all_hsets (A: Type) : IsHSet A.
   Proof.
+    intros x y p q.
     destruct (endo_id p).
     destruct (endo_id q).
     reflexivity.
@@ -101,6 +162,38 @@ Record HSet@{u} := {
     carrier :> Type@{u};
     is_hset : IsHSet carrier
   }.
+
+Theorem bijection_preserves_hprop (A B: Type) :
+  bijection A B -> IsHProp A -> IsHProp B.
+Proof.
+  intros [section retraction' lr_inv' rl_inv'] is_hprop'.
+  intros p q.
+  destruct (rl_inv' p).
+  destruct (rl_inv' q).
+  destruct (is_hprop' (retraction' p) (retraction' q)).
+  reflexivity.
+Defined.
+
+Theorem bijection_preserves_hset (A B : Type) (p : bijection A B) :
+  IsHSet A -> IsHSet B.
+Proof.
+  intros IsHSetA b b'.
+  eapply (@bijection_preserves_hprop ((retraction p b) = (retraction p b'))).
+  - unshelve econstructor.
+    + intro k. apply (f_equal (section p)) in k.
+      destruct (rl_inv p b)^.
+      destruct (rl_inv p b')^.
+      exact k.
+    + exact (f_equal (retraction p) (x:=b) (y:=b')).
+    + enough(h: IsHProp (retraction p b=retraction p b')) > [|auto].
+      intro a; apply seq_implies_eq_hprop >[assumption|].
+      apply h.
+    + simpl. intro eq_bb'.
+      destruct eq_bb',
+        (rl_inv p b).
+      reflexivity.
+  - apply IsHSetA.
+Defined.
 
 Module Interval.
   Private Inductive I :=
@@ -211,6 +304,7 @@ End S1.
     then X is path discrete. Certainly if it's a deformation retract
     then X is discrete. 
  *)
+
 Module SEqType.
   Class class_of (A: Type) := {
       seq_rel : A -> A -> SProp;

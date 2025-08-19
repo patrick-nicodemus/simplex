@@ -1,4 +1,11 @@
-From Simplex Require Import Basics Graph Category Functor Category.NatTrans Axioms PreOrder.Core.
+From Simplex Require Import
+  Basics
+  Graph
+  Category.Category
+  Category.Functor
+  Category.NatTrans
+  Basics.Axioms
+  PreOrder.Core.
 
 #[refine]
 Instance functor_cat_class_minimal (A : Graph.t) (B : Category.t) {H0:Funext}

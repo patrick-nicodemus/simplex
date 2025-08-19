@@ -46,6 +46,14 @@ Record sigAB@{s;u0 u1 u2|}
     pfP : P eltA eltB
   }.
 
+(** [exists] is supposed to be the proof-irrelevant cousin of [sig].
+    In particular, [exists (A : Type) (P : A -> SProp)] lies in [SProp].
+    This cannot be done with [sig]. *)
+
+Inductive exists@{s;u0 u1|} (A : Type@{u0}) (P : A -> Type@{s;u1})
+    : Type@{s;max(u0,u1)} :=
+    | ex_intro (a : A) (p : P a) : exists P.
+
 Notation "{ x : A , y : B | P }" :=
   (sigAB (fun (x : A) (y : B) => P))
     (at level 0, x at level 99, y at level 98) : type_scope.

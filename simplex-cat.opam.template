@@ -1,0 +1,12 @@
+depends:[
+  "dune" {>= "3.13"}
+  "odoc" {with-doc}
+  coq-core
+  rocq-runtime
+  rocq-core
+]
+pin-depends: [
+  ["rocq-runtime.dev" "git+https://github.com/mattam82/rocq.git#universes-clauses"]
+  ["rocq-core.dev" "git+https://github.com/mattam82/rocq.git#universes-clauses"]
+  ["coq-core.dev" "git+https://github.com/mattam82/rocq.git#universes-clauses"]
+]

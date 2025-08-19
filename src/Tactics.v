@@ -182,3 +182,20 @@ Module Notations.
       (fun _ => Std.symmetry cl).
 End Notations.
 Export Notations.
+
+Ltac2 destruct_intro () :=
+  match! goal with
+  | [ |- forall a, _ ] => intro fresh; destruct fresh
+  end.
+
+Ltac2 naive
+  () :=
+  repeat (
+      first
+        [ destruct_intro ()|
+          intro|
+          progress(simpl in *)|
+          unshelve econstructor|
+          reflexivity
+        ]
+    ).

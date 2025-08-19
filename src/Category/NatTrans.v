@@ -1,4 +1,12 @@
-From Simplex Require Import Basics Tactics Relations Eq Graph PreOrder.Core Category Functor.
+From Simplex Require Import
+  Basics
+  Basics.Relations
+  Basics.Eq
+  Tactics
+  Graph.Graph
+  PreOrder.Core
+  Category.Category
+  Category.Functor.
 Local Set Implicit Arguments.
 Module NatTrans.
   Open Scope morphism_scope.

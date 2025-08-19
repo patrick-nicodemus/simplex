@@ -132,7 +132,7 @@ Proof.
 Defined.
 
 Theorem take_length@{s;u0 u1} (A : Type@{u0}) (R : A -> A -> Type@{s;u1})
-  a b (p : path@{s;u0 u1} R a b) (k : nat) (le : k <= length p)
+  a b (p : path@{s;u0 u1} R a b) (k : nat) (le: Nat.le k (length@{s;u0 u1} p))
   : length (take k p) = k.
 Proof.
   revert k le.

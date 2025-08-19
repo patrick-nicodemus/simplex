@@ -28,7 +28,8 @@ Proof.
   - intros a b p h.
     destruct (Path.length0 _ (symmetry h)).
     reflexivity.
-  - intros a b p e. simpl length in e. symmetry in e. apply Path.length1 in e. exact e.
+  - intros a b p e. simpl length in e. symmetry in e. apply Path.length1 in e.
+    exact e.
   - intros a b p e. simpl in e.
     apply (transitive (y:=Path.nth_vertex (length s2) p)).
     + apply (rec_t s1 a _ (Path.drop (length s2) p)).
@@ -100,14 +101,15 @@ Definition compose_path_right_assoc@{s;u0 u1|}
   :
   forall (a : A) (l : list A),
   path_on@{s;u0 u1} A a l ->
-  forall n1 n2 : nat, n1 <= n2 -> nth n1 a l <= nth n2 a l :=
+  forall n1 n2 : nat, Nat.le n1 n2 -> nth n1 a l <= nth n2 a l :=
   (fix compose_path_right_assoc a l p n1 n2 ineq {struct n1} :=
-  match n1 return (forall (ineq : n1 <= n2), (nth n1 a l <= nth n2 a l)) with
+     match n1 return (forall (ineq : Nat.le n1 n2),
+                         PreOrder.Hom@{s;u0 u1}(nth n1 a l) (nth n2 a l)) with
   | O =>  fun _ => compose_path_from_hd_right_assoc A a l p n2
   | S n1' =>
       (match l return
-             (forall (p : path_on A a l) (ineq : S n1' <= n2),
-                 (nth (S n1') a l <= nth n2 a l))
+             (forall (p : path_on A a l) (ineq : Nat.le (S n1') n2),
+                 PreOrder.Hom@{s;u0 u1} (nth (S n1') a l) (nth n2 a l))
        with
        | hd :: tl =>
            fun p =>
@@ -146,16 +148,16 @@ Fixpoint compose_path_on_indices@{s;u0 u1|}
   (t : unitBtree)
   (p : Path.path_on@{s;u0 u1} A a l)
   (n1 n2 : nat)
-  (h : n1 + length t <= n2)
+  (h : Nat.le (n1 + length t) n2)
   : A (List.nth n1 a l) (List.nth n2 a l).
 Proof.
   destruct t as [ | | s1 s2].
   - apply compose_path_right_assoc > [ exact p| ].
     revert h; exact (match (Nat.add_comm 0 n1) in eq _ y return
-                 forall (p :y <= n2), n1 <= n2
+                 forall (p :Nat.le y n2), Nat.le n1 n2
            with eq_refl _ => fun x => x end).
   - apply compose_path_right_assoc > [ exact p| ].
-    apply (@transitive  _ _ _ _ (n1 + length Morphism)).
+    apply (@transitive@{SProp;_ _}  _ Nat.le _ _ (n1 + length Morphism)).
     + apply Nat.le_add_r.
     + exact h.
   -
@@ -180,11 +182,11 @@ Definition compose_path_on@{s;u0 u1|}
 Proof.
   revert a l p eq_pf.
   refine ((fix rec_t (s : unitBtree) := _ ) t).
-  clear t. destruct s.
-  - intros a; destruct l.
-    + simpl. intros. contradiction.
-    + simpl; intros; reflexivity.
-  - intros a; destruct l.
+  clear t. destruct s; intro a.
+  - destruct l.
+    + intros; contradiction.
+    + intros; reflexivity.
+  - destruct l.
     + intros [k s] h.
       simpl in h.
       simpl.
@@ -192,7 +194,7 @@ Proof.
       apply List.length0 in h; destruct (symmetry h).
       exact k.
     + simpl. intros ? ?; contradiction.
-  - simpl; intros a l p h.
+  - intros l p h.
     apply (@transitive _ _ _ _ (List.last a (List.take (length s1) l)) _).
     + apply (rec_t s1).
       * apply take_on. exact p.
@@ -209,7 +211,7 @@ Proof.
         apply (transitive (y:=(List.length l)-(length s1))).
         { 
           destruct h.
-          symmetry.
+          symmetry. simpl.
           rewrite add_comm.
           apply add_sub.
         }
