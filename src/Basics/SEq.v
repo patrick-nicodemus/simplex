@@ -1,4 +1,5 @@
-From Simplex Require Import Basics Relations Datatypes_core Eq.
+From Simplex Require Import Basics Relations Datatypes_core.
+From Simplex Require Export Eq.
 Local Set Implicit Arguments.
 
 Local Set Definitional UIP.
@@ -23,8 +24,18 @@ Private Inductive seq@{u} {A : Type@{u}} (a : A) : A -> SProp :=
 
 Infix "≡" := seq (at level 44).
 
+Class Contraction (A : Type) (inhabited : A ) :=
+  contraction : forall (a : A), inhabited ≡ a.
+
+Class Contractible (A : Type) : SProp :=
+  contractible : (exists (fun (a:A) => Contraction a)).
+
 Class IsHProp (A: Type) : SProp
   := is_hprop: forall x y : A, seq x y.
+
+Notation exists_unique := Contractible.
+
+Notation "∃! A" := (Contractible A) (at level 45).
 
 Instance IsHProp_unit : IsHProp unit.
 Proof.
