@@ -146,7 +146,6 @@ Module ColaxLeftAdjoint.
     (*   stronger_auto(). *)
     (*   simpl. *)
     (*   intros x y f. *)
-    (*   Set Printing All. *)
     (*   apply (F_univ x). *)
       
       

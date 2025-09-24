@@ -34,7 +34,7 @@ Ltac2 contradiction0 () :=
       exact (match $h return $g with end)
   end.
 
-Ltac2 Notation contradiction := contradiction0 ().
+Ltac2 Abbreviation contradiction := contradiction0 ().
 
 Ltac2 reflexivity () :=
   try (exact (@reflexive _ _ _ _));
@@ -174,7 +174,7 @@ Ltac2 symmetry0 (cl : Std.clause) : unit :=
   end.
 
 Module Notations.
-  Ltac2 Notation reflexivity := reflexivity().
+  Ltac2 Abbreviation reflexivity := reflexivity().
   Ltac2 Notation "symmetry" cl(opt(clause))
     :=
     let cl := (Notations.default_on_concl cl) in

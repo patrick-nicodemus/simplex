@@ -16,7 +16,7 @@ Module Functor.
     }.
   
   Arguments class_of [A B F] fmap.
-  Notation is_functor := class_of.
+  Abbreviation is_functor := class_of.
 
   Structure t@{u0a u1a u0b u1b}
     (A : PreOrder.t@{Type;u0a u1a})

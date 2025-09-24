@@ -7,9 +7,9 @@ Require Corelib.Init.Byte.
 
 (** 1. Definitions of [Type]-valued and [SProp]-valued inequalities on [nat], proofs of equivalence; proof that [<=] forms a preorder. *)
 
-Notation nat := Corelib.Init.Datatypes.nat.
-Notation O := Corelib.Init.Datatypes.O.
-Notation S := Corelib.Init.Datatypes.S.
+Abbreviation nat := Corelib.Init.Datatypes.nat.
+Abbreviation O := Corelib.Init.Datatypes.O.
+Abbreviation S := Corelib.Init.Datatypes.S.
 Notation "x + y" := (Corelib.Init.Nat.add x y) (at level 50, left associativity) : nat_scope.
 Notation "(+)" := Corelib.Init.Nat.add (only parsing).
 Notation "x - y" := (Nat.sub x y) (at level 50, left associativity) : nat_scope.

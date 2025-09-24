@@ -3,7 +3,7 @@ From Simplex Require Export Relations.
 Local Set Implicit Arguments.
 (** Defines a Graph. Definitions in this file are qualified, except for [Reflexive], [Transitive] and [Symmetric]. *)
 Module Graph.
-  Notation class_of := Relation.
+  Abbreviation class_of := Relation.
   Record t@{s;u0 u1} : Type@{max(u0+1,u1+1)}:=
     Pack {
         sort : Type@{u0};
@@ -71,7 +71,7 @@ Module GraphHom.
            map : A -> B;
            class : class_of map
          }.
-  Notation fmap := class.
+  Abbreviation fmap := class.
 
   Definition id@{s;+} (A : Graph.t@{s;_ _}) : t A A.
   Proof.
@@ -86,7 +86,7 @@ Module GraphHom.
     Arguments class [A B] t [x y].
     Arguments Pack [A B map].
     Existing Instance class.
-    Notation fmap := class.    
+    Abbreviation fmap := class.    
   End Exports.
 End GraphHom.
 Export GraphHom.Exports.
