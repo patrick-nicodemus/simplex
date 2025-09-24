@@ -26,7 +26,7 @@ depends:[
   "dune" {>= "3.13"}
   "odoc" {with-doc}
   coq-core
-  rocq-runtime
+  (rocq-runtime {>=9.0})
   rocq-core
 ]
 pin-depends: [
