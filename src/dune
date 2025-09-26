@@ -5,5 +5,5 @@
  (synopsis "A library for category theory compatible with univalence and SProp")
  (flags -noinit -w -ambiguous-paths)
  ;(stdlib no)
- (theories Ltac2 elpi_elpi elpi)
+ (theories Ltac2)
 )
