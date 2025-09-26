@@ -1,8 +1,9 @@
-From Simplex Require Import Basics Eq Graph TwoGraph
+From Simplex Require Import Basics Eq Graph TwoGraph 
                      PreOrder.Core PreOrder.Instances
                      Datatypes_core
                      Graph
-                     OneBicat.
+                     OneBicat
+                     Tactics.
 
 Import Graph.Notations.
 Local Set Implicit Arguments.
@@ -44,15 +45,36 @@ Module Category.
     |}.
   Coercion to_onebicat : Category.t >-> OneBicat.t.
   
-  Module Mixin.
-  Record mixin_of (A : PreOrder.t) := Mixin {
-      assoc : forall (w x y z : A) (f : w <= x) (g : x <= y) (h : y <= z),
-        ((f · g) · h) = f · (g · h);
-      lu : forall (x y : A) (f : x <= y), (1 x · f) = f;
-      ru : forall (x y : A) (f : x <= y), (f · 1 y) = f
-     }.
-  End Mixin.
-  Import Mixin.
+  Module OfPreOrder.
+    Record factory (A : PreOrder.t) := {
+        assoc : forall (w x y z : A) (f : w <= x) (g : x <= y) (h : y <= z),
+                       ((f · g) · h) = f · (g · h);
+                  lu : forall (x y : A) (f : x <= y), (1 x · f) = f;
+                  ru : forall (x y : A) (f : x <= y), (f · 1 y) = f      
+      }.
+
+    Definition builder@{u0 u1}
+      (A : Type@{u0})
+      (R : A -> A -> Type@{u1})
+      (pc : PreOrder.class_of R)
+      (fac : factory (PreOrder.Pack pc))
+      : Category.class_of R.
+    Proof.
+      Set Printing All.
+      unshelve econstructor.
+      
+      - constructor.
+        
+      - 
+    Defined.
+      
+  End OfPreOrder.
+  (* Module Mixin. *)
+  (* Record mixin_of (A : PreOrder.t) := Mixin { *)
+  (*     
+  (*    }. *)
+  (* End Mixin. *)
+  (* Import Mixin. *)
 
   Class class_minimal (A : Type) (R : A -> A -> Type) := {
       is_preorder : PreOrder.class_of R;

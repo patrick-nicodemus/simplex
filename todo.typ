@@ -6,8 +6,9 @@
 //   If it is a primitive record, what are its constructors?
 // - [ ] Create a tactic which is a variant of intros that supports
 //       primitive records correctly.
+- [ ] Define the category of graphs.
 - [ ] Define a tactic that proves two elements of a
-  primitive record type are equal, given that their components are equal.
+      primitive record type are equal, given that their components are equal.
 - [ ] Define the product of two categories / onebicats.
 - [ ] Define a bicategory
 - [ ] Define notions of LARI and RARI for bicategories

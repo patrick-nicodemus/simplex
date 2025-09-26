@@ -198,4 +198,8 @@ Ltac2 naive
           unshelve econstructor|
           reflexivity
         ]
-    ).
+        ).
+
+
+Ltac2 exact_hole () := exact _.
+Ltac2 Abbreviation z := Ltac2.Notations.try0 exact_hole.
