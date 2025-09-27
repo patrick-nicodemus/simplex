@@ -1,0 +1,12 @@
+# Rocq 9.1.0 release kit
+opam pin rocq-runtime git@github.com:rocq-prover/rocq.git#V9.1.0
+opam pin rocq-core git@github.com:rocq-prover/rocq.git#V9.1.0
+(* opam pin coq-core git@github.com:rocq-prover/rocq.git#V9.1.0 *)
+opam pin rocq-stdlib git@github.com:rocq-prover/stdlib.git#V9.0.0
+opam pin elpi git@github.com:LPCIC/elpi.git#v3.4.1
+opam pin rocq-elpi git@github.com:LPCIC/coq-elpi.git#v3.2.0 --ignore-constraints-on=rocq-core
+(* opam install coq-core --ignore-constraints-on=rocq-core,rocq-runtime *)
+(* opam install coq-stdlib --ignore-constraints-on=rocq-core,rocq-runtime,rocq-stdlib *)
+(* opam install coq --ignore-constraints-on=rocq-core,rocq-runtime,rocq-stdlib *)
+opam pin coq-hammer-tactics git@github.com:patrick-nicodemus/coqhammer.git#patch
+opam pin coq-hammer git@github.com:patrick-nicodemus/coqhammer.git#patch
