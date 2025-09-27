@@ -20,17 +20,24 @@ Definition product@{;uAob uAarr uBob uBarr +|+}
   (B : Category.t@{; uBob uBarr})
   : Category.t@{;_ _}.
 Proof.
-  unshelve refine '(Category.Build _) > [
-      exact ((A * B)%type)
-    | apply prod_binary > [ apply Category.Hom | apply Category.Hom ]
-    | unshelve econstructor
-    ].
-  constructor; simpl.
-  - intros [w w'] [x x'] [y y'] [z z'] [f f'] [g g'] [h h'];
-      simpl in *.
-    apply prod_eq; apply Category.assoc.
-  - intros [x0 x1] [y0 y1] [f0 f1]; simpl in *; apply prod_eq; apply Category.lu.
-  - intros [x0 x1] [y0 y1] [f0 f1]; simpl in *; apply prod_eq; apply Category.ru.
+  Check prod_binary.
+  refine '({| Category.sort := (A * B)%type;
+             Category.Hom := (prod_binary (@Category.Hom A) (@Category.Hom B));
+           |}).
+  unshelve refine '(Category.Of_Preorder.Builder _).
+  - constructor; simpl.
+    + (* TODO: Automate this proof *)
+      constructor.
+      { exact (Category.id (fst x)). }
+      { exact (Category.id (snd x)). }
+    + (* TODO: Automate this proof. *)
+      intros [x0 x1] [y0 y1] [z z'] [f f'] [g g']; simpl in *.
+      exact (f · g, f' · g').
+  - constructor; simpl.
+    + intros [w w'] [x x'] [y y'] [z z'] [f f'] [g g'] [h h']; simpl in *.
+      apply prod_eq; apply Category.assoc.
+    + intros [x0 x1] [y0 y1] [f0 f1]; simpl in *; apply prod_eq; apply Category.lu.
+    + intros [x0 x1] [y0 y1] [f0 f1]; simpl in *; apply prod_eq; apply Category.ru.
 Defined.
 
 Canonical product.

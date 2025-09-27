@@ -1,4 +1,6 @@
 From Simplex Require Import Basics Relations Datatypes.
+(* From Corelib Require Import Ltac. *)
+From Hammer Require Export Tactics.
 
 Require Import Ltac2.Ltac2.
 
@@ -199,3 +201,5 @@ Ltac2 naive
           reflexivity
         ]
     ).
+
+Ltac2 z() := try (exact _).

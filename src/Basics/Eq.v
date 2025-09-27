@@ -24,11 +24,19 @@ Register eq_rect as core.identity.ind.
 
 Instance eq_refl' (A : Type) : Reflexive (eq (A:=A)) := @eq_refl A.
 
+(* Definition eq_trans (A :Type) (a b c : A) : a = b -> b = c -> a = c := *)
+(*  fun (p : a = b) => *)
+(*     match p in _ = b return b = c -> a = c with *)
+(*     | eq_refl _ => fun q => q *)
+(*     end. *)
+
 Instance eq_trans (A : Type) : Transitive (eq (A:=A)) :=
-  fun (a b c : A) (p : a = b) =>
+  fun a b c (p : a = b) =>
     match p in _ = b return b = c -> a = c with
     | eq_refl _ => fun q => q
     end.
+
+Register eq_trans as core.identity.trans.
 
 Definition transport@{s;u0 u1|} (A : Type@{u0})
   (P : A -> Type@{s;u1})
@@ -36,11 +44,27 @@ Definition transport@{s;u0 u1|} (A : Type@{u0})
   : P b -> P a
   := match p with | eq_refl _ => fun x => x end.
 
-Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
+(* Definition eq_sym0 (A : Type) : forall a b : A, a = b-> b = a := *)
+(*   fun (a b : A) (p : a = b) => *)
+(*     match p in _ = b return b = a with *)
+(*     | eq_refl _ => eq_refl a *)
+(*     end. *)
+
+Instance eq_sym (A: Type) : Symmetric (eq (A:=A)) :=
   fun (a b : A) (p : a = b) =>
     match p in _ = b return b = a with
     | eq_refl _ => eq_refl a
     end.
+Register eq_sym as core.identity.sym.
+(* From Hammer Require Import Tactics. *)
+(* Goal forall (A : Type) (a b :A), a=b ->  b=a. *)
+(* Proof. *)
+(*   intros. *)
+(*   ltac1:(sfirstorder). *)
+
+Definition f_equal {A B : Type} (f : A -> B) [x y : A] : x = y -> f x = f y
+  := fun p => match p with eq_refl _ => eq_refl (f x) end.
+Register f_equal as core.identity.f_equal.
 
 Definition apd@{u0 u1} [A : Type@{u0}]
   (P : A -> Type@{u1})
@@ -60,9 +84,6 @@ Proof.
   destruct p.
   reflexivity.
 Defined.
-
-Definition f_equal {A B : Type} (f : A -> B) [x y : A] : x = y -> f x = f y
-  := fun p => match p with eq_refl _ => eq_refl (f x) end.
 
 Record bijection (A B : Type) :=
   {

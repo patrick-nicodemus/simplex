@@ -79,6 +79,19 @@ Module GraphHom.
     - exact (fun x => x).
     - exact (fun x y f => f).
   Defined.
+  Instance ReflexiveGraphHom : Reflexive GraphHom.t := id.
+  Instance compose@{s;+} : Transitive GraphHom.t.
+  Proof.
+    intros a b c f g.
+    unshelve econstructor.
+    - ltac1:(sfirstorder).
+    - intros ? ? ?. simpl.
+      (* TODO: This should work. *)
+      Fail ltac1:(qblast).
+      destruct a, b, c, f, g; simpl in *.
+      unfold Graph.class_of,class_of in *.
+      ltac1:(sfirstorder).
+  Defined.
 
   Module Exports.
     Coercion map : t >-> Funclass.
@@ -90,6 +103,7 @@ Module GraphHom.
   End Exports.
 End GraphHom.
 Export GraphHom.Exports.
+Export (hints) GraphHom.
 
 Definition Transformation@{s;uA uB0 uB1 max_uA_uB0 max_uA_uB1|+}
   (A : Type@{uA}) (B : Graph.t@{s;uB0 uB1})
@@ -143,6 +157,7 @@ Instance compose_trans@{s;uA u0B u1B + | +} (A : Type@{uA}) (B : Graph.t@{s;u0B 
   fun (F G H: A -> B)
     (sigma : Transformation F G) (tau : Transformation G H)
     (a : A) => (sigma a) · (tau a).
- 
+
 Module Graph_of_Graphs.
 End Graph_of_Graphs.
+
