@@ -76,22 +76,23 @@ Module GraphHom.
   Definition id@{s;+} (A : Graph.t@{s;_ _}) : t A A.
   Proof.
     unshelve refine '(Pack _).
-    - exact (fun x => x).
-    - exact (fun x y f => f).
+    all: unfold class_of, Graph.class_of in *; simpl.
+    all: ltac1:(sauto).
   Defined.
-  Instance ReflexiveGraphHom : Reflexive GraphHom.t := id.
+
   Instance compose@{s;+} : Transitive GraphHom.t.
-  Proof.
-    intros a b c f g.
-    unshelve econstructor.
-    - ltac1:(sfirstorder).
-    - intros ? ? ?. simpl.
-      (* TODO: This should work. *)
-      Fail ltac1:(qblast).
-      destruct a, b, c, f, g; simpl in *.
-      unfold Graph.class_of,class_of in *.
-      ltac1:(sfirstorder).
+    intros [Ao Ah] [Bo Bh] [Co Ch] [Fm Fh] [Gm Gh].
+    simpl in *.
+    unshelve refine '(Pack _); simpl. 
+    1:{ ltac1:(sfirstorder). }
+    simpl. unfold class_of. simpl. 
+    unfold Graph.class_of in *.
+    unfold class_of in *.
+    simpl in *.
+    ltac1:(sfirstorder).
   Defined.
+
+  Instance ReflexiveGraphHom : Reflexive GraphHom.t := id.
 
   Module Exports.
     Coercion map : t >-> Funclass.

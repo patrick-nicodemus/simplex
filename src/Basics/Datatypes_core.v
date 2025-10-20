@@ -4,6 +4,10 @@ Local Set Implicit Arguments.
 Inductive unit@{s;} : Type@{s;Set} := tt : unit.
 Inductive empty@{s;} : Type@{s;Set} := .
 
+Inductive bool :=
+| true
+| false.
+
 Record prod@{s;u1 u2|} (A : Type@{s;u1}) (B : Type@{s;u2})
   : Type@{s;max(u1,u2)}
   := { fst : A; snd : B}.

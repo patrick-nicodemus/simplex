@@ -20,7 +20,6 @@ Definition product@{;uAob uAarr uBob uBarr +|+}
   (B : Category.t@{; uBob uBarr})
   : Category.t@{;_ _}.
 Proof.
-  Check prod_binary.
   refine '({| Category.sort := (A * B)%type;
              Category.Hom := (prod_binary (@Category.Hom A) (@Category.Hom B));
            |}).

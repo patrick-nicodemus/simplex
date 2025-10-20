@@ -6,5 +6,5 @@
  (flags -noinit -w -ambiguous-paths)
  ;(stdlib no)
  ;(plugins coq-hammer.plugin)
- (theories Ltac2 elpi_elpi elpi Stdlib Hammer)
+ (theories Ltac2 Stdlib Hammer.Tactics)
 )
