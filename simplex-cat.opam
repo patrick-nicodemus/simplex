@@ -28,4 +28,12 @@ depends:[
   coq-core
   rocq-runtime
   rocq-core
+  coq-hammer-tactics {>= "dev"}
+]
+pin-depends: [
+  ["rocq-runtime" "git+https://github.com/rocq-prover/rocq.git#V9.1.0"]
+  ["rocq-core" "git+https://github.com/rocq-prover/rocq.git#V9.1.0"]
+  ["coq-core" "git+https://github.com/rocq-prover/rocq.git#V9.1.0"]
+  ["rocq-stdlib.dev" "git+https://github.com/rocq-prover/stdlib.git#master"]
+  ["coq-hammer-tactics.dev" "git+https://github.com/lucascz/coqhammer.git#master"]
 ]
