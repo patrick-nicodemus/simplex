@@ -2,9 +2,9 @@ depends:[
   "dune" {>= "3.13"}
   "odoc" {with-doc}
   "coq-core"
-  "rocq-runtime"
-  "rocq-core"
-  "rocq-stdlib"
+  "rocq-runtime" {>= "9.1.0"}
+  "rocq-core" {>= "9.1.0"}
+  "rocq-stdlib" {>= "9.0.0"}
   "coq-hammer-tactics" {>= "dev"}
 ]
 pin-depends: [
