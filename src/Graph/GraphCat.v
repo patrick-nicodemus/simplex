@@ -17,7 +17,7 @@ Proof.
   refine ({| Category.sort := Graph.t ; Category.Hom G H := GraphHom.t G H |}).
   eapply Category.Of_Preorder.Builder.
   unshelve econstructor;
-  ltac1:(firstorder).
+  firstorder.
 Defined.
 
 Canonical GraphCat.

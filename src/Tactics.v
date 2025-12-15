@@ -1,6 +1,7 @@
 From Simplex Require Import Basics Relations Datatypes.
 
 Require Import Ltac2.Ltac2.
+Ltac2 Notation "ue" := unshelve econstructor.
 
 Module Open_Constr_tc.
   Import Init.
@@ -68,78 +69,10 @@ Module Symmetry.
       end
     in
     helper pf typ 0.
-    (* let pf' := helper pf typ 0 in *)
-    (* Std.eval_red pf'. *)
-
-  (** typ is forall x1 ... xn, R t1 t2; pf : typ. Returns (pf', typ')
-      where typ' = forall x1,... xn and pf' : typ'. *)
-  (* Ltac2 sym_pf (pf : constr) (typ : constr) : constr * constr := *)
-  (*   let rec helper pf typ : constr * constr := *)
-  (*     match Constr.Unsafe.kind typ with *)
-  (*     | Constr.Unsafe.Prod b con => *)
-  (*         let name := Constr.Binder.name b in *)
-  (*         let btype := Constr.Binder.type b in *)
-  (*         let pf_term := match name with *)
-  (*                        | Some ident => *)
-  (*                            Constr.in_context ident btype *)
-  (*                              (fun () => let c := Control.hyp ident in exact ($pf $c)) *)
-  (*                        | None => '($pf _) *)
-  (*                        end *)
-  (*         in  *)
-  (*         let (pf', typ') := helper pf_term con in *)
-  (*         (Constr.Unsafe.make (Constr.Unsafe.Lambda b pf'), *)
-  (*           Constr.Unsafe.make (Constr.Unsafe.Prod b typ')) *)
-  (*     | _ => (Message.print (Message.of_constr typ); *)
-  (*           match! typ with *)
-  (*           | ?r ?x ?y => *)
-  (*               (Message.print (Message.of_constr r); *)
-  (*                Message.print (Message.of_constr x); *)
-  (*                Message.print (Message.of_constr y); *)
-  (*                ('(@symmetry _ $r _ $x $y $pf), constr:($r $y $x))) *)
-  (*           end) *)
-  (*     end *)
-  (*   in *)
-  (*   let (pf, typ) := helper pf typ in *)
-  (*   let pf := Constr.Unsafe.check (Std.eval_red pf) in *)
-  (*   let typ := Constr.Unsafe.check typ in *)
-  (*   match pf with *)
-  (*   | Val pf => match typ with *)
-  (*              | Val typ => (pf,typ) *)
-  (*              | Err e => Control.zero e *)
-  (*              end *)
-  (*   | Err e => Control.zero e *)
-  (*   end. *)
 End Symmetry.
-
-(* Ltac2 term_symmetry (t : constr) := *)
-(*   let rec helper t args := *)
-(*     match Constr.Unsafe.kind t with *)
-(*     | Constr.Unsafe.Prod b con => Constr.Unsafe.make (Constr.Unsafe.Prod b (helper con)) *)
-(*     | _ => match! t with *)
-(*           | ?r ?x ?y => *)
-(*               let t1 := constr:($r $y $x) in *)
-(*               let sym := constr:(symmetry (R:=$r) $x $y) in *)
-(*           end  *)
-(*     end *)
-(*   in *)
-(*   match Constr.Unsafe.check (helper t) with *)
-(*   | Val t => t *)
-(*   | Err e => Control.zero e *)
-(*   end. *)
 
 Ltac2 symmetry_lookup (r : constr) := constr:(symmetry (R:=$r)).
       
-(* Ltac2 under_binders (tac : constr -> constr option) (t : constr) := *)
-(*   let t' := tac t in *)
-(*   match t' with *)
-(*   | Some t' => t' *)
-(*   | None => *)
-(*       match Constr.Unsafe.kind t with *)
-(*       | Constr.Unsafe.Lambda b con => t *)
-(*       | _ => t *)
-(*       end *)
-(*   end. *)
-
 From Ltac2 Require Import Printf.
 Ltac2 symmetry0 (cl : Std.clause) : unit :=
   match cl with
@@ -188,14 +121,13 @@ Ltac2 destruct_intro () :=
   | [ |- forall a, _ ] => intro fresh; destruct fresh
   end.
 
-Ltac2 naive
-  () :=
+Ltac2 naive () :=
   repeat (
       first
         [ destruct_intro ()|
           intro|
           progress(simpl in *)|
-          unshelve econstructor|
+          ue|
           reflexivity
         ]
     ).
