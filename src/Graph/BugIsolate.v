@@ -5,6 +5,7 @@
    Modules that could not be inlined: Simplex.Basics.Datatypes_core
    Expected coqc runtime on this file: 0.322 sec *)
 Require Simplex.Basics.Datatypes_core.
+Require Import Simplex.Basics.Eq.
 Require elpi.elpi.
 
 Import Simplex.Basics.Basics.

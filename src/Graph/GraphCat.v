@@ -26,11 +26,11 @@ Canonical GraphCat.
 
 Instance ProductGraph (G1 G2 : Graph.t) : Product G1 G2 (Prod G1 G2).
 Proof.
-  ltac1:(elpi next_valid).
+  unshelve econstructor.
   {
-      ltac1:(elpi next_valid). {
-        ltac1:(elpi next_valid).
-        firstorder.
+    unshelve econstructor. {
+      intro.
+      firstorder.
     }
     ltac1:(elpi next_valid).
     simpl.

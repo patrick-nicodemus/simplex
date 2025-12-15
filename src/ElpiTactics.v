@@ -58,7 +58,6 @@ Elpi Accumulate core_hint.db lp:{{
       pglobal (indt GR) U = Ty',
       coq.env.indt GR _ _ _ _ Ks Kt,
        (Tac = G\ GS\
-        coq.say "hi",
         std.exists2 Ks Kt (k\ t\ sigma P\
            coq.saturate t (pglobal (indc k) U) P,
            unshelve-refine.tac P G GS)).
@@ -67,9 +66,10 @@ Elpi Accumulate core_hint.db lp:{{
 Elpi Tactic next_valid.
 Elpi Accumulate Db core_hint.db. 
 Elpi Accumulate lp:{{ 
-    solve G GL :-
-        applicable _ G Tac,
-        Tac G GL.
+    solve G GL :- 
+        applicable _ G _Tac,
+        refine _ G GL.
+        %Tac G GL.
 }}.
 
 Elpi Tactic naive_nb.
