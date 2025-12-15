@@ -134,3 +134,34 @@ Ltac2 naive () :=
 
 Ltac2 z() := try (exact _).
 Ltac2 Notation "firstorder" := ltac1:(firstorder).
+
+Ltac2 encap () :=
+  unshelve
+    (
+      match! goal with 
+      [|- ?g] =>
+        let pp := open_constr:(let proof := (?[v]:>$g) in ?[w] :> $g) in
+        let pp := eval cbv in $pp in
+        exact $pp
+      end
+    ).
+Ltac2 close () :=
+  let proof := match Control.hyp_value @proof with
+    | Some x => x 
+    | None => Control.zero No_value
+    end 
+  in
+  let proof := eval cbv in $proof in 
+  exact $proof.
+
+Module Test.
+  Lemma bar' (A : Type) ( f : A -> A) : A -> A.
+  Proof.
+    encap (). { 
+      exact (fun x => f x).
+    }
+    change (fun x => f x) with f in proof.
+    close().
+  Defined.
+  (* Print bar'. *)
+End Test.
