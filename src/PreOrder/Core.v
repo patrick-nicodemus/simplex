@@ -63,7 +63,7 @@ Module PreOrder.
   Definition op@{s;u0 u1|} (A : t@{s;u0 u1}) : t@{s;u0 u1}
     := Pack (op_class (class A)).
 
-  Abbreviation compose := transitive.
+  Notation compose := transitive.
 
   Module ForExport.
     Export class_of_exports.
@@ -74,7 +74,7 @@ Module PreOrder.
   End ForExport.
   Module Notations.
     Infix "<=" := Hom (at level 70).
-    Abbreviation IsPreOrder := class_of.
+    Notation IsPreOrder := class_of.
   End Notations.
 End PreOrder.
 Export PreOrder.ForExport.

@@ -27,5 +27,5 @@ Proof.
 Abort.
 
 Module FunctorCat.
-  Abbreviation PreOrder := NatTrans.FunctorPreOrder.
+  Notation PreOrder := NatTrans.FunctorPreOrder.
 End FunctorCat.

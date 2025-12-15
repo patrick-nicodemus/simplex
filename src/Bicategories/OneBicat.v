@@ -46,7 +46,7 @@ Module OneBicat.
           f ⇒ f' -> g ⇒ g' -> f · g ⇒ f' · g'
       }.
   End Class_of.
-  Abbreviation class_of := Class_of.t.
+  Notation class_of := Class_of.t.
   Import Class_of.
 
   Definition co_class@{s;u0 u1 u2|}

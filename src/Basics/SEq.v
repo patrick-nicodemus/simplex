@@ -33,7 +33,7 @@ Class Contractible (A : Type) : SProp :=
 Class IsHProp (A: Type) : SProp
   := is_hprop: forall x y : A, seq x y.
 
-Abbreviation exists_unique := Contractible.
+Notation exists_unique := Contractible.
 
 Notation "∃! A" := (Contractible A) (at level 45).
 
