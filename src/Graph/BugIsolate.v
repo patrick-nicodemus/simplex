@@ -221,46 +221,24 @@ Class Product {C : Category.t} (x y z : C) := {
 Export elpi.elpi.
 
 Elpi Db core_hint.db lp:{{
-    kind tag type.
-% A tag is just a category for a hint.
+    kind tag type. % A tag is just a category for a hint.
     % Instead of having many hint databases, we have one hint database with many tags.
     type core tag.
 % Our replacement for the core auto database.
+    pred mysolve i:goal o:list sealed-goal.
     pred applicable o:tag i:goal o:open-tactic.
 }}.
-Elpi Accumulate core_hint.db lp:{{
-    % If it's a lambda, you can try intro.
-    applicable core (goal _ _ (prod Name Type _)  _ _) (refine (fun Name Type _)).
 
-    % Constructor (global case)
-    applicable core (goal _ _ Ty _ _ ) Tac :-
-      whd Ty [] Ty' _,
-      global (indt GR) = Ty',
-      coq.env.indt GR _ _ _ _ Ks Kt,
-      (Tac = G\ GS\
-        std.exists2 Ks Kt (k\ t\ sigma P\
-           coq.saturate t (global (indc k)) P,
-           unshelve-refine.tac P G GS)).
-
-    % Constructor (pglobal case)
-    applicable core (goal _ _ Ty _ _ ) Tac :-
+Elpi Tactic construc.
+Elpi Accumulate lp:{{
+    solve (goal _ _ Ty _ _ as G) GL :-
       whd Ty [] Ty' _,
       pglobal (indt GR) U = Ty',
       coq.env.indt GR _ _ _ _ Ks Kt,
-       (Tac = G\ GS\
         std.exists2 Ks Kt (k\ t\ sigma P\
            coq.saturate t (pglobal (indc k) U) P,
-           unshelve-refine.tac P G GS)).
-}}.
-
-Elpi Tactic next_valid.
-Elpi Accumulate Db core_hint.db.
-Elpi Accumulate lp:{{
-    solve G GL :-
-        applicable _ G _Tac,
-        refine _ G GL.
-        %Tac G GL.
-}}.
+           refine P G GL).
+ }}.
 
 Instance IsPreOrderGraph : IsPreOrder GraphHom.t.
 Proof.
@@ -286,5 +264,5 @@ Proof.
       intro.
       firstorder.
     }
-    ltac1:(elpi next_valid).
+    ltac1:(elpi construc).
 
