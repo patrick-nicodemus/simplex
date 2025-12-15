@@ -25,12 +25,14 @@ dev-repo: "git+https://github.com/patrick-nicodemus/simplex.git"
 depends:[
   "dune" {>= "3.13"}
   "odoc" {with-doc}
-  coq-core
-  rocq-runtime
-  rocq-core
+  "coq-core"
+  "rocq-runtime" {>= "9.1.0"}
+  "rocq-core" {>= "9.1.0"}
+  "rocq-stdlib" {>= "9.0.0"}
+  "coq-hammer-tactics" {>= "dev"}
 ]
 pin-depends: [
-  ["rocq-runtime.dev" "git+https://github.com/rocq-prover/rocq.git"]
-  ["rocq-core.dev" "git+https://github.com/rocq-prover/rocq.git"]
-  ["coq-core.dev" "git+https://github.com/rocq-prover/rocq.git"]
+  ["rocq-runtime.9.1.0" "git+https://github.com/rocq-prover/rocq.git#V9.1.0"]
+  ["rocq-core.9.1.0" "git+https://github.com/rocq-prover/rocq.git#V9.1.0"]
+  ["coq-core.9.1.0" "git+https://github.com/rocq-prover/rocq.git#V9.1.0"]
 ]

@@ -199,3 +199,6 @@ Ltac2 naive
           reflexivity
         ]
     ).
+
+Ltac2 z() := try (exact _).
+Ltac2 Notation "firstorder" := ltac1:(firstorder).

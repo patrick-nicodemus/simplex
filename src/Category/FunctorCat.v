@@ -7,12 +7,12 @@ From Simplex Require Import
   Basics.Axioms
   PreOrder.Core.
 
-#[refine]
-Instance functor_cat_class_minimal (A : Graph.t) (B : Category.t) {H0:Funext}
-  : Category.class_minimal (@NatTrans.t A B _)
-  := {
-    
-  }.
+
+Instance functor_cat_is_preorder (A : Graph.t) (B : Category.t) {H0:Funext}
+  : IsPreOrder (@NatTrans.t A B _) := {}.
+
+Definition functor_cat_class_minimal (A : Graph.t) (B : Category.t) {H0:Funext}
+  : Category.Of_Preorder.factory (PreOrder.Pack (functor_cat_is_preorder A B)).
 Proof.
   constructor.
   - intros F G H K sig tau rho. simpl in *.

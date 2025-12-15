@@ -35,12 +35,12 @@ Module Bicategory.
 
   Record mixin_of@{u0 u1 u2|+} (A : OneBicat.t@{Type;u0 u1 u2}) := {
       (** 2-cells form a category under vertical composition. *)
-      is_vcat (x y : A) : Category.Mixin.mixin_of (OneBicat.vpreorder x y);
+      is_vcat (x y : A) : Category.Of_Preorder.factory (OneBicat.vpreorder x y);
       (** The vertical category of 2-cells associated to two 0-cells. *)
       vcat (x y : A) :=
-        (@Category.Build _ _ 
-           (Category.Build_class_minimal
-              (is_vcat x y)));
+        @Category.Pack _ _
+        (@Category.Of_Preorder.Builder _ _ _ (is_vcat x y));
+
       (** The left-to-right associator and the right-to-left associator are inverse. *)
       assoc_inv (w x y z : A)
         (f : vcat w x)

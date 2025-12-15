@@ -4,6 +4,11 @@ Declare Scope type_scope.
 Bind Scope type_scope with Sortclass.
 Delimit Scope type_scope with type.
 
+Declare ML Module "rocq-runtime.plugins.cc_core".
+Declare ML Module "rocq-runtime.plugins.cc".
+Declare ML Module "rocq-runtime.plugins.firstorder_core".
+Declare ML Module "rocq-runtime.plugins.firstorder".
+
 #[warnings="-w -notation-overridden"]
 Notation "A -> B" := (forall _ : A, B) (at level 99, B at level 200).
 

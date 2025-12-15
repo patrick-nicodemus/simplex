@@ -41,6 +41,7 @@ Instance eq_sym (A : Type) : Symmetric (eq (A:=A)) :=
     match p in _ = b return b = a with
     | eq_refl _ => eq_refl a
     end.
+Register eq_sym as core.identity.sym.
 
 Definition apd@{u0 u1} [A : Type@{u0}]
   (P : A -> Type@{u1})
@@ -63,6 +64,8 @@ Defined.
 
 Definition f_equal {A B : Type} (f : A -> B) [x y : A] : x = y -> f x = f y
   := fun p => match p with eq_refl _ => eq_refl (f x) end.
+
+Register f_equal as core.identity.f_equal.
 
 Record bijection (A B : Type) :=
   {

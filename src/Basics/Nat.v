@@ -1,6 +1,6 @@
 Require Corelib.Init.Nat.
 Require Corelib.Init.Byte.
-From Simplex Require Import Basics Relations Eq SEq Datatypes_core Datatypes PreOrder.Core Classes SPropEquiv Tactics Induction.
+From Simplex Require Import Basics Relations Eq SEq Datatypes_core Datatypes PreOrder.Core Classes SPropEquiv Tactics.
 From Corelib.Init Require Import Nat.
 
 Require Corelib.Init.Byte.

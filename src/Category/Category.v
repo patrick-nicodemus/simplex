@@ -2,7 +2,8 @@ From Simplex Require Import Basics Eq Graph TwoGraph
                      PreOrder.Core PreOrder.Instances
                      Datatypes_core
                      Graph
-                     OneBicat.
+                     OneBicat
+                     Tactics.
 
 Import Graph.Notations.
 Local Set Implicit Arguments.
@@ -44,48 +45,22 @@ Module Category.
     |}.
   Coercion to_onebicat : Category.t >-> OneBicat.t.
   
-  Module Mixin.
-  Record mixin_of (A : PreOrder.t) := Mixin {
+  Module Of_Preorder.
+  Record factory (A : PreOrder.t) := Factory {
       assoc : forall (w x y z : A) (f : w <= x) (g : x <= y) (h : y <= z),
         ((f · g) · h) = f · (g · h);
       lu : forall (x y : A) (f : x <= y), (1 x · f) = f;
       ru : forall (x y : A) (f : x <= y), (f · 1 y) = f
-     }.
-  End Mixin.
-  Import Mixin.
-
-  Class class_minimal (A : Type) (R : A -> A -> Type) := {
-      is_preorder : PreOrder.class_of R;
-      mixin : mixin_of (PreOrder.Pack is_preorder)
-    }.
-  Module class_minimal_exports.
-    Arguments mixin [A R].
-  End class_minimal_exports.
-  Import class_minimal_exports.
+  }.
   
-  Definition Build (A : Type) (R : A -> A -> Type) (C : class_minimal R) : t.
+  Definition Builder (A : Type) (R : A -> A -> Type) (C : PreOrder.class_of R)
+    (fac : factory (PreOrder.Pack C)) : class_of R.
   Proof.
-    apply (@Pack A R).
-    unshelve econstructor.
-    - apply C.
-    - intros; apply eq_preorder.
-    - intros w x y z f g h; simpl in *.
-      apply couple_sym > [exact _|].
-      apply (assoc (mixin C) _ _ _ _ f g h).
-    - intros x y f; simpl in f.
-      apply couple_sym > [exact _|].
-      apply (lu (mixin C) _ _ f).
-    - intros x y f; simpl in f.
-      apply couple_sym > [exact _|].
-      apply (ru (mixin C) _ _ f).
-    - intros x y z f f' g g' h h'. simpl in h, h' |- *.
-      exact
-        (match h with
-         | eq_refl _ => match h' with
-                       | eq_refl _ => eq_refl _
-                       end
-         end).
+    destruct fac as [assoc0 lu0 ru0].
+    naive(); auto; Control.enter (fun () => symmetry; auto).
   Defined.
+  End Of_Preorder.
+  Import Of_Preorder.
 
   Definition to_graph (A : t) : Graph.t := {|
       Graph.sort := sort A;
@@ -171,7 +146,6 @@ Module Category.
 
   Module Exports.
     Export t_exports.
-    Export class_minimal_exports.
     Export to_graph_exports.
     Export PreOrder_exports.
     Export AreInverseExports.
